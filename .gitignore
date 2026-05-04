@@ -1,0 +1,8 @@
+node_modules
+.svelte-kit
+build
+dist
+.DS_Store
+data/recipes/
+data/index.json
+.superpowers/

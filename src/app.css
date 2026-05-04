@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #F5F2ED;
+  --color-obsidian: #1A1A1A;
+  --color-ochre: #A65D39;
+  --color-juniper: #344E41;
+  --color-drafting: #D1CDC7;
+  --font-serif: "Fraunces", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --radius-sm: 4px;
+}
+
+html, body { background: var(--color-canvas); color: var(--color-obsidian); font-family: var(--font-sans); }
