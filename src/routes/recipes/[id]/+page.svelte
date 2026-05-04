@@ -1,0 +1,63 @@
+<!-- src/routes/recipes/[id]/+page.svelte -->
+<script lang="ts">
+  import BatchGraph from '$lib/ui/BatchGraph.svelte';
+  import BatchDetail from '$lib/ui/BatchDetail.svelte';
+  import OutcomeForm from '$lib/ui/OutcomeForm.svelte';
+  import type { Recipe, Batch } from '$lib/server';
+
+  let { data }: { data: { recipe: Recipe; batches: Batch[] } } = $props();
+
+  let selectedId = $state<string | null>(data.recipe.currentBatchId ?? data.batches[0]?.id ?? null);
+  let cooking = $state<Batch | null>(null);
+
+  const selected = $derived(data.batches.find(b => b.id === selectedId) ?? null);
+
+  function handleMarkCooked() {
+    if (selected && selected.status === 'draft') cooking = selected;
+  }
+</script>
+
+<div class="max-w-7xl mx-auto p-6 flex flex-col gap-4 min-h-screen">
+  <nav class="flex items-center gap-2 text-sm">
+    <a href="/" class="text-obsidian/60 hover:text-obsidian">← All recipes</a>
+  </nav>
+
+  <header class="flex items-end justify-between border-b border-drafting pb-3">
+    <div>
+      <h1 class="font-serif text-3xl">{data.recipe.name}</h1>
+      {#if data.recipe.description}
+        <p class="text-sm text-obsidian/60 mt-1">{data.recipe.description}</p>
+      {/if}
+    </div>
+    {#if data.recipe.tags.length}
+      <div class="flex gap-1.5 text-[10px] uppercase tracking-wider text-obsidian/60">
+        {#each data.recipe.tags as t}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
+      </div>
+    {/if}
+  </header>
+
+  {#if data.batches.length === 0}
+    <div class="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+      <p class="text-sm text-obsidian/60">No batches yet. Record your first one to get started.</p>
+      <a href="/recipes/{data.recipe.id}/new-batch" class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm">+ Record V1</a>
+    </div>
+  {:else}
+    <div class="flex-1 grid grid-cols-[300px_1fr] gap-6 min-h-0">
+      <aside class="border-r border-drafting pr-6 overflow-auto">
+        <h2 class="text-[11px] uppercase tracking-wider text-obsidian/50 mb-3">Batches ({data.batches.length})</h2>
+        <BatchGraph batches={data.batches} {selectedId} onSelect={(id) => selectedId = id} />
+      </aside>
+      <section class="overflow-auto">
+        {#if selected}
+          <BatchDetail recipe={data.recipe} batch={selected} onMarkCooked={handleMarkCooked} />
+        {:else}
+          <p class="text-sm text-obsidian/40">Select a batch to view details.</p>
+        {/if}
+      </section>
+    </div>
+  {/if}
+</div>
+
+{#if cooking}
+  <OutcomeForm batch={cooking} recipeId={data.recipe.id} onClose={() => cooking = null} />
+{/if}
