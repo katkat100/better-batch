@@ -1,0 +1,81 @@
+import { readFile, readdir, rm, mkdir } from 'node:fs/promises';
+import { writeFileAtomic } from './atomic';
+import { batchesDir, batchFile } from './paths';
+import { slugify, uniqueSlug } from '../domain/slug';
+import type { Batch, BatchStatus, Ingredient, VariableValue } from '../domain/types';
+
+export interface CreateBatchInput {
+  label: string;
+  parentIds: string[];
+  status: BatchStatus;
+  variables: Record<string, VariableValue>;
+  ingredients: Ingredient[];
+  steps: string[];
+  outcomeNotes?: string;
+  rating?: 1 | 2 | 3 | 4 | 5 | null;
+  cookedAt?: string | null;
+}
+
+async function existingBatchIds(recipeId: string): Promise<Set<string>> {
+  try {
+    const entries = await readdir(await batchesDir(recipeId));
+    return new Set(entries.filter(f => f.endsWith('.json')).map(f => f.replace(/\.json$/, '')));
+  } catch (err: any) {
+    if (err.code === 'ENOENT') return new Set();
+    throw err;
+  }
+}
+
+function nextVersionNumber(taken: Set<string>): number {
+  let max = 0;
+  for (const id of taken) {
+    const m = id.match(/^v(\d+)/i);
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return max + 1;
+}
+
+export async function createBatch(recipeId: string, input: CreateBatchInput): Promise<Batch> {
+  const taken = await existingBatchIds(recipeId);
+  const v = nextVersionNumber(taken);
+  const baseLabelSlug = slugify(input.label);
+  const id = uniqueSlug(`v${v}-${baseLabelSlug}`, taken);
+  const now = new Date().toISOString();
+  const batch: Batch = {
+    id, recipeId,
+    label: input.label,
+    parentIds: input.parentIds,
+    status: input.status,
+    cookedAt: input.cookedAt ?? null,
+    variables: input.variables,
+    ingredients: input.ingredients,
+    steps: input.steps,
+    outcomeNotes: input.outcomeNotes ?? '',
+    rating: input.rating ?? null,
+    createdAt: now
+  };
+  await mkdir(await batchesDir(recipeId), { recursive: true });
+  await writeFileAtomic(await batchFile(recipeId, id), JSON.stringify(batch, null, 2));
+  return batch;
+}
+
+export async function readBatch(recipeId: string, batchId: string): Promise<Batch> {
+  const raw = await readFile(await batchFile(recipeId, batchId), 'utf8');
+  return JSON.parse(raw) as Batch;
+}
+
+export async function listBatches(recipeId: string): Promise<Batch[]> {
+  const ids = [...(await existingBatchIds(recipeId))];
+  return Promise.all(ids.map(id => readBatch(recipeId, id)));
+}
+
+export async function updateBatch(recipeId: string, batchId: string, patch: Partial<Batch>): Promise<Batch> {
+  const current = await readBatch(recipeId, batchId);
+  const next: Batch = { ...current, ...patch, id: current.id, recipeId: current.recipeId, createdAt: current.createdAt };
+  await writeFileAtomic(await batchFile(recipeId, batchId), JSON.stringify(next, null, 2));
+  return next;
+}
+
+export async function deleteBatch(recipeId: string, batchId: string): Promise<void> {
+  await rm(await batchFile(recipeId, batchId), { force: true });
+}
