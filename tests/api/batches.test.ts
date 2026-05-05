@@ -36,4 +36,43 @@ describe('batches api', () => {
     expect(updated.status).toBe('cooked');
     expect(updated.cookedAt).toBeTruthy();
   });
+
+  it('rejects ingredient changes on a cooked batch (403)', async () => {
+    await recipesPOST({ request: reqJSON({ name: 'A', preset: 'custom', tags: [] }) } as any);
+    const v1 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'initial', parentIds: [], status: 'draft' }) } as any)).json();
+    await onePATCH({ params: { id: 'a', batchId: v1.id }, request: new Request('http://x', { method: 'PATCH', body: JSON.stringify({ status: 'cooked' }), headers: { 'content-type': 'application/json' } }) } as any);
+
+    await expect(
+      onePATCH({ params: { id: 'a', batchId: v1.id }, request: new Request('http://x', { method: 'PATCH', body: JSON.stringify({ ingredients: [{ id: 'salt', name: 'salt', amount: '5', unit: 'g' }] }), headers: { 'content-type': 'application/json' } }) } as any)
+    ).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('allows outcomeNotes/rating patch on a cooked batch', async () => {
+    await recipesPOST({ request: reqJSON({ name: 'A', preset: 'custom', tags: [] }) } as any);
+    const v1 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'initial', parentIds: [], status: 'draft' }) } as any)).json();
+    await onePATCH({ params: { id: 'a', batchId: v1.id }, request: new Request('http://x', { method: 'PATCH', body: JSON.stringify({ status: 'cooked' }), headers: { 'content-type': 'application/json' } }) } as any);
+
+    const updated = await (await onePATCH({ params: { id: 'a', batchId: v1.id }, request: new Request('http://x', { method: 'PATCH', body: JSON.stringify({ outcomeNotes: 'great', rating: 5 }), headers: { 'content-type': 'application/json' } }) } as any)).json();
+    expect(updated.outcomeNotes).toBe('great');
+    expect(updated.rating).toBe(5);
+  });
+
+  it('rejects step.uses with unknown ingredientId (400)', async () => {
+    await recipesPOST({ request: reqJSON({ name: 'A', preset: 'custom', tags: [] }) } as any);
+    const v1 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'initial', parentIds: [], status: 'draft' }) } as any)).json();
+
+    await expect(
+      onePATCH({
+        params: { id: 'a', batchId: v1.id },
+        request: new Request('http://x', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            ingredients: [{ id: 'flour', name: 'flour', amount: '500', unit: 'g' }],
+            steps: [{ text: 'mix', uses: [{ ingredientId: 'ghost', amount: 100 }] }]
+          }),
+          headers: { 'content-type': 'application/json' }
+        })
+      } as any)
+    ).rejects.toMatchObject({ status: 400 });
+  });
 });
