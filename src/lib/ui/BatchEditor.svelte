@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { api } from './api-client';
   import { slugify, uniqueSlug } from '$lib/server';
+  import UsesEditor from './UsesEditor.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
 
   let {
@@ -83,6 +84,8 @@
   }
   function addStep() { steps = [...steps, { text: '', uses: [] }]; }
   function removeStep(i: number) { steps = steps.filter((_, idx) => idx !== i); }
+
+  const allUses = $derived(steps.flatMap(s => s.uses));
 
   function setVariable(name: string, raw: string, type: 'number' | 'text') {
     if (raw === '') { variables = { ...variables, [name]: null }; return; }
@@ -219,16 +222,28 @@
     {/each}
   </fieldset>
 
-  <fieldset class="flex flex-col gap-2">
+  <fieldset class="flex flex-col gap-3">
     <div class="flex items-center justify-between">
       <legend class="text-[11px] uppercase tracking-wider">Steps</legend>
       <button type="button" onclick={addStep} class="text-xs text-ochre">+ Add</button>
     </div>
     {#each steps as step, i (i)}
-      <div class="flex gap-2 items-start">
-        <span class="font-mono text-xs text-obsidian/40 pt-2">{i + 1}.</span>
-        <textarea bind:value={step.text} rows="2" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm resize-none"></textarea>
-        <button type="button" onclick={() => removeStep(i)} class="text-obsidian/40 hover:text-ochre pt-2">×</button>
+      <div class="flex flex-col gap-2 border border-drafting/50 p-3 rounded-sm" data-testid="step-edit-row">
+        <div class="flex gap-2 items-start">
+          <span class="font-mono text-xs text-obsidian/40 pt-2">{i + 1}.</span>
+          <textarea
+            bind:value={step.text}
+            rows="2"
+            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm resize-none"
+            data-testid="step-text"
+          ></textarea>
+          <button type="button" onclick={() => removeStep(i)} class="text-obsidian/40 hover:text-ochre pt-2">×</button>
+        </div>
+        <UsesEditor
+          bind:uses={step.uses}
+          ingredients={ingredients.filter(ing => ing.id && ing.name)}
+          allUses={allUses}
+        />
       </div>
     {/each}
   </fieldset>
