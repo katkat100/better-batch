@@ -214,11 +214,12 @@
     <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
     {#each ingredients as ing, i (i)}
       <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
-        <input bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
-        <input bind:value={ing.unit} placeholder="Unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
+        <input bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" aria-label="Ingredient {i + 1} amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
+        <input bind:value={ing.unit} placeholder="Unit" aria-label="Ingredient {i + 1} unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
         <input
           bind:value={ing.name}
           placeholder="Ingredient"
+          aria-label="Ingredient {i + 1} name"
           class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm"
         />
         <select
@@ -227,6 +228,7 @@
             const val = (e.currentTarget as HTMLSelectElement).value;
             ing.section = val === '__none__' ? undefined : val;
           }}
+          aria-label="Ingredient {i + 1} section"
           class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm w-32"
           data-testid="ingredient-section"
         >
@@ -236,7 +238,7 @@
           {/each}
           <option value="__new__">+ New section…</option>
         </select>
-        <button type="button" onclick={() => removeIngredient(i)} class="text-obsidian/40 hover:text-ochre">×</button>
+        <button type="button" onclick={() => removeIngredient(i)} aria-label="Remove ingredient {i + 1}" class="text-obsidian/40 hover:text-ochre">×</button>
       </div>
     {/each}
     <button
@@ -256,10 +258,11 @@
           <textarea
             bind:value={step.text}
             rows="2"
+            aria-label="Step {i + 1} text"
             class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm resize-none"
             data-testid="step-text"
           ></textarea>
-          <button type="button" onclick={() => removeStep(i)} class="text-obsidian/40 hover:text-ochre pt-2">×</button>
+          <button type="button" onclick={() => removeStep(i)} aria-label="Remove step {i + 1}" class="text-obsidian/40 hover:text-ochre pt-2">×</button>
         </div>
         <UsesEditor
           bind:uses={step.uses}

@@ -11,7 +11,12 @@
   } = $props();
 </script>
 
-<div class="flex gap-1" data-testid="rating">
+<div
+  class="flex gap-1"
+  data-testid="rating"
+  role={editable ? 'group' : 'img'}
+  aria-label={editable ? 'Rate this batch' : (value === null ? 'No rating' : `Rating: ${value} out of 5`)}
+>
   {#each [1, 2, 3, 4, 5] as n}
     {@const filled = value !== null && n <= value}
     {#if editable}
@@ -19,11 +24,12 @@
         type="button"
         onclick={() => onChange(n as 1 | 2 | 3 | 4 | 5)}
         class="text-xl leading-none {filled ? 'text-ochre' : 'text-drafting'} hover:text-ochre"
-        aria-label="Rate {n}"
+        aria-label="Rate {n} of 5"
+        aria-pressed={filled}
         data-testid="rating-{n}"
       >★</button>
     {:else}
-      <span class="text-xl leading-none {filled ? 'text-ochre' : 'text-drafting'}">★</span>
+      <span aria-hidden="true" class="text-xl leading-none {filled ? 'text-ochre' : 'text-drafting'}">★</span>
     {/if}
   {/each}
 </div>

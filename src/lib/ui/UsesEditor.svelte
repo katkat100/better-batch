@@ -111,6 +111,7 @@
           const nextAmount = currentAmount === 0 ? remainingFor(newId, i) : currentAmount;
           uses[i] = { ...uses[i], ingredientId: newId, amount: nextAmount };
         }}
+        aria-label="Ingredient for use {i + 1}"
         class="border border-drafting bg-canvas px-2 py-1 rounded-sm min-w-0"
         data-testid="use-ingredient"
       >
@@ -123,11 +124,12 @@
         bind:value={amountInputs[i]}
         onblur={() => commitAmount(i)}
         placeholder="Amount"
+        aria-label="Amount for use {i + 1}"
         class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-sm font-mono"
         data-testid="use-amount"
       />
       <span class="text-xs text-obsidian/50">{ing?.unit ?? ''}</span>
-      <button type="button" onclick={() => removeUse(i)} class="text-obsidian/40 hover:text-ochre justify-self-center">×</button>
+      <button type="button" onclick={() => removeUse(i)} aria-label="Remove use {i + 1}" class="text-obsidian/40 hover:text-ochre justify-self-center">×</button>
     </div>
   {/each}
 

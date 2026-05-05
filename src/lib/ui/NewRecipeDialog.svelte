@@ -49,14 +49,18 @@
   <div
     class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-50"
     onclick={backdropClick}
-    role="presentation"
+    onkeydown={(e) => e.key === 'Escape' && close()}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="new-recipe-dialog-title"
+    tabindex="-1"
   >
     <form
       onsubmit={submit}
       class="bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm"
       data-testid="new-recipe-dialog"
     >
-      <h2 class="font-serif text-2xl">New Recipe</h2>
+      <h2 id="new-recipe-dialog-title" class="font-serif text-2xl">New Recipe</h2>
 
       <label class="flex flex-col gap-1 text-sm">
         <span class="text-[11px] uppercase tracking-wider">Name</span>

@@ -56,14 +56,18 @@
 <div
   class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-50"
   onclick={backdropClick}
-  role="presentation"
+  onkeydown={(e) => e.key === 'Escape' && onClose()}
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="outcome-form-title"
+  tabindex="-1"
 >
   <form
     onsubmit={submit}
     class="bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm"
     data-testid="outcome-form"
   >
-    <h2 class="font-serif text-xl">
+    <h2 id="outcome-form-title" class="font-serif text-xl">
       {mode === 'edit' ? `Edit outcome for ${batch.label}` : `Mark ${batch.label} as cooked`}
     </h2>
 

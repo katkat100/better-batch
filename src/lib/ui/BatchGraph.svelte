@@ -72,6 +72,8 @@
       class="cursor-pointer"
       role="button"
       tabindex="0"
+      aria-label="Select batch {batch.label} ({batch.status})"
+      aria-pressed={isSelected}
       onclick={() => onSelect(n.id)}
       onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(n.id)}
       data-testid="batch-node"
