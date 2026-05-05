@@ -3,21 +3,25 @@
   import MergePicker from '$lib/ui/MergePicker.svelte';
   import { api } from '$lib/ui/api-client';
   import { goto } from '$app/navigation';
-  import type { Recipe, Batch, VariableValue } from '$lib/server';
+  import type {
+    Recipe, Batch, VariableValue, Ingredient, Step,
+    VariableDiffRow, IngredientDiffRow, StepObjectDiffRow
+  } from '$lib/server';
 
-  let { data }: { data: { recipe: Recipe; a: Batch; b: Batch } } = $props();
+  let { data }: { data: {
+    recipe: Recipe; a: Batch; b: Batch;
+    varRows: VariableDiffRow[]; ingRows: IngredientDiffRow[]; stepRows: StepObjectDiffRow[];
+  } } = $props();
 
   async function handleSubmit(input: {
     label: string;
-    ingredientsFrom: 'a' | 'b';
-    stepsFrom: 'a' | 'b';
     variables: Record<string, VariableValue>;
+    ingredients: Ingredient[];
+    steps: Step[];
   }) {
-    const ingredients = input.ingredientsFrom === 'a' ? data.a.ingredients : data.b.ingredients;
-    const rawSteps = input.stepsFrom === 'a' ? data.a.steps : data.b.steps;
-    // Strip step.uses references to ingredients that don't exist in the chosen ingredient set.
-    const ingredientIds = new Set(ingredients.map(i => i.id));
-    const finalSteps = rawSteps.map(s => ({
+    // Defensive: strip step.uses references to ingredients absent from the chosen set.
+    const ingredientIds = new Set(input.ingredients.map(i => i.id));
+    const finalSteps = input.steps.map(s => ({
       text: s.text,
       uses: s.uses.filter(u => ingredientIds.has(u.ingredientId))
     }));
@@ -27,7 +31,7 @@
       parentIds: [data.a.id, data.b.id],
       status: 'draft',
       variables: input.variables,
-      ingredients,
+      ingredients: input.ingredients,
       steps: finalSteps
     });
     goto(`/recipes/${data.recipe.id}?batch=${batch.id}`);
@@ -39,5 +43,13 @@
     <a href="/recipes/{data.recipe.id}" class="text-obsidian/60 hover:text-obsidian">← {data.recipe.name}</a>
   </nav>
 
-  <MergePicker recipe={data.recipe} a={data.a} b={data.b} onSubmit={handleSubmit} />
+  <MergePicker
+    recipe={data.recipe}
+    a={data.a}
+    b={data.b}
+    varRows={data.varRows}
+    ingRows={data.ingRows}
+    stepRows={data.stepRows}
+    onSubmit={handleSubmit}
+  />
 </div>

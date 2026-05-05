@@ -1,78 +1,110 @@
 <!-- src/lib/ui/MergePicker.svelte -->
 <script lang="ts">
-  import type { Recipe, Batch, VariableValue, VariableSchemaItem } from '$lib/server';
+  import MergeVarRow from './MergeVarRow.svelte';
+  import MergeIngredientRow from './MergeIngredientRow.svelte';
+  import MergeStepRow from './MergeStepRow.svelte';
+  import type {
+    Recipe, Batch, Ingredient, Step, VariableValue,
+    VariableDiffRow, IngredientDiffRow, StepObjectDiffRow
+  } from '$lib/server';
 
   let {
     recipe,
     a,
     b,
+    varRows,
+    ingRows,
+    stepRows,
     onSubmit
   }: {
     recipe: Recipe;
     a: Batch;
     b: Batch;
+    varRows: VariableDiffRow[];
+    ingRows: IngredientDiffRow[];
+    stepRows: StepObjectDiffRow[];
     onSubmit: (input: {
       label: string;
-      ingredientsFrom: 'a' | 'b';
-      stepsFrom: 'a' | 'b';
       variables: Record<string, VariableValue>;
+      ingredients: Ingredient[];
+      steps: Step[];
     }) => Promise<void>;
   } = $props();
 
   type VarPick = { from: 'a' } | { from: 'b' } | { from: 'custom'; value: VariableValue };
+  type IngPick = { action: 'pick-a' | 'pick-b' | 'skip' };
+  type StepPick = { action: 'pick-a' | 'pick-b' | 'skip' };
 
-  function initialPick(item: VariableSchemaItem): VarPick {
-    return { from: 'a' };
-  }
+  // Default: B (newer) wins on conflicts; identical rows pick A by convention.
+  let varPicks = $state<VarPick[]>(varRows.map(r => r.changed ? { from: 'b' } : { from: 'a' }));
+  let ingPicks = $state<IngPick[]>(ingRows.map(r => {
+    if (r.op === 'ctx') return { action: 'pick-a' };
+    if (r.op === 'mod') return { action: 'pick-b' };
+    if (r.op === 'rem') return { action: 'skip' };
+    return { action: 'pick-b' }; // add
+  }));
+  let stepPicks = $state<StepPick[]>(stepRows.map(r => {
+    if (r.op === 'ctx') return { action: 'pick-a' };
+    if (r.op === 'rem') return { action: 'skip' };
+    return { action: 'pick-b' }; // add
+  }));
 
-  let varPicks = $state<Record<string, VarPick>>(
-    Object.fromEntries(recipe.variableSchema.map(s => [s.name, initialPick(s)]))
-  );
-  let ingredientsFrom = $state<'a' | 'b'>('a');
-  let stepsFrom = $state<'a' | 'b'>('a');
   let label = $state(`merge of ${a.label} + ${b.label}`);
   let submitting = $state(false);
   let error = $state<string | null>(null);
 
-  function variableValue(item: VariableSchemaItem, side: 'a' | 'b'): VariableValue {
-    const v = (side === 'a' ? a.variables : b.variables)[item.name];
-    return v ?? null;
-  }
-
-  function resolved(item: VariableSchemaItem): VariableValue {
-    const pick = varPicks[item.name];
-    if (pick.from === 'a') return variableValue(item, 'a');
-    if (pick.from === 'b') return variableValue(item, 'b');
-    return pick.value;
-  }
-
-  function setPick(name: string, pick: VarPick) {
-    varPicks = { ...varPicks, [name]: pick };
-  }
-
-  function setCustom(name: string, raw: string, type: 'number' | 'text') {
-    if (raw === '') { setPick(name, { from: 'custom', value: null }); return; }
-    if (type === 'number') {
-      const n = parseFloat(raw);
-      setPick(name, { from: 'custom', value: Number.isFinite(n) ? n : raw });
-    } else {
-      setPick(name, { from: 'custom', value: raw });
+  // Resolved arrays
+  const resolvedVars = $derived.by<Record<string, VariableValue>>(() => {
+    const out: Record<string, VariableValue> = {};
+    for (const item of recipe.variableSchema) {
+      const idx = varRows.findIndex(r => r.name === item.name);
+      const pick = idx >= 0 ? varPicks[idx] : { from: 'a' as const };
+      out[item.name] = pick.from === 'a'
+        ? (a.variables[item.name] ?? null)
+        : pick.from === 'b'
+        ? (b.variables[item.name] ?? null)
+        : pick.value;
     }
-  }
+    return out;
+  });
 
-  function formatValue(v: VariableValue, unit: string): string {
-    if (v === null || v === undefined) return '—';
-    return unit ? `${v}${unit}` : String(v);
-  }
+  const resolvedIngredients = $derived.by<Ingredient[]>(() => {
+    const out: Ingredient[] = [];
+    for (let i = 0; i < ingRows.length; i++) {
+      const row = ingRows[i];
+      const pick = ingPicks[i];
+      if (row.op === 'ctx') { if (row.a) out.push(row.a); continue; }
+      if (pick.action === 'skip') continue;
+      if (pick.action === 'pick-a' && row.a) out.push(row.a);
+      else if (pick.action === 'pick-b' && row.b) out.push(row.b);
+    }
+    return out;
+  });
+
+  const resolvedSteps = $derived.by<Step[]>(() => {
+    const out: Step[] = [];
+    for (let i = 0; i < stepRows.length; i++) {
+      const row = stepRows[i];
+      const pick = stepPicks[i];
+      if (row.op === 'ctx') { out.push(row.step); continue; }
+      if (pick.action === 'skip') continue;
+      // For rem, pick.action === 'pick-a' means keep; for add, 'pick-b' means add.
+      out.push(row.step);
+    }
+    return out;
+  });
 
   async function submit(e: SubmitEvent) {
     e.preventDefault();
     submitting = true;
     error = null;
     try {
-      const variables: Record<string, VariableValue> = {};
-      for (const item of recipe.variableSchema) variables[item.name] = resolved(item);
-      await onSubmit({ label: label.trim() || `merge of ${a.label} + ${b.label}`, ingredientsFrom, stepsFrom, variables });
+      await onSubmit({
+        label: label.trim() || `merge of ${a.label} + ${b.label}`,
+        variables: resolvedVars,
+        ingredients: resolvedIngredients,
+        steps: resolvedSteps
+      });
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to merge';
     } finally {
@@ -97,91 +129,49 @@
   </label>
 
   {#if recipe.variableSchema.length > 0}
-    <section class="flex flex-col gap-2">
+    <section class="flex flex-col gap-1">
       <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Variables</h3>
-      <table class="w-full text-sm border border-drafting rounded-sm">
-        <thead class="bg-drafting/30 text-[10px] uppercase tracking-wider text-obsidian/60">
-          <tr>
-            <th class="text-left p-2">Variable</th>
-            <th class="text-left p-2">{a.label}</th>
-            <th class="text-left p-2">{b.label}</th>
-            <th class="text-left p-2">Result</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each recipe.variableSchema as item (item.name)}
-            {@const pick = varPicks[item.name]}
-            <tr data-testid="merge-variable-row" data-variable={item.name}>
-              <td class="p-2 text-[11px] uppercase tracking-wider text-obsidian/70">{item.name}</td>
-              <td class="p-2 font-mono">
-                <button
-                  type="button"
-                  onclick={() => setPick(item.name, { from: 'a' })}
-                  class="text-left {pick.from === 'a' ? 'text-ochre font-bold' : 'text-obsidian/60 hover:text-obsidian'}"
-                  data-testid="pick-a"
-                >{formatValue(variableValue(item, 'a'), item.unit)}</button>
-              </td>
-              <td class="p-2 font-mono">
-                <button
-                  type="button"
-                  onclick={() => setPick(item.name, { from: 'b' })}
-                  class="text-left {pick.from === 'b' ? 'text-juniper font-bold' : 'text-obsidian/60 hover:text-obsidian'}"
-                  data-testid="pick-b"
-                >{formatValue(variableValue(item, 'b'), item.unit)}</button>
-              </td>
-              <td class="p-2 font-mono">
-                {#if pick.from === 'custom'}
-                  <input
-                    type="text"
-                    inputmode={item.type === 'number' ? 'decimal' : 'text'}
-                    value={pick.value ?? ''}
-                    oninput={(e) => setCustom(item.name, (e.currentTarget as HTMLInputElement).value, item.type)}
-                    class="border border-drafting bg-canvas px-2 py-1 rounded-sm w-full font-mono text-sm"
-                    data-testid="custom-input"
-                  />
-                {:else}
-                  <span data-testid="result-value">{formatValue(resolved(item), item.unit)}</span>
-                {/if}
-                <button
-                  type="button"
-                  onclick={() => setPick(item.name, { from: 'custom', value: resolved(item) })}
-                  class="text-[10px] uppercase tracking-wider text-obsidian/50 hover:text-ochre ml-2"
-                  data-testid="pick-custom"
-                >custom</button>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+      <div class="grid grid-cols-[110px_1fr_1fr_1fr_auto] gap-3 text-[10px] uppercase tracking-wider text-obsidian/60 px-0 py-1">
+        <span>Variable</span>
+        <span>{a.label}</span>
+        <span>{b.label}</span>
+        <span>Result</span>
+        <span></span>
+      </div>
+      {#each recipe.variableSchema as item, i (item.name)}
+        {@const rowIdx = varRows.findIndex(r => r.name === item.name)}
+        {#if rowIdx >= 0}
+          <MergeVarRow
+            {item}
+            aValue={a.variables[item.name] ?? null}
+            bValue={b.variables[item.name] ?? null}
+            bind:pick={varPicks[rowIdx]}
+            aLabel={a.label}
+            bLabel={b.label}
+          />
+        {/if}
+      {/each}
     </section>
   {/if}
 
-  <section class="flex flex-col gap-2">
-    <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Ingredients</h3>
-    <div class="flex gap-4">
-      <label class="flex items-center gap-2 text-sm">
-        <input type="radio" bind:group={ingredientsFrom} value="a" data-testid="ingredients-from-a" />
-        From {a.label} ({a.ingredients.length} items)
-      </label>
-      <label class="flex items-center gap-2 text-sm">
-        <input type="radio" bind:group={ingredientsFrom} value="b" data-testid="ingredients-from-b" />
-        From {b.label} ({b.ingredients.length} items)
-      </label>
+  <section class="flex flex-col gap-1.5">
+    <div class="flex justify-between items-baseline">
+      <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Ingredients</h3>
+      <span class="text-[10px] text-obsidian/40" data-testid="ingredients-result-count">Result: {resolvedIngredients.length} ingredient{resolvedIngredients.length === 1 ? '' : 's'}</span>
     </div>
+    {#each ingRows as row, i (i)}
+      <MergeIngredientRow {row} bind:pick={ingPicks[i]} />
+    {/each}
   </section>
 
-  <section class="flex flex-col gap-2">
-    <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Steps</h3>
-    <div class="flex gap-4">
-      <label class="flex items-center gap-2 text-sm">
-        <input type="radio" bind:group={stepsFrom} value="a" data-testid="steps-from-a" />
-        From {a.label} ({a.steps.length} steps)
-      </label>
-      <label class="flex items-center gap-2 text-sm">
-        <input type="radio" bind:group={stepsFrom} value="b" data-testid="steps-from-b" />
-        From {b.label} ({b.steps.length} steps)
-      </label>
+  <section class="flex flex-col gap-1.5">
+    <div class="flex justify-between items-baseline">
+      <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Steps</h3>
+      <span class="text-[10px] text-obsidian/40" data-testid="steps-result-count">Result: {resolvedSteps.length} step{resolvedSteps.length === 1 ? '' : 's'}</span>
     </div>
+    {#each stepRows as row, i (i)}
+      <MergeStepRow {row} bind:pick={stepPicks[i]} />
+    {/each}
   </section>
 
   {#if error}
