@@ -6,3 +6,6 @@ dist
 data/recipes/
 data/index.json
 .superpowers/
+test-results/
+playwright-report/
+tests/e2e/.tmp-data/
