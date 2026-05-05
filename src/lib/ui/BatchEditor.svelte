@@ -78,6 +78,8 @@
     }
   });
 
+  const allUses = $derived(steps.flatMap(s => s.uses));
+
   function addIngredient() { ingredients = [...ingredients, { id: '', name: '', amount: '', unit: '' }]; }
   function removeIngredient(i: number) {
     const removedId = ingredients[i].id;
@@ -261,6 +263,7 @@
         <UsesEditor
           bind:uses={step.uses}
           ingredients={ingredients.filter(ing => ing.id && ing.name)}
+          allUses={allUses}
         />
       </div>
     {/each}
