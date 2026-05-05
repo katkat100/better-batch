@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { api } from './api-client';
-  import { slugify, uniqueSlug } from '$lib/server';
+  import { slugify, uniqueSlug } from '$lib/shared/slug';
   import UsesEditor from './UsesEditor.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
 
@@ -65,15 +65,17 @@
     }
   });
 
-  // Assign a stable id to any ingredient that doesn't have one.
-  // Triggered when name input loses focus, or when an ingredient is added without a name yet.
-  function ensureIngredientId(i: number) {
-    const ing = ingredients[i];
-    if (ing.id) return; // already has one — keep it permanent
-    const taken = new Set(ingredients.map(x => x.id).filter(Boolean));
-    const base = slugify(ing.name || 'ingredient');
-    ingredients[i].id = uniqueSlug(base, taken);
-  }
+  // Reactively assign a stable id to any ingredient that has a name but no id yet.
+  // Once assigned, the id is permanent for that row (renaming the ingredient does not change it).
+  $effect(() => {
+    for (let i = 0; i < ingredients.length; i++) {
+      const ing = ingredients[i];
+      if (!ing.id && ing.name && ing.name.trim()) {
+        const taken = new Set(ingredients.map(x => x.id).filter(Boolean));
+        ingredients[i].id = uniqueSlug(slugify(ing.name), taken);
+      }
+    }
+  });
 
   function addIngredient() { ingredients = [...ingredients, { id: '', name: '', amount: '', unit: '' }]; }
   function removeIngredient(i: number) {
@@ -190,7 +192,7 @@
   <fieldset class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
       <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
-      <button type="button" onclick={addIngredient} class="text-xs text-ochre">+ Add</button>
+      <button type="button" onclick={addIngredient} class="text-xs text-ochre" data-testid="add-ingredient-btn">+ Add</button>
     </div>
     {#each ingredients as ing, i (i)}
       <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
@@ -198,7 +200,6 @@
         <input bind:value={ing.unit} placeholder="Unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
         <input
           bind:value={ing.name}
-          onblur={() => ensureIngredientId(i)}
           placeholder="Ingredient"
           class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm"
         />
@@ -225,7 +226,7 @@
   <fieldset class="flex flex-col gap-3">
     <div class="flex items-center justify-between">
       <legend class="text-[11px] uppercase tracking-wider">Steps</legend>
-      <button type="button" onclick={addStep} class="text-xs text-ochre">+ Add</button>
+      <button type="button" onclick={addStep} class="text-xs text-ochre" data-testid="add-step-btn">+ Add</button>
     </div>
     {#each steps as step, i (i)}
       <div class="flex flex-col gap-2 border border-drafting/50 p-3 rounded-sm" data-testid="step-edit-row">

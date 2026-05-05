@@ -1,7 +1,7 @@
 import { readFile, readdir, rm, mkdir } from 'node:fs/promises';
 import { writeFileAtomic } from './atomic';
 import { recipesDir, recipeFile, recipeDir } from './paths';
-import { slugify, uniqueSlug } from '../domain/slug';
+import { slugify, uniqueSlug } from '../../shared/slug';
 import type { Recipe, RecipePreset, VariableSchemaItem } from '../domain/types';
 
 const PRESET_SCHEMAS: Record<RecipePreset, VariableSchemaItem[]> = {
