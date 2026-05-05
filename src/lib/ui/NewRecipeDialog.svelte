@@ -32,18 +32,27 @@
   }
 
   function close() { open = false; error = null; }
+
+  let nameEl = $state<HTMLInputElement | undefined>();
+  $effect(() => {
+    if (open) nameEl?.focus();
+  });
+
+  function backdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) close();
+  }
 </script>
+
+<svelte:window onkeydown={(e) => open && e.key === 'Escape' && close()} />
 
 {#if open}
   <div
     class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-50"
-    onclick={close}
-    onkeydown={(e) => e.key === 'Escape' && close()}
+    onclick={backdropClick}
     role="presentation"
   >
     <form
       onsubmit={submit}
-      onclick={(e) => e.stopPropagation()}
       class="bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm"
       data-testid="new-recipe-dialog"
     >
@@ -52,9 +61,9 @@
       <label class="flex flex-col gap-1 text-sm">
         <span class="text-[11px] uppercase tracking-wider">Name</span>
         <input
+          bind:this={nameEl}
           bind:value={name}
           required
-          autofocus
           class="border border-drafting bg-canvas px-3 py-2 rounded-sm focus:outline-none focus:border-obsidian"
           data-testid="new-recipe-name"
         />

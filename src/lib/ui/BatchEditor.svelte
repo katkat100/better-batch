@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { untrack } from 'svelte';
   import { api } from './api-client';
   import { slugify, uniqueSlug } from '$lib/shared/slug';
   import { parseAmount } from './layout/amount-parse';
@@ -21,29 +22,29 @@
   // Source object — either the parent (create mode) or the batch being edited
   const source = $derived(mode === 'edit' ? existing : parent);
 
-  let label = $state(
+  let label = $state(untrack(() =>
     mode === 'edit' && existing
       ? existing.label
       : (parent ? `from ${parent.label}` : 'initial')
-  );
-  let status = $state<BatchStatus>(
+  ));
+  let status = $state<BatchStatus>(untrack(() =>
     mode === 'edit' && existing ? existing.status : 'draft'
-  );
-  let variables = $state<Record<string, VariableValue>>(
+  ));
+  let variables = $state<Record<string, VariableValue>>(untrack(() =>
     mode === 'edit' && existing
       ? { ...existing.variables }
       : Object.fromEntries(recipe.variableSchema.map(s => [s.name, parent?.variables[s.name] ?? null]))
-  );
-  let ingredients = $state<Ingredient[]>(
+  ));
+  let ingredients = $state<Ingredient[]>(untrack(() =>
     mode === 'edit' && existing
       ? existing.ingredients.map(i => ({ ...i }))
       : (parent ? parent.ingredients.map(i => ({ ...i })) : [])
-  );
-  let steps = $state<Step[]>(
+  ));
+  let steps = $state<Step[]>(untrack(() =>
     mode === 'edit' && existing
       ? existing.steps.map(s => ({ text: s.text, uses: s.uses.map(u => ({ ...u })) }))
       : (parent ? parent.steps.map(s => ({ text: s.text, uses: s.uses.map(u => ({ ...u })) })) : [])
-  );
+  ));
 
   let submitting = $state(false);
   let error = $state<string | null>(null);

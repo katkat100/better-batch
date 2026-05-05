@@ -6,11 +6,12 @@
   import ConfirmDeleteDialog from '$lib/ui/ConfirmDeleteDialog.svelte';
   import { api } from '$lib/ui/api-client';
   import { goto } from '$app/navigation';
+  import { untrack } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
 
   let { data }: { data: { recipe: Recipe; batches: Batch[] } } = $props();
 
-  let selectedId = $state<string | null>(data.recipe.currentBatchId ?? data.batches[0]?.id ?? null);
+  let selectedId = $state<string | null>(untrack(() => data.recipe.currentBatchId ?? data.batches[0]?.id ?? null));
   let cooking = $state<Batch | null>(null);
   let editingOutcome = $state<Batch | null>(null);
 

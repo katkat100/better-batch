@@ -1,5 +1,6 @@
 <!-- src/lib/ui/MergePicker.svelte -->
 <script lang="ts">
+  import { untrack } from 'svelte';
   import MergeVarRow from './MergeVarRow.svelte';
   import MergeIngredientRow from './MergeIngredientRow.svelte';
   import MergeStepRow from './MergeStepRow.svelte';
@@ -36,21 +37,23 @@
   type StepPick = { action: 'pick-a' | 'pick-b' | 'skip' };
 
   // Default: B (newer) wins on conflicts; identical rows pick A by convention.
-  let varPicks = $state<VarPick[]>(varRows.map(r => r.changed ? { from: 'b' } : { from: 'a' }));
-  let ingPicks = $state<IngPick[]>(ingRows.map(r => {
+  let varPicks = $state<VarPick[]>(untrack(() =>
+    varRows.map(r => r.changed ? { from: 'b' } : { from: 'a' })
+  ));
+  let ingPicks = $state<IngPick[]>(untrack(() => ingRows.map(r => {
     if (r.op === 'ctx') return { action: 'pick-a' };
     if (r.op === 'mod') return { action: 'pick-b' };
     if (r.op === 'rem') return { action: 'skip' };
     return { action: 'pick-b' }; // add
-  }));
-  let stepPicks = $state<StepPick[]>(stepRows.map(r => {
+  })));
+  let stepPicks = $state<StepPick[]>(untrack(() => stepRows.map(r => {
     if (r.op === 'ctx') return { action: 'pick-a' };
     if (r.op === 'mod') return { action: 'pick-b' };
     if (r.op === 'rem') return { action: 'skip' };
     return { action: 'pick-b' }; // add
-  }));
+  })));
 
-  let label = $state(`merge of ${a.label} + ${b.label}`);
+  let label = $state(untrack(() => `merge of ${a.label} + ${b.label}`));
   let submitting = $state(false);
   let error = $state<string | null>(null);
 
