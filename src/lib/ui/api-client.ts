@@ -1,4 +1,4 @@
-import type { Recipe, Batch, IndexEntry, RecipePreset, BatchStatus, VariableValue, Ingredient } from '$lib/server';
+import type { Recipe, Batch, IndexEntry, RecipePreset, BatchStatus, VariableValue, Ingredient, Step } from '$lib/server';
 
 async function jsonOrThrow<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -31,7 +31,7 @@ export const api = {
     status: BatchStatus;
     variables: Record<string, VariableValue>;
     ingredients: Ingredient[];
-    steps: string[];
+    steps: Step[];
     outcomeNotes?: string;
     rating?: 1 | 2 | 3 | 4 | 5 | null;
   }): Promise<Batch> {
