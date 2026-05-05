@@ -5,7 +5,9 @@
   import StepsList from './StepsList.svelte';
   import Rating from './Rating.svelte';
   import BatchPickerDropdown from './BatchPickerDropdown.svelte';
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
+  import ConfirmDeleteDialog from './ConfirmDeleteDialog.svelte';
+  import { api } from './api-client';
   import type { Recipe, Batch } from '$lib/server';
 
   let {
@@ -25,6 +27,16 @@
   const cookedDateLabel = $derived(
     batch.cookedAt ? new Date(batch.cookedAt).toLocaleDateString() : null
   );
+
+  const childCount = $derived(batches.filter(b => b.parentIds.includes(batch.id)).length);
+  const canDelete = $derived(childCount === 0);
+
+  let deleteOpen = $state(false);
+
+  async function handleDelete() {
+    await api.deleteBatch(recipe.id, batch.id);
+    await invalidateAll();
+  }
 
   let compareOpen = $state(false);
   let mergeOpen = $state(false);
@@ -109,6 +121,14 @@
           data-testid="edit-outcome-btn"
         >Edit Outcome</button>
       {/if}
+      <button
+        type="button"
+        onclick={() => deleteOpen = true}
+        disabled={!canDelete}
+        title={canDelete ? '' : `Delete child batches first (${childCount} child${childCount === 1 ? '' : 'ren'})`}
+        class="border border-ochre text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas disabled:opacity-40 disabled:cursor-not-allowed rounded-sm"
+        data-testid="delete-batch-btn"
+      >Delete</button>
     </div>
   </header>
 
@@ -142,3 +162,12 @@
     </section>
   {/if}
 </article>
+
+<ConfirmDeleteDialog
+  bind:open={deleteOpen}
+  title="Delete {batch.id}?"
+  body="Permanently deletes this batch. This can't be undone."
+  confirmLabel="Delete Batch"
+  mode="simple"
+  onConfirm={handleDelete}
+/>

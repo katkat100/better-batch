@@ -3,6 +3,9 @@
   import BatchGraph from '$lib/ui/BatchGraph.svelte';
   import BatchDetail from '$lib/ui/BatchDetail.svelte';
   import OutcomeForm from '$lib/ui/OutcomeForm.svelte';
+  import ConfirmDeleteDialog from '$lib/ui/ConfirmDeleteDialog.svelte';
+  import { api } from '$lib/ui/api-client';
+  import { goto } from '$app/navigation';
   import type { Recipe, Batch } from '$lib/server';
 
   let { data }: { data: { recipe: Recipe; batches: Batch[] } } = $props();
@@ -19,6 +22,13 @@
   function handleEditOutcome() {
     if (selected && selected.status === 'cooked') editingOutcome = selected;
   }
+
+  let deleteDialogOpen = $state(false);
+
+  async function handleDeleteRecipe() {
+    await api.deleteRecipe(data.recipe.id);
+    goto('/');
+  }
 </script>
 
 <div class="max-w-7xl mx-auto p-6 flex flex-col gap-4 min-h-screen">
@@ -33,11 +43,19 @@
         <p class="text-sm text-obsidian/60 mt-1">{data.recipe.description}</p>
       {/if}
     </div>
-    {#if data.recipe.tags.length}
-      <div class="flex gap-1.5 text-[10px] uppercase tracking-wider text-obsidian/60">
-        {#each data.recipe.tags as t}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
-      </div>
-    {/if}
+    <div class="flex items-end gap-3">
+      {#if data.recipe.tags.length}
+        <div class="flex gap-1.5 text-[10px] uppercase tracking-wider text-obsidian/60">
+          {#each data.recipe.tags as t}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
+        </div>
+      {/if}
+      <button
+        type="button"
+        onclick={() => deleteDialogOpen = true}
+        class="border border-ochre text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
+        data-testid="delete-recipe-btn"
+      >Delete Recipe</button>
+    </div>
   </header>
 
   {#if data.batches.length === 0}
@@ -74,3 +92,13 @@
 {#if editingOutcome}
   <OutcomeForm batch={editingOutcome} recipeId={data.recipe.id} mode="edit" onClose={() => editingOutcome = null} />
 {/if}
+
+<ConfirmDeleteDialog
+  bind:open={deleteDialogOpen}
+  title="Delete {data.recipe.name}?"
+  body="This permanently deletes the recipe and all {data.batches.length} batch{data.batches.length === 1 ? '' : 'es'}. This can't be undone. Type the recipe name to confirm."
+  confirmLabel="Delete Recipe"
+  mode="typed"
+  typedMatch={data.recipe.name}
+  onConfirm={handleDeleteRecipe}
+/>

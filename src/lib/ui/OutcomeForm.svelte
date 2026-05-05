@@ -57,6 +57,13 @@
       {mode === 'edit' ? `Edit outcome for ${batch.id}` : `Mark ${batch.id} as cooked`}
     </h2>
 
+    {#if mode === 'cook'}
+      <div class="border border-ochre bg-ochre/10 text-ochre p-3 rounded-sm text-sm" data-testid="cook-warning">
+        <strong class="block">This will freeze the batch.</strong>
+        <span class="opacity-90">Only outcome notes and rating will remain editable. Use Cancel to keep the batch as a draft.</span>
+      </div>
+    {/if}
+
     <label class="flex flex-col gap-1 text-sm">
       <span class="text-[11px] uppercase tracking-wider">Outcome notes</span>
       <textarea
