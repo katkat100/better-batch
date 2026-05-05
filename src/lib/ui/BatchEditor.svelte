@@ -45,6 +45,24 @@
   let submitting = $state(false);
   let error = $state<string | null>(null);
 
+  const sectionOptions = $derived.by<string[]>(() => {
+    const set = new Set<string>();
+    for (const ing of ingredients) {
+      if (ing.section && ing.section.trim()) set.add(ing.section.trim());
+    }
+    return [...set];
+  });
+
+  // When user picks "+ New section…", prompt for a name and apply it.
+  $effect(() => {
+    for (let i = 0; i < ingredients.length; i++) {
+      if (ingredients[i].section === '__new__') {
+        const name = window.prompt('New section name:');
+        ingredients[i].section = name && name.trim() ? name.trim() : undefined;
+      }
+    }
+  });
+
   function addIngredient() { ingredients = [...ingredients, { id: '', name: '', amount: '', unit: '' }]; }
   function removeIngredient(i: number) {
     const removedId = ingredients[i].id;
@@ -160,11 +178,26 @@
       <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
       <button type="button" onclick={addIngredient} class="text-xs text-ochre">+ Add</button>
     </div>
-    {#each ingredients as ing, i}
-      <div class="flex gap-2 items-center">
+    {#each ingredients as ing, i (i)}
+      <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
         <input bind:value={ing.amount} placeholder="Amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
         <input bind:value={ing.unit} placeholder="Unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
         <input bind:value={ing.name} placeholder="Ingredient" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm" />
+        <select
+          value={ing.section ?? '__none__'}
+          onchange={(e) => {
+            const val = (e.currentTarget as HTMLSelectElement).value;
+            ing.section = val === '__none__' ? undefined : val;
+          }}
+          class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm w-32"
+          data-testid="ingredient-section"
+        >
+          <option value="__none__">(no section)</option>
+          {#each sectionOptions as sec}
+            <option value={sec}>{sec}</option>
+          {/each}
+          <option value="__new__">+ New section…</option>
+        </select>
         <button type="button" onclick={() => removeIngredient(i)} class="text-obsidian/40 hover:text-ochre">×</button>
       </div>
     {/each}
