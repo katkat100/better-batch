@@ -210,10 +210,7 @@
   {/if}
 
   <fieldset class="flex flex-col gap-2">
-    <div class="flex items-center justify-between">
-      <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
-      <button type="button" onclick={addIngredient} class="text-xs text-ochre" data-testid="add-ingredient-btn">+ Add</button>
-    </div>
+    <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
     {#each ingredients as ing, i (i)}
       <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
         <input bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
@@ -241,13 +238,16 @@
         <button type="button" onclick={() => removeIngredient(i)} class="text-obsidian/40 hover:text-ochre">×</button>
       </div>
     {/each}
+    <button
+      type="button"
+      onclick={addIngredient}
+      class="border border-dashed border-drafting hover:border-ochre text-ochre text-xs uppercase tracking-wider py-2 rounded-sm transition-colors"
+      data-testid="add-ingredient-btn"
+    >+ Add Ingredient</button>
   </fieldset>
 
   <fieldset class="flex flex-col gap-3">
-    <div class="flex items-center justify-between">
-      <legend class="text-[11px] uppercase tracking-wider">Steps</legend>
-      <button type="button" onclick={addStep} class="text-xs text-ochre" data-testid="add-step-btn">+ Add</button>
-    </div>
+    <legend class="text-[11px] uppercase tracking-wider">Steps</legend>
     {#each steps as step, i (i)}
       <div class="flex flex-col gap-2 border border-drafting/50 p-3 rounded-sm" data-testid="step-edit-row">
         <div class="flex gap-2 items-start">
@@ -267,6 +267,12 @@
         />
       </div>
     {/each}
+    <button
+      type="button"
+      onclick={addStep}
+      class="border border-dashed border-drafting hover:border-ochre text-ochre text-xs uppercase tracking-wider py-2 rounded-sm transition-colors"
+      data-testid="add-step-btn"
+    >+ Add Step</button>
   </fieldset>
 
   {#if error}

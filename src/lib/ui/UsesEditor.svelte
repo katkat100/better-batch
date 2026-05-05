@@ -98,10 +98,7 @@
 </script>
 
 <div class="flex flex-col gap-1.5 ml-6 border-l border-drafting pl-3 mt-1">
-  <div class="flex items-center justify-between">
-    <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Ingredients used</span>
-    <button type="button" onclick={addUse} class="text-xs text-ochre" disabled={ingredients.length === 0} data-testid="add-use-btn">+ Add</button>
-  </div>
+  <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Ingredients used</span>
   {#each uses as use, i (i)}
     {@const ing = ingredientById(use.ingredientId)}
     <div class="flex gap-2 items-center text-sm" data-testid="use-row">
@@ -133,6 +130,14 @@
       <button type="button" onclick={() => removeUse(i)} class="text-obsidian/40 hover:text-ochre">×</button>
     </div>
   {/each}
+
+  <button
+    type="button"
+    onclick={addUse}
+    disabled={ingredients.length === 0}
+    class="border border-dashed border-drafting hover:border-ochre text-ochre text-[10px] uppercase tracking-wider py-1.5 rounded-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+    data-testid="add-use-btn"
+  >+ Add Ingredient Use</button>
 
   {#if uses.length > 0 && ingredients.length > 0}
     <div class="text-[10px] text-obsidian/50 mt-1 flex flex-wrap gap-x-3">
