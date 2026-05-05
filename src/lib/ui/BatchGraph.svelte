@@ -15,7 +15,7 @@
   const COL_WIDTH = 110;
   const ROW_HEIGHT = 80;
   const NODE_R = 9;
-  const PAD = 24;
+  const PAD = 60;        // left/right pad large enough to fit centered labels at the edge cols
   const LABEL_MAX = 14;
   const LABEL_OFFSET_Y = NODE_R + 16;
 
@@ -24,7 +24,7 @@
   const nodeById = $derived(new Map(layout.nodes.map(n => [n.id, n] as const)));
 
   const svgWidth = $derived(layout.width + PAD * 2);
-  const svgHeight = $derived(layout.height + PAD * 2 + LABEL_OFFSET_Y);
+  const svgHeight = $derived(layout.height + PAD + LABEL_OFFSET_Y);
 
   function truncate(text: string, max = LABEL_MAX): string {
     return text.length > max ? text.slice(0, max - 1) + '…' : text;
@@ -48,7 +48,7 @@
   }
 </script>
 
-<svg width={svgWidth} height={svgHeight} viewBox="0 0 {svgWidth} {svgHeight}" class="block">
+<svg viewBox="0 0 {svgWidth} {svgHeight}" preserveAspectRatio="xMidYMin meet" class="block w-full h-auto overflow-visible">
   <!-- edges -->
   {#each layout.edges as e}
     {@const from = nodeById.get(e.from)}
