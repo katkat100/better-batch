@@ -9,11 +9,13 @@
   let {
     recipe,
     batch,
-    onMarkCooked = () => {}
+    onMarkCooked = () => {},
+    onEditOutcome = () => {}
   }: {
     recipe: Recipe;
     batch: Batch;
     onMarkCooked?: () => void;
+    onEditOutcome?: () => void;
   } = $props();
 
   const cookedDateLabel = $derived(
@@ -41,12 +43,24 @@
         data-testid="new-batch-btn"
       >+ New Batch</a>
       {#if batch.status === 'draft'}
+        <a
+          href="/recipes/{recipe.id}/batches/{batch.id}/edit"
+          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+          data-testid="edit-batch-btn"
+        >Edit</a>
         <button
           type="button"
           onclick={onMarkCooked}
           class="border border-juniper text-juniper px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-juniper hover:text-canvas rounded-sm"
           data-testid="mark-cooked-btn"
         >Mark as Cooked</button>
+      {:else if batch.status === 'cooked'}
+        <button
+          type="button"
+          onclick={onEditOutcome}
+          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+          data-testid="edit-outcome-btn"
+        >Edit Outcome</button>
       {/if}
     </div>
   </header>
@@ -66,7 +80,7 @@
 
   <section class="flex flex-col gap-2">
     <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Steps</h3>
-    <StepsList steps={batch.steps} />
+    <StepsList steps={batch.steps} ingredients={batch.ingredients} />
   </section>
 
   {#if batch.status === 'cooked'}

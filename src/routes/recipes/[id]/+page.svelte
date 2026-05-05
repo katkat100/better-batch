@@ -9,11 +9,15 @@
 
   let selectedId = $state<string | null>(data.recipe.currentBatchId ?? data.batches[0]?.id ?? null);
   let cooking = $state<Batch | null>(null);
+  let editingOutcome = $state<Batch | null>(null);
 
   const selected = $derived(data.batches.find(b => b.id === selectedId) ?? null);
 
   function handleMarkCooked() {
     if (selected && selected.status === 'draft') cooking = selected;
+  }
+  function handleEditOutcome() {
+    if (selected && selected.status === 'cooked') editingOutcome = selected;
   }
 </script>
 
@@ -49,7 +53,7 @@
       </aside>
       <section class="overflow-auto">
         {#if selected}
-          <BatchDetail recipe={data.recipe} batch={selected} onMarkCooked={handleMarkCooked} />
+          <BatchDetail recipe={data.recipe} batch={selected} onMarkCooked={handleMarkCooked} onEditOutcome={handleEditOutcome} />
         {:else}
           <p class="text-sm text-obsidian/40">Select a batch to view details.</p>
         {/if}
@@ -59,5 +63,8 @@
 </div>
 
 {#if cooking}
-  <OutcomeForm batch={cooking} recipeId={data.recipe.id} onClose={() => cooking = null} />
+  <OutcomeForm batch={cooking} recipeId={data.recipe.id} mode="cook" onClose={() => cooking = null} />
+{/if}
+{#if editingOutcome}
+  <OutcomeForm batch={editingOutcome} recipeId={data.recipe.id} mode="edit" onClose={() => editingOutcome = null} />
 {/if}
