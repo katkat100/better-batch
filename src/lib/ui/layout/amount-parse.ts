@@ -22,7 +22,23 @@ export function parseAmount(input: string): number | null {
   }
 
   // Plain number: "50", "0.5"
-  const n = parseFloat(trimmed);
-  if (Number.isFinite(n) && /^-?\d*\.?\d+$/.test(trimmed)) return n;
+  if (/^-?\d*\.?\d+$/.test(trimmed)) {
+    const n = parseFloat(trimmed);
+    if (Number.isFinite(n)) return n;
+  }
+
+  // Arithmetic expression: "397 + 100", "(1+2)*3", "100/2 + 50"
+  // Allow only digits, whitespace, decimal points, +, -, *, /, (, )
+  if (/^[\d\s+\-*/().]+$/.test(trimmed)) {
+    try {
+      // Function constructor with sanitized input — safe because we've restricted the charset
+      const fn = new Function(`"use strict"; return (${trimmed});`);
+      const result = fn();
+      if (typeof result === 'number' && Number.isFinite(result)) return result;
+    } catch {
+      // fall through
+    }
+  }
+
   return null;
 }

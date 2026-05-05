@@ -24,10 +24,20 @@ describe('parseAmount', () => {
     expect(parseAmount(' 1/2 ')).toBe(0.5);
   });
 
+  it('evaluates arithmetic expressions', () => {
+    expect(parseAmount('397 + 100')).toBe(497);
+    expect(parseAmount('100-25')).toBe(75);
+    expect(parseAmount('2*3')).toBe(6);
+    expect(parseAmount('(1+2)*3')).toBe(9);
+    expect(parseAmount('100/2 + 50')).toBe(100);
+  });
+
   it('returns null for invalid input', () => {
     expect(parseAmount('')).toBe(null);
     expect(parseAmount('abc')).toBe(null);
     expect(parseAmount('1/0')).toBe(null);
     expect(parseAmount('1/')).toBe(null);
+    expect(parseAmount('alert(1)')).toBe(null);  // no identifiers
+    expect(parseAmount('5 + abc')).toBe(null);
   });
 });

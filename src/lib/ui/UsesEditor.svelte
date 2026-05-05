@@ -5,12 +5,10 @@
 
   let {
     ingredients,
-    uses = $bindable([]),
-    allUses = []
+    uses = $bindable([])
   }: {
     ingredients: Ingredient[];
     uses?: IngredientUse[];
-    allUses?: IngredientUse[];      // sum across ALL steps, used for the live allocation indicator
   } = $props();
 
   // Map ingredientId → master amount (numeric, may be NaN for non-numeric master amounts)
@@ -18,10 +16,10 @@
     ingredients.map(i => [i.id, parseAmount(i.amount) ?? NaN] as const)
   ));
 
-  // Sum across all steps (passed in as allUses) for the live indicator
+  // Sum within THIS step, per ingredient
   const allocated = $derived.by(() => {
     const m = new Map<string, number>();
-    for (const u of allUses) m.set(u.ingredientId, (m.get(u.ingredientId) ?? 0) + u.amount);
+    for (const u of uses) m.set(u.ingredientId, (m.get(u.ingredientId) ?? 0) + u.amount);
     return m;
   });
 

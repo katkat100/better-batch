@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { api } from './api-client';
   import { slugify, uniqueSlug } from '$lib/shared/slug';
+  import { parseAmount } from './layout/amount-parse';
   import UsesEditor from './UsesEditor.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
 
@@ -87,8 +88,6 @@
   function addStep() { steps = [...steps, { text: '', uses: [] }]; }
   function removeStep(i: number) { steps = steps.filter((_, idx) => idx !== i); }
 
-  const allUses = $derived(steps.flatMap(s => s.uses));
-
   function setVariable(name: string, raw: string, type: 'number' | 'text') {
     if (raw === '') { variables = { ...variables, [name]: null }; return; }
     if (type === 'number') {
@@ -96,6 +95,24 @@
       variables = { ...variables, [name]: Number.isFinite(n) ? n : raw };
     } else {
       variables = { ...variables, [name]: raw };
+    }
+  }
+
+  // On blur of a number-type variable, eval arithmetic expressions and replace input.
+  function evalVariableOnBlur(name: string, type: 'number' | 'text', el: HTMLInputElement) {
+    if (type !== 'number') return;
+    const evaluated = parseAmount(el.value);
+    if (evaluated !== null && String(evaluated) !== el.value.trim()) {
+      el.value = String(evaluated);
+      variables = { ...variables, [name]: evaluated };
+    }
+  }
+
+  // On blur of an ingredient amount input, eval arithmetic expressions and update.
+  function evalIngredientAmountOnBlur(i: number) {
+    const evaluated = parseAmount(ingredients[i].amount);
+    if (evaluated !== null && String(evaluated) !== ingredients[i].amount.trim()) {
+      ingredients[i].amount = String(evaluated);
     }
   }
 
@@ -176,10 +193,11 @@
           <label class="flex flex-col gap-1 text-sm">
             <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{schema.name} {schema.unit && `(${schema.unit})`}</span>
             <input
-              type={schema.type === 'number' ? 'number' : 'text'}
-              step={schema.type === 'number' ? 'any' : undefined}
+              type="text"
+              inputmode={schema.type === 'number' ? 'decimal' : 'text'}
               value={current ?? ''}
               oninput={(e) => setVariable(schema.name, (e.currentTarget as HTMLInputElement).value, schema.type)}
+              onblur={(e) => evalVariableOnBlur(schema.name, schema.type, e.currentTarget as HTMLInputElement)}
               class="border border-drafting bg-canvas px-3 py-2 rounded-sm"
               data-testid="var-{schema.name}"
             />
@@ -196,7 +214,7 @@
     </div>
     {#each ingredients as ing, i (i)}
       <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
-        <input bind:value={ing.amount} placeholder="Amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
+        <input bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
         <input bind:value={ing.unit} placeholder="Unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
         <input
           bind:value={ing.name}
@@ -243,7 +261,6 @@
         <UsesEditor
           bind:uses={step.uses}
           ingredients={ingredients.filter(ing => ing.id && ing.name)}
-          allUses={allUses}
         />
       </div>
     {/each}
