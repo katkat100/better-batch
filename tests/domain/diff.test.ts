@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { variableDiff, textArrayDiff, ingredientDiff, stepTextDiff } from '../../src/lib/server/domain/diff';
+import { variableDiff, textArrayDiff, ingredientDiff, stepTextDiff, stepObjectDiff } from '../../src/lib/server/domain/diff';
 import type { VariableSchemaItem, Ingredient, Step } from '../../src/lib/server/domain/types';
 
 const schema: VariableSchemaItem[] = [
@@ -91,5 +91,48 @@ describe('stepTextDiff', () => {
       { op: 'add', text: 'rise long' },
       { op: 'ctx', text: 'bake' }
     ]);
+  });
+});
+
+describe('stepObjectDiff', () => {
+  const s = (text: string, uses: { ingredientId: string; amount: number }[] = []): Step => ({ text, uses });
+
+  it('marks identical steps as ctx and preserves uses', () => {
+    const a = [s('mix', [{ ingredientId: 'flour', amount: 100 }])];
+    const b = [s('mix', [{ ingredientId: 'flour', amount: 100 }])];
+    const rows = stepObjectDiff(a, b);
+    expect(rows).toEqual([{ op: 'ctx', step: a[0] }]);
+  });
+
+  it('marks A-only steps as rem with full step object', () => {
+    const a = [s('one', [{ ingredientId: 'flour', amount: 50 }])];
+    const b: Step[] = [];
+    const rows = stepObjectDiff(a, b);
+    expect(rows).toEqual([{ op: 'rem', step: a[0] }]);
+  });
+
+  it('marks B-only steps as add with full step object', () => {
+    const a: Step[] = [];
+    const b = [s('two', [{ ingredientId: 'salt', amount: 5 }])];
+    const rows = stepObjectDiff(a, b);
+    expect(rows).toEqual([{ op: 'add', step: b[0] }]);
+  });
+
+  it('aligns inserted steps in B without misaligning later ones', () => {
+    const a = [s('mix'), s('bake')];
+    const b = [s('mix'), s('rise'), s('bake')];
+    const rows = stepObjectDiff(a, b);
+    expect(rows.map(r => [r.op, r.step.text])).toEqual([
+      ['ctx', 'mix'],
+      ['add', 'rise'],
+      ['ctx', 'bake']
+    ]);
+  });
+
+  it('different uses with same text are still ctx (text-only matching)', () => {
+    const a = [s('mix', [{ ingredientId: 'flour', amount: 100 }])];
+    const b = [s('mix', [{ ingredientId: 'flour', amount: 50 }])];
+    const rows = stepObjectDiff(a, b);
+    expect(rows).toEqual([{ op: 'ctx', step: a[0] }]);
   });
 });

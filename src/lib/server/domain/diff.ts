@@ -85,3 +85,32 @@ export function ingredientDiff(a: Ingredient[], b: Ingredient[]): IngredientDiff
 export function stepTextDiff(a: Step[], b: Step[]): DiffLine[] {
   return textArrayDiff(a.map(s => s.text), b.map(s => s.text));
 }
+
+export type StepObjectDiffOp = 'ctx' | 'add' | 'rem';
+export interface StepObjectDiffRow {
+  op: StepObjectDiffOp;
+  step: Step;
+}
+
+export function stepObjectDiff(a: Step[], b: Step[]): StepObjectDiffRow[] {
+  const n = a.length;
+  const m = b.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      dp[i][j] = a[i - 1].text === b[j - 1].text
+        ? dp[i - 1][j - 1] + 1
+        : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  const out: StepObjectDiffRow[] = [];
+  let i = n, j = m;
+  while (i > 0 && j > 0) {
+    if (a[i - 1].text === b[j - 1].text) { out.push({ op: 'ctx', step: a[i - 1] }); i--; j--; }
+    else if (dp[i - 1][j] > dp[i][j - 1]) { out.push({ op: 'rem', step: a[i - 1] }); i--; }
+    else { out.push({ op: 'add', step: b[j - 1] }); j--; }
+  }
+  while (i > 0) { out.push({ op: 'rem', step: a[i - 1] }); i--; }
+  while (j > 0) { out.push({ op: 'add', step: b[j - 1] }); j--; }
+  return out.reverse();
+}
