@@ -25,9 +25,21 @@ export interface Recipe {
 export type BatchStatus = 'draft' | 'cooked' | 'archived';
 
 export interface Ingredient {
+  id: string;
   name: string;
   amount: string;                   // free text, e.g. "500" or "1/2"
   unit: string;                     // e.g. "g", "tsp"
+  section?: string;
+}
+
+export interface IngredientUse {
+  ingredientId: string;
+  amount: number;
+}
+
+export interface Step {
+  text: string;
+  uses: IngredientUse[];
 }
 
 export interface Batch {
@@ -39,7 +51,7 @@ export interface Batch {
   cookedAt: string | null;
   variables: Record<string, VariableValue>;
   ingredients: Ingredient[];
-  steps: string[];
+  steps: Step[];
   outcomeNotes: string;
   rating: 1 | 2 | 3 | 4 | 5 | null;
   createdAt: string;

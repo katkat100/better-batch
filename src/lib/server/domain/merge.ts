@@ -1,4 +1,4 @@
-import type { Batch, Ingredient, VariableValue } from './types';
+import type { Batch, Ingredient, Step, VariableValue } from './types';
 
 export type FieldSource =
   | { from: 'a' }
@@ -14,7 +14,7 @@ export interface MergePicks {
 export interface MergeResult {
   variables: Record<string, VariableValue>;
   ingredients: Ingredient[];
-  steps: string[];
+  steps: Step[];
 }
 
 function pickValue<T>(a: T, b: T, src: FieldSource): T {

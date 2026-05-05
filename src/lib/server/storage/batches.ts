@@ -2,7 +2,7 @@ import { readFile, readdir, rm, mkdir } from 'node:fs/promises';
 import { writeFileAtomic } from './atomic';
 import { batchesDir, batchFile } from './paths';
 import { slugify, uniqueSlug } from '../domain/slug';
-import type { Batch, BatchStatus, Ingredient, VariableValue } from '../domain/types';
+import type { Batch, BatchStatus, Ingredient, IngredientUse, VariableValue, Step } from '../domain/types';
 
 export interface CreateBatchInput {
   label: string;
@@ -10,7 +10,7 @@ export interface CreateBatchInput {
   status: BatchStatus;
   variables: Record<string, VariableValue>;
   ingredients: Ingredient[];
-  steps: string[];
+  steps: Step[];
   outcomeNotes?: string;
   rating?: 1 | 2 | 3 | 4 | 5 | null;
   cookedAt?: string | null;
@@ -59,9 +59,37 @@ export async function createBatch(recipeId: string, input: CreateBatchInput): Pr
   return batch;
 }
 
+interface LegacyIngredient { id?: string; name: string; amount: string; unit: string; section?: string; }
+type RawStep = string | { text: string; uses?: IngredientUse[] };
+
+function migrateBatchOnRead(raw: any): Batch {
+  // Ingredients: ensure id, leave section as-is (undefined if absent)
+  const taken = new Set<string>();
+  const ingredients: Ingredient[] = (raw.ingredients ?? []).map((ing: LegacyIngredient) => {
+    let id = ing.id;
+    if (!id) {
+      id = uniqueSlug(slugify(ing.name || 'ingredient'), taken);
+    }
+    taken.add(id);
+    return { id, name: ing.name, amount: ing.amount, unit: ing.unit, section: ing.section };
+  });
+
+  // Steps: string → { text, uses: [] }; object passes through (with empty uses default)
+  const steps: Step[] = (raw.steps ?? []).map((s: RawStep) => {
+    if (typeof s === 'string') return { text: s, uses: [] };
+    return { text: s.text, uses: s.uses ?? [] };
+  });
+
+  return {
+    ...raw,
+    ingredients,
+    steps
+  } as Batch;
+}
+
 export async function readBatch(recipeId: string, batchId: string): Promise<Batch> {
-  const raw = await readFile(await batchFile(recipeId, batchId), 'utf8');
-  return JSON.parse(raw) as Batch;
+  const raw = JSON.parse(await readFile(await batchFile(recipeId, batchId), 'utf8'));
+  return migrateBatchOnRead(raw);
 }
 
 export async function listBatches(recipeId: string): Promise<Batch[]> {
