@@ -1,6 +1,9 @@
 // src/routes/recipes/[id]/merge/+page.server.ts
 import { error } from '@sveltejs/kit';
-import { readRecipe, readBatch } from '$lib/server';
+import {
+  readRecipe, readBatch,
+  variableDiff, ingredientDiff, stepObjectDiff
+} from '$lib/server';
 
 export async function load({ params, url }) {
   const aId = url.searchParams.get('a');
@@ -17,5 +20,9 @@ export async function load({ params, url }) {
     throw err;
   }
 
-  return { recipe, a, b };
+  const varRows = variableDiff(recipe.variableSchema, a.variables, b.variables);
+  const ingRows = ingredientDiff(a.ingredients, b.ingredients);
+  const stepRows = stepObjectDiff(a.steps, b.steps);
+
+  return { recipe, a, b, varRows, ingRows, stepRows };
 }
