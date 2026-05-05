@@ -12,18 +12,23 @@
     onSelect?: (id: string) => void;
   } = $props();
 
-  const COL_WIDTH = 60;
-  const ROW_HEIGHT = 56;
+  const COL_WIDTH = 110;
+  const ROW_HEIGHT = 80;
   const NODE_R = 9;
   const PAD = 24;
-  const LABEL_GUTTER = 140; // right-side space reserved for batch id labels
+  const LABEL_MAX = 14;
+  const LABEL_OFFSET_Y = NODE_R + 16;
 
   const layout = $derived<Layout>(layoutGraph(batches, { colWidth: COL_WIDTH, rowHeight: ROW_HEIGHT }));
   const byId = $derived(new Map(batches.map(b => [b.id, b] as const)));
   const nodeById = $derived(new Map(layout.nodes.map(n => [n.id, n] as const)));
 
-  const svgWidth = $derived(layout.width + PAD * 2 + LABEL_GUTTER);
-  const svgHeight = $derived(layout.height + PAD * 2);
+  const svgWidth = $derived(layout.width + PAD * 2);
+  const svgHeight = $derived(layout.height + PAD * 2 + LABEL_OFFSET_Y);
+
+  function truncate(text: string, max = LABEL_MAX): string {
+    return text.length > max ? text.slice(0, max - 1) + '…' : text;
+  }
 
   function curve(fromX: number, fromY: number, toX: number, toY: number): string {
     const midY = (fromY + toY) / 2;
@@ -82,12 +87,13 @@
         stroke-width="1.5"
       />
       <text
-        x={NODE_R + 6}
-        y="4"
+        x="0"
+        y={LABEL_OFFSET_Y}
+        text-anchor="middle"
         font-family="var(--font-sans)"
         font-size="11"
         fill="var(--color-obsidian)"
-      >{batch.label}</text>
+      >{truncate(batch.label)}<title>{batch.label}</title></text>
     </g>
   {/each}
 </svg>

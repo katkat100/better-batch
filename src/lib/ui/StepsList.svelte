@@ -17,11 +17,11 @@
         <div class="flex-1 flex flex-col gap-1">
           <span>{step.text}</span>
           {#if step.uses.length > 0}
-            <div class="text-xs font-mono text-obsidian/60" data-testid="step-uses">
+            <div class="flex flex-col gap-0.5 text-xs font-mono text-obsidian/60" data-testid="step-uses">
               {#each step.uses as use, ui (ui)}
                 {@const ing = ingredientById.get(use.ingredientId)}
                 {#if ing}
-                  <span>{use.amount}{ing.unit ? ing.unit : ''} {ing.name}</span>{#if ui < step.uses.length - 1}<span class="text-drafting"> · </span>{/if}
+                  <span>{use.amount}{ing.unit ? ing.unit : ''} {ing.name}</span>
                 {/if}
               {/each}
             </div>
