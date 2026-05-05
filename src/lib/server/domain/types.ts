@@ -49,6 +49,7 @@ export interface Batch {
   parentIds: string[];              // 0 = root, 1 = normal, 2 = merge
   status: BatchStatus;
   cookedAt: string | null;
+  cookDurationMs?: number;               // ms elapsed during first-cook session
   variables: Record<string, VariableValue>;
   ingredients: Ingredient[];
   steps: Step[];
