@@ -30,7 +30,7 @@
   );
   let ingredientsFrom = $state<'a' | 'b'>('a');
   let stepsFrom = $state<'a' | 'b'>('a');
-  let label = $state(`merge of ${a.id} + ${b.id}`);
+  let label = $state(`merge of ${a.label} + ${b.label}`);
   let submitting = $state(false);
   let error = $state<string | null>(null);
 
@@ -72,7 +72,7 @@
     try {
       const variables: Record<string, VariableValue> = {};
       for (const item of recipe.variableSchema) variables[item.name] = resolved(item);
-      await onSubmit({ label: label.trim() || `merge of ${a.id} + ${b.id}`, ingredientsFrom, stepsFrom, variables });
+      await onSubmit({ label: label.trim() || `merge of ${a.label} + ${b.label}`, ingredientsFrom, stepsFrom, variables });
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to merge';
     } finally {
@@ -84,11 +84,11 @@
 <form onsubmit={submit} class="flex flex-col gap-6" data-testid="merge-picker">
   <header class="flex items-center gap-3 border-b border-drafting pb-3">
     <h1 class="font-serif text-2xl">Merge</h1>
-    <span class="text-sm font-mono px-2 py-0.5 border border-ochre text-ochre rounded-sm">{a.id}</span>
+    <span class="text-sm px-2 py-0.5 border border-ochre text-ochre rounded-sm">{a.label}</span>
     <span class="text-obsidian/40">+</span>
-    <span class="text-sm font-mono px-2 py-0.5 border border-juniper text-juniper rounded-sm">{b.id}</span>
+    <span class="text-sm px-2 py-0.5 border border-juniper text-juniper rounded-sm">{b.label}</span>
     <span class="text-obsidian/40">→</span>
-    <span class="text-sm font-mono px-2 py-0.5 border border-obsidian rounded-sm">new batch</span>
+    <span class="text-sm px-2 py-0.5 border border-obsidian rounded-sm">new batch</span>
   </header>
 
   <label class="flex flex-col gap-1 text-sm">
@@ -103,8 +103,8 @@
         <thead class="bg-drafting/30 text-[10px] uppercase tracking-wider text-obsidian/60">
           <tr>
             <th class="text-left p-2">Variable</th>
-            <th class="text-left p-2">{a.id}</th>
-            <th class="text-left p-2">{b.id}</th>
+            <th class="text-left p-2">{a.label}</th>
+            <th class="text-left p-2">{b.label}</th>
             <th class="text-left p-2">Result</th>
           </tr>
         </thead>
@@ -161,11 +161,11 @@
     <div class="flex gap-4">
       <label class="flex items-center gap-2 text-sm">
         <input type="radio" bind:group={ingredientsFrom} value="a" data-testid="ingredients-from-a" />
-        From {a.id} ({a.ingredients.length} items)
+        From {a.label} ({a.ingredients.length} items)
       </label>
       <label class="flex items-center gap-2 text-sm">
         <input type="radio" bind:group={ingredientsFrom} value="b" data-testid="ingredients-from-b" />
-        From {b.id} ({b.ingredients.length} items)
+        From {b.label} ({b.ingredients.length} items)
       </label>
     </div>
   </section>
@@ -175,11 +175,11 @@
     <div class="flex gap-4">
       <label class="flex items-center gap-2 text-sm">
         <input type="radio" bind:group={stepsFrom} value="a" data-testid="steps-from-a" />
-        From {a.id} ({a.steps.length} steps)
+        From {a.label} ({a.steps.length} steps)
       </label>
       <label class="flex items-center gap-2 text-sm">
         <input type="radio" bind:group={stepsFrom} value="b" data-testid="steps-from-b" />
-        From {b.id} ({b.steps.length} steps)
+        From {b.label} ({b.steps.length} steps)
       </label>
     </div>
   </section>

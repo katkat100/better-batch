@@ -46,8 +46,7 @@
                 data-testid="batch-pick-option"
                 data-batch-id={candidate.id}
               >
-                <span class="font-mono text-xs">{candidate.id}</span>
-                <span class="text-obsidian/60 truncate">{candidate.label}</span>
+                <span class="truncate">{candidate.label}</span>
                 {#if candidate.status === 'cooked'}
                   <span class="ml-auto text-[10px] uppercase text-juniper">cooked</span>
                 {/if}

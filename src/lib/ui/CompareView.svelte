@@ -25,15 +25,15 @@
 <article class="flex flex-col gap-6" data-testid="compare-view">
   <header class="flex items-center gap-3 border-b border-drafting pb-3">
     <h2 class="font-serif text-2xl">Compare</h2>
-    <span class="text-sm font-mono px-2 py-0.5 border border-ochre text-ochre rounded-sm">{a.id}</span>
+    <span class="text-sm px-2 py-0.5 border border-ochre text-ochre rounded-sm">{a.label}</span>
     <span class="text-obsidian/40">↔</span>
-    <span class="text-sm font-mono px-2 py-0.5 border border-juniper text-juniper rounded-sm">{b.id}</span>
+    <span class="text-sm px-2 py-0.5 border border-juniper text-juniper rounded-sm">{b.label}</span>
   </header>
 
   {#if recipe.variableSchema.length > 0}
     <section class="flex flex-col gap-2">
       <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Variables</h3>
-      <VariableDiffTable rows={varRows} aLabel={a.id} bLabel={b.id} />
+      <VariableDiffTable rows={varRows} aLabel={a.label} bLabel={b.label} />
     </section>
   {/if}
 

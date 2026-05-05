@@ -59,8 +59,7 @@
 <article class="flex flex-col gap-5" data-testid="batch-detail" data-batch-id={batch.id}>
   <header class="flex items-start justify-between border-b border-drafting pb-3">
     <div>
-      <h2 class="font-serif text-2xl">{batch.id}</h2>
-      <p class="text-sm text-obsidian/60">{batch.label}</p>
+      <h2 class="font-serif text-2xl">{batch.label}</h2>
       {#if batch.status === 'cooked' && cookedDateLabel}
         <p class="text-[11px] uppercase tracking-wider text-juniper mt-1">Cooked {cookedDateLabel}</p>
       {:else if batch.status === 'draft'}
@@ -186,7 +185,7 @@
 
 <ConfirmDeleteDialog
   bind:open={deleteOpen}
-  title="Delete {batch.id}?"
+  title="Delete {batch.label}?"
   body="Permanently deletes this batch. This can't be undone."
   confirmLabel="Delete Batch"
   mode="simple"

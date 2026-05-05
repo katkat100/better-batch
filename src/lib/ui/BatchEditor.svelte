@@ -24,7 +24,7 @@
   let label = $state(
     mode === 'edit' && existing
       ? existing.label
-      : (parent ? `from ${parent.id}` : 'initial')
+      : (parent ? `from ${parent.label}` : 'initial')
   );
   let status = $state<BatchStatus>(
     mode === 'edit' && existing ? existing.status : 'draft'
@@ -163,9 +163,9 @@
   <header class="flex flex-col gap-1">
     <h1 class="font-serif text-2xl">
       {#if mode === 'edit'}
-        Edit {existing?.id}
+        Edit {existing?.label}
       {:else if parent}
-        New batch from {parent.id}
+        New batch from {parent.label}
       {:else}
         Record V1
       {/if}

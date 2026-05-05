@@ -87,7 +87,7 @@
         font-family="var(--font-sans)"
         font-size="11"
         fill="var(--color-obsidian)"
-      >{batch.id}</text>
+      >{batch.label}</text>
     </g>
   {/each}
 </svg>

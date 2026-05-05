@@ -54,7 +54,7 @@
     data-testid="outcome-form"
   >
     <h2 class="font-serif text-xl">
-      {mode === 'edit' ? `Edit outcome for ${batch.id}` : `Mark ${batch.id} as cooked`}
+      {mode === 'edit' ? `Edit outcome for ${batch.label}` : `Mark ${batch.label} as cooked`}
     </h2>
 
     {#if mode === 'cook'}
