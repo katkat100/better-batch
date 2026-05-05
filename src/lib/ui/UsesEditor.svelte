@@ -35,10 +35,14 @@
     uses = uses.filter((_, idx) => idx !== i);
   }
 
-  // Local input strings so the user can type "1/2" without immediately collapsing to 0.5
+  // Local input strings so the user can type "1/2" without immediately collapsing to 0.5.
+  // Sync length to uses.length without reading amountInputs (avoids self-triggering effect).
   let amountInputs = $state<string[]>([]);
   $effect(() => {
-    amountInputs = uses.map((u, i) => amountInputs[i] ?? String(u.amount));
+    if (amountInputs.length !== uses.length) {
+      const next = uses.map((u, i) => amountInputs[i] ?? String(u.amount));
+      amountInputs = next;
+    }
   });
 
   function commitAmount(i: number) {
