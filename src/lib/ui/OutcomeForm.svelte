@@ -8,10 +8,12 @@
   let {
     batch,
     recipeId,
+    mode = 'cook',
     onClose
   }: {
     batch: Batch;
     recipeId: string;
+    mode?: 'cook' | 'edit';
     onClose: () => void;
   } = $props();
 
@@ -25,11 +27,10 @@
     submitting = true;
     error = null;
     try {
-      await api.patchBatch(recipeId, batch.id, {
-        status: 'cooked',
-        outcomeNotes,
-        rating
-      });
+      // In cook mode flip to cooked; in edit mode keep status as-is
+      const patch: Partial<Batch> = { outcomeNotes, rating };
+      if (mode === 'cook') patch.status = 'cooked';
+      await api.patchBatch(recipeId, batch.id, patch);
       await invalidateAll();
       onClose();
     } catch (err) {
@@ -52,7 +53,9 @@
     class="bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm"
     data-testid="outcome-form"
   >
-    <h2 class="font-serif text-xl">Mark {batch.id} as cooked</h2>
+    <h2 class="font-serif text-xl">
+      {mode === 'edit' ? `Edit outcome for ${batch.id}` : `Mark ${batch.id} as cooked`}
+    </h2>
 
     <label class="flex flex-col gap-1 text-sm">
       <span class="text-[11px] uppercase tracking-wider">Outcome notes</span>
@@ -82,7 +85,7 @@
         disabled={submitting}
         class="border border-juniper text-juniper px-4 py-2 text-sm uppercase tracking-wider hover:bg-juniper hover:text-canvas disabled:opacity-50 rounded-sm"
         data-testid="outcome-submit"
-      >{submitting ? 'Saving…' : 'Archive Batch'}</button>
+      >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save' : 'Archive Batch')}</button>
     </div>
   </form>
 </div>

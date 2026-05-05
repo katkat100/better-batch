@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { api } from './api-client';
+  import { slugify, uniqueSlug } from '$lib/server';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
 
   let {
@@ -62,6 +63,16 @@
       }
     }
   });
+
+  // Assign a stable id to any ingredient that doesn't have one.
+  // Triggered when name input loses focus, or when an ingredient is added without a name yet.
+  function ensureIngredientId(i: number) {
+    const ing = ingredients[i];
+    if (ing.id) return; // already has one — keep it permanent
+    const taken = new Set(ingredients.map(x => x.id).filter(Boolean));
+    const base = slugify(ing.name || 'ingredient');
+    ingredients[i].id = uniqueSlug(base, taken);
+  }
 
   function addIngredient() { ingredients = [...ingredients, { id: '', name: '', amount: '', unit: '' }]; }
   function removeIngredient(i: number) {
@@ -182,7 +193,12 @@
       <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
         <input bind:value={ing.amount} placeholder="Amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
         <input bind:value={ing.unit} placeholder="Unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
-        <input bind:value={ing.name} placeholder="Ingredient" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm" />
+        <input
+          bind:value={ing.name}
+          onblur={() => ensureIngredientId(i)}
+          placeholder="Ingredient"
+          class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm"
+        />
         <select
           value={ing.section ?? '__none__'}
           onchange={(e) => {
