@@ -4,16 +4,20 @@
   import IngredientList from './IngredientList.svelte';
   import StepsList from './StepsList.svelte';
   import Rating from './Rating.svelte';
+  import BatchPickerDropdown from './BatchPickerDropdown.svelte';
+  import { goto } from '$app/navigation';
   import type { Recipe, Batch } from '$lib/server';
 
   let {
     recipe,
     batch,
+    batches,
     onMarkCooked = () => {},
     onEditOutcome = () => {}
   }: {
     recipe: Recipe;
     batch: Batch;
+    batches: Batch[];
     onMarkCooked?: () => void;
     onEditOutcome?: () => void;
   } = $props();
@@ -21,6 +25,16 @@
   const cookedDateLabel = $derived(
     batch.cookedAt ? new Date(batch.cookedAt).toLocaleDateString() : null
   );
+
+  let compareOpen = $state(false);
+  let mergeOpen = $state(false);
+
+  function handleCompareWith(otherId: string) {
+    goto(`/recipes/${recipe.id}/compare?a=${batch.id}&b=${otherId}`);
+  }
+  function handleMergeWith(otherId: string) {
+    goto(`/recipes/${recipe.id}/merge?a=${batch.id}&b=${otherId}`);
+  }
 </script>
 
 <article class="flex flex-col gap-5" data-testid="batch-detail" data-batch-id={batch.id}>
@@ -36,12 +50,45 @@
         <p class="text-[11px] uppercase tracking-wider text-obsidian/40 mt-1">Archived</p>
       {/if}
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 items-start">
       <a
         href="/recipes/{recipe.id}/new-batch?from={batch.id}"
         class="border border-ochre text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
         data-testid="new-batch-btn"
       >+ New Batch</a>
+
+      <div class="relative">
+        <button
+          type="button"
+          onclick={() => { compareOpen = !compareOpen; mergeOpen = false; }}
+          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+          data-testid="compare-btn"
+        >Compare with…</button>
+        <BatchPickerDropdown
+          label="Compare with"
+          candidates={batches}
+          excludeId={batch.id}
+          bind:open={compareOpen}
+          onPick={handleCompareWith}
+        />
+      </div>
+
+      <div class="relative">
+        <button
+          type="button"
+          onclick={() => { mergeOpen = !mergeOpen; compareOpen = false; }}
+          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+          data-testid="merge-btn"
+        >Merge with…</button>
+        <BatchPickerDropdown
+          label="Merge with"
+          candidates={batches}
+          excludeId={batch.id}
+          bind:open={mergeOpen}
+          onPick={handleMergeWith}
+        />
+      </div>
+
       {#if batch.status === 'draft'}
         <a
           href="/recipes/{recipe.id}/batches/{batch.id}/edit"

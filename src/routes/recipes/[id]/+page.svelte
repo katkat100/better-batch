@@ -53,7 +53,13 @@
       </aside>
       <section class="overflow-auto">
         {#if selected}
-          <BatchDetail recipe={data.recipe} batch={selected} onMarkCooked={handleMarkCooked} onEditOutcome={handleEditOutcome} />
+          <BatchDetail
+              recipe={data.recipe}
+              batch={selected}
+              batches={data.batches}
+              onMarkCooked={handleMarkCooked}
+              onEditOutcome={handleEditOutcome}
+            />
         {:else}
           <p class="text-sm text-obsidian/40">Select a batch to view details.</p>
         {/if}
