@@ -48,7 +48,7 @@
   }
 </script>
 
-<svg viewBox="0 0 {svgWidth} {svgHeight}" preserveAspectRatio="xMidYMin meet" class="block w-full h-auto overflow-visible">
+<svg width={svgWidth} height={svgHeight} viewBox="0 0 {svgWidth} {svgHeight}" class="block overflow-visible">
   <!-- edges -->
   {#each layout.edges as e}
     {@const from = nodeById.get(e.from)}
