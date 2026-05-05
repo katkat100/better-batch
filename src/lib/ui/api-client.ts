@@ -48,5 +48,21 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(patch)
     }));
+  },
+
+  async deleteRecipe(id: string): Promise<void> {
+    const res = await fetch(`/api/recipes/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`${res.status} ${res.statusText}: ${body}`);
+    }
+  },
+
+  async deleteBatch(recipeId: string, batchId: string): Promise<void> {
+    const res = await fetch(`/api/recipes/${recipeId}/batches/${batchId}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`${res.status} ${res.statusText}: ${body}`);
+    }
   }
 };
