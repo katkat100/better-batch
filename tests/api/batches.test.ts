@@ -75,4 +75,43 @@ describe('batches api', () => {
       } as any)
     ).rejects.toMatchObject({ status: 400 });
   });
+
+  it('rejects DELETE when batch has children (409)', async () => {
+    await recipesPOST({ request: reqJSON({ name: 'A', preset: 'custom', tags: [] }) } as any);
+    const v1 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'initial', parentIds: [], status: 'draft' }) } as any)).json();
+    await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'tweak', parentIds: [v1.id], status: 'draft' }) } as any);
+
+    const { DELETE: oneDELETE } = await import('../../src/routes/api/recipes/[id]/batches/[batchId]/+server');
+    await expect(
+      oneDELETE({ params: { id: 'a', batchId: v1.id } } as any)
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it('clears recipe.currentBatchId when the deleted batch was current', async () => {
+    await recipesPOST({ request: reqJSON({ name: 'A', preset: 'custom', tags: [] }) } as any);
+    const v1 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'initial', parentIds: [], status: 'draft' }) } as any)).json();
+
+    const { readRecipe } = await import('../../src/lib/server/storage/recipes');
+    const before = await readRecipe('a');
+    expect(before.currentBatchId).toBe(v1.id); // POST batch sets currentBatchId
+
+    const { DELETE: oneDELETE } = await import('../../src/routes/api/recipes/[id]/batches/[batchId]/+server');
+    await oneDELETE({ params: { id: 'a', batchId: v1.id } } as any);
+
+    const after = await readRecipe('a');
+    expect(after.currentBatchId).toBe(null);
+  });
+
+  it('preserves currentBatchId when deleting a different batch', async () => {
+    await recipesPOST({ request: reqJSON({ name: 'A', preset: 'custom', tags: [] }) } as any);
+    const v1 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'one', parentIds: [], status: 'draft' }) } as any)).json();
+    const v2 = await (await listPOST({ params: { id: 'a' }, request: reqJSON({ label: 'two', parentIds: [], status: 'draft' }) } as any)).json();
+    const { readRecipe } = await import('../../src/lib/server/storage/recipes');
+    expect((await readRecipe('a')).currentBatchId).toBe(v2.id);
+
+    const { DELETE: oneDELETE } = await import('../../src/routes/api/recipes/[id]/batches/[batchId]/+server');
+    await oneDELETE({ params: { id: 'a', batchId: v1.id } } as any);
+
+    expect((await readRecipe('a')).currentBatchId).toBe(v2.id);
+  });
 });

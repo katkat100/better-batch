@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { readBatch, updateBatch, deleteBatch, rebuildIndex } from '../../../../../../lib/server/index.js';
+import { readBatch, updateBatch, deleteBatch, rebuildIndex, listBatches, readRecipe, updateRecipe } from '../../../../../../lib/server/index.js';
 import type { Batch, Step } from '../../../../../../lib/server/index.js';
 
 const FROZEN_FIELDS = new Set(['ingredients', 'steps', 'variables', 'label', 'parentIds']);
@@ -44,7 +44,25 @@ export async function PATCH({ params, request }: { params: { id: string; batchId
 }
 
 export async function DELETE({ params }: { params: { id: string; batchId: string } }) {
+  const all = await listBatches(params.id);
+  const hasChildren = all.some(b => b.parentIds.includes(params.batchId));
+  if (hasChildren) {
+    const n = all.filter(b => b.parentIds.includes(params.batchId)).length;
+    throw error(409, `Cannot delete: ${n} child batch${n === 1 ? '' : 'es'} reference this one`);
+  }
+
   await deleteBatch(params.id, params.batchId);
+
+  // Clear currentBatchId if it pointed at the deleted batch
+  try {
+    const recipe = await readRecipe(params.id);
+    if (recipe.currentBatchId === params.batchId) {
+      await updateRecipe(params.id, { currentBatchId: null });
+    }
+  } catch (err: any) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+
   await rebuildIndex();
   return new Response(null, { status: 204 });
 }
