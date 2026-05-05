@@ -101,7 +101,7 @@
   <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Ingredients used</span>
   {#each uses as use, i (i)}
     {@const ing = ingredientById(use.ingredientId)}
-    <div class="flex gap-2 items-center text-sm" data-testid="use-row">
+    <div class="grid grid-cols-[1fr_6rem_2rem_1.5rem] gap-2 items-center text-sm" data-testid="use-row">
       <select
         value={use.ingredientId}
         onchange={(e) => {
@@ -111,7 +111,7 @@
           const nextAmount = currentAmount === 0 ? remainingFor(newId, i) : currentAmount;
           uses[i] = { ...uses[i], ingredientId: newId, amount: nextAmount };
         }}
-        class="border border-drafting bg-canvas px-2 py-1 rounded-sm flex-1"
+        class="border border-drafting bg-canvas px-2 py-1 rounded-sm min-w-0"
         data-testid="use-ingredient"
       >
         {#each ingredients as candidate (candidate.id)}
@@ -123,11 +123,11 @@
         bind:value={amountInputs[i]}
         onblur={() => commitAmount(i)}
         placeholder="Amount"
-        class="border border-drafting bg-canvas px-2 py-1 rounded-sm w-24 text-sm font-mono"
+        class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-sm font-mono"
         data-testid="use-amount"
       />
-      <span class="text-xs text-obsidian/50 min-w-[24px]">{ing?.unit ?? ''}</span>
-      <button type="button" onclick={() => removeUse(i)} class="text-obsidian/40 hover:text-ochre">×</button>
+      <span class="text-xs text-obsidian/50">{ing?.unit ?? ''}</span>
+      <button type="button" onclick={() => removeUse(i)} class="text-obsidian/40 hover:text-ochre justify-self-center">×</button>
     </div>
   {/each}
 

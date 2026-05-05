@@ -16,12 +16,13 @@
   const ROW_HEIGHT = 56;
   const NODE_R = 9;
   const PAD = 24;
+  const LABEL_GUTTER = 140; // right-side space reserved for batch id labels
 
   const layout = $derived<Layout>(layoutGraph(batches, { colWidth: COL_WIDTH, rowHeight: ROW_HEIGHT }));
   const byId = $derived(new Map(batches.map(b => [b.id, b] as const)));
   const nodeById = $derived(new Map(layout.nodes.map(n => [n.id, n] as const)));
 
-  const svgWidth = $derived(layout.width + PAD * 2);
+  const svgWidth = $derived(layout.width + PAD * 2 + LABEL_GUTTER);
   const svgHeight = $derived(layout.height + PAD * 2);
 
   function curve(fromX: number, fromY: number, toX: number, toY: number): string {

@@ -30,7 +30,8 @@ test('compare two batches and merge them', async ({ page }) => {
   await page.getByTestId('batch-submit').click();
   await expect(page.getByTestId('batch-detail')).toBeVisible();
 
-  // From the recipe page, click Compare with…
+  // From the recipe page, open the … menu and click Compare with…
+  await page.getByTestId('more-actions-btn').click();
   await page.getByTestId('compare-btn').click();
   await expect(page.getByTestId('batch-picker')).toBeVisible();
   await page.getByTestId('batch-pick-option').first().click();
@@ -43,6 +44,7 @@ test('compare two batches and merge them', async ({ page }) => {
 
   // Go back and merge
   await page.goto('/recipes/sourdough-cmp');
+  await page.getByTestId('more-actions-btn').click();
   await page.getByTestId('merge-btn').click();
   await expect(page.getByTestId('batch-picker')).toBeVisible();
   await page.getByTestId('batch-pick-option').first().click();

@@ -25,14 +25,16 @@ test('delete batch (with children check) and delete recipe (typed confirm)', asy
   await page.getByTestId('batch-submit').click();
   await expect(page.getByTestId('batch-detail')).toBeVisible();
 
-  // Select V1 (has a child) by clicking the V1 node in the SVG graph.
-  // dispatchEvent works around Playwright's pointer-interception check on SVG
-  // <g> elements inside overflow-auto containers and reliably fires Svelte's onclick.
+  // Select V1 (has a child) — open the … menu and verify Delete is disabled.
   await page.locator('[data-batch-id^="v1-"]').first().dispatchEvent('click');
+  await page.getByTestId('more-actions-btn').click();
   await expect(page.getByTestId('delete-batch-btn')).toBeDisabled();
+  // Close the menu (clicking the … button again toggles closed)
+  await page.getByTestId('more-actions-btn').click();
 
-  // Select V2 (the leaf)
+  // Select V2 (the leaf) and confirm Delete is now enabled
   await page.locator('[data-batch-id^="v2-"]').first().dispatchEvent('click');
+  await page.getByTestId('more-actions-btn').click();
   await expect(page.getByTestId('delete-batch-btn')).toBeEnabled();
 
   // Delete V2 via simple confirm

@@ -40,12 +40,19 @@
 
   let compareOpen = $state(false);
   let mergeOpen = $state(false);
+  let moreOpen = $state(false);
 
   function handleCompareWith(otherId: string) {
     goto(`/recipes/${recipe.id}/compare?a=${batch.id}&b=${otherId}`);
   }
   function handleMergeWith(otherId: string) {
     goto(`/recipes/${recipe.id}/merge?a=${batch.id}&b=${otherId}`);
+  }
+
+  function closeAllMenus() {
+    moreOpen = false;
+    compareOpen = false;
+    mergeOpen = false;
   }
 </script>
 
@@ -69,44 +76,7 @@
         data-testid="new-batch-btn"
       >+ New Batch</a>
 
-      <div class="relative">
-        <button
-          type="button"
-          onclick={() => { compareOpen = !compareOpen; mergeOpen = false; }}
-          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
-          data-testid="compare-btn"
-        >Compare with…</button>
-        <BatchPickerDropdown
-          label="Compare with"
-          candidates={batches}
-          excludeId={batch.id}
-          bind:open={compareOpen}
-          onPick={handleCompareWith}
-        />
-      </div>
-
-      <div class="relative">
-        <button
-          type="button"
-          onclick={() => { mergeOpen = !mergeOpen; compareOpen = false; }}
-          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
-          data-testid="merge-btn"
-        >Merge with…</button>
-        <BatchPickerDropdown
-          label="Merge with"
-          candidates={batches}
-          excludeId={batch.id}
-          bind:open={mergeOpen}
-          onPick={handleMergeWith}
-        />
-      </div>
-
       {#if batch.status === 'draft'}
-        <a
-          href="/recipes/{recipe.id}/batches/{batch.id}/edit"
-          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
-          data-testid="edit-batch-btn"
-        >Edit</a>
         <button
           type="button"
           onclick={onMarkCooked}
@@ -121,14 +91,65 @@
           data-testid="edit-outcome-btn"
         >Edit Outcome</button>
       {/if}
-      <button
-        type="button"
-        onclick={() => deleteOpen = true}
-        disabled={!canDelete}
-        title={canDelete ? '' : `Delete child batches first (${childCount} child${childCount === 1 ? '' : 'ren'})`}
-        class="border border-ochre text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas disabled:opacity-40 disabled:cursor-not-allowed rounded-sm"
-        data-testid="delete-batch-btn"
-      >Delete</button>
+
+      <div class="relative">
+        <button
+          type="button"
+          onclick={() => { moreOpen = !moreOpen; compareOpen = false; mergeOpen = false; }}
+          class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+          aria-label="More actions"
+          data-testid="more-actions-btn"
+        >…</button>
+        {#if moreOpen}
+          <div
+            class="absolute right-0 top-full mt-1 w-44 bg-canvas border border-obsidian rounded-sm shadow-lg z-30 flex flex-col py-1"
+            data-testid="more-actions-menu"
+          >
+            <button
+              type="button"
+              onclick={() => { moreOpen = false; compareOpen = true; }}
+              class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
+              data-testid="compare-btn"
+            >Compare with…</button>
+            <button
+              type="button"
+              onclick={() => { moreOpen = false; mergeOpen = true; }}
+              class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
+              data-testid="merge-btn"
+            >Merge with…</button>
+            {#if batch.status === 'draft'}
+              <a
+                href="/recipes/{recipe.id}/batches/{batch.id}/edit"
+                class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
+                data-testid="edit-batch-btn"
+              >Edit</a>
+            {/if}
+            <div class="h-px bg-drafting my-1"></div>
+            <button
+              type="button"
+              onclick={() => { moreOpen = false; if (canDelete) deleteOpen = true; }}
+              disabled={!canDelete}
+              title={canDelete ? '' : `Delete child batches first (${childCount} child${childCount === 1 ? '' : 'ren'})`}
+              class="text-left px-3 py-2 text-xs uppercase tracking-wider text-ochre hover:bg-ochre/10 disabled:opacity-40 disabled:cursor-not-allowed"
+              data-testid="delete-batch-btn"
+            >Delete{!canDelete ? ` (${childCount} child${childCount === 1 ? '' : 'ren'})` : ''}</button>
+          </div>
+        {/if}
+        <BatchPickerDropdown
+          label="Compare with"
+          candidates={batches}
+          excludeId={batch.id}
+          bind:open={compareOpen}
+          onPick={handleCompareWith}
+        />
+        <BatchPickerDropdown
+          label="Merge with"
+          candidates={batches}
+          excludeId={batch.id}
+          bind:open={mergeOpen}
+          onPick={handleMergeWith}
+        />
+      </div>
     </div>
   </header>
 

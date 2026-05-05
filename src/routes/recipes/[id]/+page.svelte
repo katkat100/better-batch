@@ -64,7 +64,7 @@
       <a href="/recipes/{data.recipe.id}/new-batch" class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm">+ Record V1</a>
     </div>
   {:else}
-    <div class="flex-1 grid grid-cols-[300px_1fr] gap-6 min-h-0">
+    <div class="flex-1 grid grid-cols-[340px_1fr] gap-6 min-h-0">
       <aside class="border-r border-drafting pr-6 overflow-auto">
         <h2 class="text-[11px] uppercase tracking-wider text-obsidian/50 mb-3">Batches ({data.batches.length})</h2>
         <BatchGraph batches={data.batches} {selectedId} onSelect={(id) => selectedId = id} />

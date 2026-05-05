@@ -47,6 +47,7 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
   await expect(page.getByTestId('step-uses').nth(0)).toContainText('250');
   await expect(page.getByTestId('step-uses').nth(0)).toContainText('flour');
 
+  await page.getByTestId('more-actions-btn').click();
   await page.getByTestId('edit-batch-btn').click();
   await expect(page.getByTestId('batch-editor')).toBeVisible();
   await expect(page.getByTestId('batch-label')).toHaveValue('initial');
@@ -60,7 +61,8 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
   await page.getByTestId('rating-3').click();
   await page.getByTestId('outcome-submit').click();
 
-  await expect(page.getByTestId('edit-batch-btn')).not.toBeVisible();
+  // Edit-batch-btn is gated by status='draft' inside the … menu; cooked batches don't show it.
+  // Edit-outcome-btn is always visible on cooked batches (not in the menu).
   await expect(page.getByTestId('edit-outcome-btn')).toBeVisible();
 
   await page.getByTestId('edit-outcome-btn').click();
