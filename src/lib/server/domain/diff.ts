@@ -86,10 +86,36 @@ export function stepTextDiff(a: Step[], b: Step[]): DiffLine[] {
   return textArrayDiff(a.map(s => s.text), b.map(s => s.text));
 }
 
-export type StepObjectDiffOp = 'ctx' | 'add' | 'rem';
-export interface StepObjectDiffRow {
-  op: StepObjectDiffOp;
-  step: Step;
+export type StepObjectDiffRow =
+  | { op: 'ctx'; step: Step }
+  | { op: 'add'; step: Step }
+  | { op: 'rem'; step: Step }
+  | { op: 'mod'; a: Step; b: Step };
+
+const STEP_SIMILARITY_THRESHOLD = 0.5;
+
+function levenshtein(a: string, b: string): number {
+  const n = a.length, m = b.length;
+  if (n === 0) return m;
+  if (m === 0) return n;
+  let prev: number[] = new Array(m + 1);
+  let curr: number[] = new Array(m + 1);
+  for (let j = 0; j <= m; j++) prev[j] = j;
+  for (let i = 1; i <= n; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= m; j++) {
+      curr[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : 1 + Math.min(prev[j - 1], prev[j], curr[j - 1]);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[m];
+}
+
+function similarity(a: string, b: string): number {
+  if (a.length === 0 && b.length === 0) return 1;
+  return 1 - levenshtein(a, b) / Math.max(a.length, b.length);
 }
 
 export function stepObjectDiff(a: Step[], b: Step[]): StepObjectDiffRow[] {
@@ -103,14 +129,36 @@ export function stepObjectDiff(a: Step[], b: Step[]): StepObjectDiffRow[] {
         : Math.max(dp[i - 1][j], dp[i][j - 1]);
     }
   }
-  const out: StepObjectDiffRow[] = [];
+  const raw: StepObjectDiffRow[] = [];
   let i = n, j = m;
   while (i > 0 && j > 0) {
-    if (a[i - 1].text === b[j - 1].text) { out.push({ op: 'ctx', step: a[i - 1] }); i--; j--; }
-    else if (dp[i - 1][j] > dp[i][j - 1]) { out.push({ op: 'rem', step: a[i - 1] }); i--; }
-    else { out.push({ op: 'add', step: b[j - 1] }); j--; }
+    if (a[i - 1].text === b[j - 1].text) { raw.push({ op: 'ctx', step: a[i - 1] }); i--; j--; }
+    else if (dp[i - 1][j] > dp[i][j - 1]) { raw.push({ op: 'rem', step: a[i - 1] }); i--; }
+    else { raw.push({ op: 'add', step: b[j - 1] }); j--; }
   }
-  while (i > 0) { out.push({ op: 'rem', step: a[i - 1] }); i--; }
-  while (j > 0) { out.push({ op: 'add', step: b[j - 1] }); j--; }
-  return out.reverse();
+  while (i > 0) { raw.push({ op: 'rem', step: a[i - 1] }); i--; }
+  while (j > 0) { raw.push({ op: 'add', step: b[j - 1] }); j--; }
+  raw.reverse();
+
+  // Post-LCS: collapse adjacent rem+add (or add+rem) whose texts are similar
+  // into a single `mod` row — catches edits where a step was rephrased.
+  const out: StepObjectDiffRow[] = [];
+  let k = 0;
+  while (k < raw.length) {
+    const cur = raw[k];
+    const next = raw[k + 1];
+    if (next && cur.op === 'rem' && next.op === 'add' &&
+        similarity(cur.step.text, next.step.text) >= STEP_SIMILARITY_THRESHOLD) {
+      out.push({ op: 'mod', a: cur.step, b: next.step });
+      k += 2;
+    } else if (next && cur.op === 'add' && next.op === 'rem' &&
+               similarity(cur.step.text, next.step.text) >= STEP_SIMILARITY_THRESHOLD) {
+      out.push({ op: 'mod', a: next.step, b: cur.step });
+      k += 2;
+    } else {
+      out.push(cur);
+      k++;
+    }
+  }
+  return out;
 }

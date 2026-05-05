@@ -49,7 +49,6 @@
     <div class="flex gap-1">
       <button type="button" class="border px-2 py-0.5 rounded-sm {btnClass('pick-a', 'ochre')}" onclick={() => set('pick-a')} data-testid="merge-pick-a">A</button>
       <button type="button" class="border px-2 py-0.5 rounded-sm {btnClass('pick-b', 'juniper')}" onclick={() => set('pick-b')} data-testid="merge-pick-b">B</button>
-      <button type="button" class="border px-2 py-0.5 rounded-sm {btnClass('skip', 'obsidian')}" onclick={() => set('skip')} data-testid="merge-skip">skip</button>
     </div>
   {:else if row.op === 'rem'}
     <span class="text-[9px] uppercase tracking-wider text-ochre w-9">−A</span>

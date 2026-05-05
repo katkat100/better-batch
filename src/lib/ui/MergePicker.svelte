@@ -45,6 +45,7 @@
   }));
   let stepPicks = $state<StepPick[]>(stepRows.map(r => {
     if (r.op === 'ctx') return { action: 'pick-a' };
+    if (r.op === 'mod') return { action: 'pick-b' };
     if (r.op === 'rem') return { action: 'skip' };
     return { action: 'pick-b' }; // add
   }));
@@ -87,8 +88,13 @@
       const row = stepRows[i];
       const pick = stepPicks[i];
       if (row.op === 'ctx') { out.push(row.step); continue; }
+      if (row.op === 'mod') {
+        if (pick.action === 'pick-a') out.push(row.a);
+        else if (pick.action === 'pick-b') out.push(row.b);
+        // skip on mod isn't surfaced in UI for steps, but if it ever is, drop the step.
+        continue;
+      }
       if (pick.action === 'skip') continue;
-      // For rem, pick.action === 'pick-a' means keep; for add, 'pick-b' means add.
       out.push(row.step);
     }
     return out;

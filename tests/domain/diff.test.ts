@@ -122,7 +122,7 @@ describe('stepObjectDiff', () => {
     const a = [s('mix'), s('bake')];
     const b = [s('mix'), s('rise'), s('bake')];
     const rows = stepObjectDiff(a, b);
-    expect(rows.map(r => [r.op, r.step.text])).toEqual([
+    expect(rows.map(r => [r.op, r.op === 'mod' ? r.a.text : r.step.text])).toEqual([
       ['ctx', 'mix'],
       ['add', 'rise'],
       ['ctx', 'bake']
@@ -134,5 +134,22 @@ describe('stepObjectDiff', () => {
     const b = [s('mix', [{ ingredientId: 'flour', amount: 50 }])];
     const rows = stepObjectDiff(a, b);
     expect(rows).toEqual([{ op: 'ctx', step: a[0] }]);
+  });
+
+  it('collapses adjacent rem+add with similar text into a single mod row', () => {
+    const a = [s('coil fold gently into the greased pan')];
+    const b = [s('Coil fold gently into the greased pan')];
+    const rows = stepObjectDiff(a, b);
+    expect(rows).toEqual([{ op: 'mod', a: a[0], b: b[0] }]);
+  });
+
+  it('does not collapse rem+add with dissimilar text', () => {
+    const a = [s('mix the dough thoroughly')];
+    const b = [s('bake at high heat')];
+    const rows = stepObjectDiff(a, b);
+    expect(rows).toEqual([
+      { op: 'rem', step: a[0] },
+      { op: 'add', step: b[0] }
+    ]);
   });
 });
