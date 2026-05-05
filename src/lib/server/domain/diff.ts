@@ -1,4 +1,4 @@
-import type { VariableSchemaItem, VariableValue } from './types';
+import type { VariableSchemaItem, VariableValue, Ingredient, Step } from './types';
 
 export interface VariableDiffRow {
   name: string;
@@ -46,4 +46,42 @@ export function textArrayDiff(a: string[], b: string[]): DiffLine[] {
   while (i > 0) { out.push({ op: 'rem', text: a[i - 1] }); i--; }
   while (j > 0) { out.push({ op: 'add', text: b[j - 1] }); j--; }
   return out.reverse();
+}
+
+export type IngredientDiffOp = 'ctx' | 'add' | 'rem' | 'mod';
+export interface IngredientDiffRow {
+  op: IngredientDiffOp;
+  a?: Ingredient;
+  b?: Ingredient;
+}
+
+function ingredientsEqual(a: Ingredient, b: Ingredient): boolean {
+  return a.name === b.name
+    && a.amount === b.amount
+    && a.unit === b.unit
+    && (a.section ?? '') === (b.section ?? '');
+}
+
+export function ingredientDiff(a: Ingredient[], b: Ingredient[]): IngredientDiffRow[] {
+  const bById = new Map(b.map(ing => [ing.id, ing] as const));
+  const seenInB = new Set<string>();
+  const rows: IngredientDiffRow[] = [];
+  for (const ai of a) {
+    const bi = bById.get(ai.id);
+    if (!bi) {
+      rows.push({ op: 'rem', a: ai });
+    } else {
+      seenInB.add(ai.id);
+      if (ingredientsEqual(ai, bi)) rows.push({ op: 'ctx', a: ai, b: bi });
+      else rows.push({ op: 'mod', a: ai, b: bi });
+    }
+  }
+  for (const bi of b) {
+    if (!seenInB.has(bi.id)) rows.push({ op: 'add', b: bi });
+  }
+  return rows;
+}
+
+export function stepTextDiff(a: Step[], b: Step[]): DiffLine[] {
+  return textArrayDiff(a.map(s => s.text), b.map(s => s.text));
 }
