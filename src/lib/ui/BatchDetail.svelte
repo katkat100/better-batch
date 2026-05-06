@@ -9,7 +9,6 @@
     import ConfirmDeleteDialog from "./ConfirmDeleteDialog.svelte";
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
-    import Button from '$lib/ui/primitives/Button.svelte';
 
     let {
         recipe,
