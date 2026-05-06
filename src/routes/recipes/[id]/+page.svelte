@@ -4,8 +4,9 @@
   import BatchDetail from '$lib/ui/BatchDetail.svelte';
   import OutcomeForm from '$lib/ui/OutcomeForm.svelte';
   import ConfirmDeleteDialog from '$lib/ui/ConfirmDeleteDialog.svelte';
+  import EditVariablesDialog from '$lib/ui/EditVariablesDialog.svelte';
   import { api } from '$lib/ui/api-client';
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
   import { untrack } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
 
@@ -25,6 +26,7 @@
   }
 
   let deleteDialogOpen = $state(false);
+  let editVarsOpen = $state(false);
 
   async function handleDeleteRecipe() {
     await api.deleteRecipe(data.recipe.id);
@@ -50,6 +52,12 @@
           {#each data.recipe.tags as t}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
         </div>
       {/if}
+      <button
+        type="button"
+        onclick={() => editVarsOpen = true}
+        class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-ochre hover:text-ochre rounded-sm"
+        data-testid="edit-variables-btn"
+      >Edit Variables</button>
       <button
         type="button"
         onclick={() => deleteDialogOpen = true}
@@ -94,6 +102,13 @@
 {#if editingOutcome}
   <OutcomeForm batch={editingOutcome} recipeId={data.recipe.id} mode="edit" onClose={() => editingOutcome = null} />
 {/if}
+
+<EditVariablesDialog
+  bind:open={editVarsOpen}
+  recipeId={data.recipe.id}
+  schema={data.recipe.variableSchema}
+  onSaved={() => invalidateAll()}
+/>
 
 <ConfirmDeleteDialog
   bind:open={deleteDialogOpen}
