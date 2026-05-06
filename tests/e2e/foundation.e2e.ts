@@ -35,6 +35,7 @@ test('create recipe, record V1, mark as cooked', async ({ page }) => {
   await expect(page.getByTestId('variable-strip')).toContainText('72%');
 
   // Mark as cooked
+  await page.getByTestId('more-actions-btn').click();
   await page.getByTestId('mark-cooked-btn').click();
   await page.getByTestId('outcome-notes').fill('Open crumb, dark crust. Try +5% hydration next.');
   await page.getByTestId('rating-4').click();

@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.ts',
   timeout: 30_000,
+  workers: 1,
   use: {
     baseURL: 'http://localhost:4173',
     headless: true,

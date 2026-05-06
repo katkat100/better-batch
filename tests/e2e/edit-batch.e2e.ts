@@ -56,6 +56,7 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
 
   await expect(page.getByTestId('batch-detail')).toContainText('initial revised');
 
+  await page.getByTestId('more-actions-btn').click();
   await page.getByTestId('mark-cooked-btn').click();
   await page.getByTestId('outcome-notes').fill('Crusty.');
   await page.getByTestId('rating-3').click();
