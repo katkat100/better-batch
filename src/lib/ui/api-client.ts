@@ -58,6 +58,14 @@ export const api = {
     }
   },
 
+  async patchRecipe(id: string, patch: Partial<Recipe>): Promise<Recipe> {
+    return jsonOrThrow(await fetch(`/api/recipes/${id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(patch)
+    }));
+  },
+
   async deleteBatch(recipeId: string, batchId: string): Promise<void> {
     const res = await fetch(`/api/recipes/${recipeId}/batches/${batchId}`, { method: 'DELETE' });
     if (!res.ok) {
