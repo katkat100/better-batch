@@ -111,19 +111,20 @@
       data-testid="add-manual-timer-btn"
     >+ Manual</button>
 
-    {#if manualOpen}
-      <div class="absolute right-2 bottom-full mb-1 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56 z-40" data-testid="manual-timer-popover">
-        <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Manual timer</span>
-        <div class="flex gap-2 font-mono text-sm">
-          <input type="number" min="0" bind:value={mh} aria-label="Hours" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="h" />
-          <input type="number" min="0" max="59" bind:value={mm} aria-label="Minutes" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="m" />
-          <input type="number" min="0" max="59" bind:value={ms} aria-label="Seconds" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="s" />
-        </div>
-        <input bind:value={mlabel} placeholder="Label (optional)" aria-label="Manual timer label" class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-xs" />
-        <div class="flex justify-end gap-2">
-          <button type="button" onclick={() => manualOpen = false} class="text-xs text-obsidian/60">Cancel</button>
-          <button type="button" onclick={submitManual} class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider rounded-sm" data-testid="manual-timer-submit">Start</button>
-        </div>
-      </div>
-    {/if}
 </div>
+
+{#if manualOpen}
+  <div class="fixed right-4 bottom-16 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56 z-50 shadow-lg" data-testid="manual-timer-popover">
+    <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Manual timer</span>
+    <div class="flex gap-2 font-mono text-sm">
+      <input type="number" min="0" bind:value={mh} aria-label="Hours" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="h" />
+      <input type="number" min="0" max="59" bind:value={mm} aria-label="Minutes" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="m" />
+      <input type="number" min="0" max="59" bind:value={ms} aria-label="Seconds" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="s" />
+    </div>
+    <input bind:value={mlabel} placeholder="Label (optional)" aria-label="Manual timer label" class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-xs" />
+    <div class="flex justify-end gap-2">
+      <button type="button" onclick={() => manualOpen = false} class="text-xs text-obsidian/60">Cancel</button>
+      <button type="button" onclick={submitManual} class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider rounded-sm" data-testid="manual-timer-submit">Start</button>
+    </div>
+  </div>
+{/if}
