@@ -6,6 +6,8 @@
   import { moveItem } from '$lib/shared/array';
   import { parseAmount } from './layout/amount-parse';
   import UsesEditor from './UsesEditor.svelte';
+  import Button from './primitives/Button.svelte';
+  import TextInput from './primitives/TextInput.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
 
   let {
@@ -177,7 +179,7 @@
 
   <label class="flex flex-col gap-1 text-sm">
     <span class="text-[11px] uppercase tracking-wider">Label</span>
-    <input bind:value={label} required class="border border-drafting bg-canvas px-3 py-2 rounded-sm" data-testid="batch-label" />
+    <TextInput bind:value={label} required data-testid="batch-label" />
   </label>
 
   <fieldset class="flex flex-col gap-1 text-sm">
@@ -196,13 +198,12 @@
           {@const current = variables[schema.name]}
           <label class="flex flex-col gap-1 text-sm">
             <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{schema.name} {schema.unit && `(${schema.unit})`}</span>
-            <input
+            <TextInput
               type="text"
               inputmode={schema.type === 'number' ? 'decimal' : 'text'}
-              value={current ?? ''}
+              value={String(current ?? '')}
               oninput={(e) => setVariable(schema.name, (e.currentTarget as HTMLInputElement).value, schema.type)}
               onblur={(e) => evalVariableOnBlur(schema.name, schema.type, e.currentTarget as HTMLInputElement)}
-              class="border border-drafting bg-canvas px-3 py-2 rounded-sm"
               data-testid="var-{schema.name}"
             />
           </label>
@@ -233,13 +234,13 @@
             data-testid="ingredient-move-down"
           >▼</button>
         </div>
-        <input bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" aria-label="Ingredient {i + 1} amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
-        <input bind:value={ing.unit} placeholder="Unit" aria-label="Ingredient {i + 1} unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
-        <input
+        <TextInput bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" aria-label="Ingredient {i + 1} amount" class="px-2 py-1.5 w-24" />
+        <TextInput bind:value={ing.unit} placeholder="Unit" aria-label="Ingredient {i + 1} unit" class="px-2 py-1.5 w-20" />
+        <TextInput
           bind:value={ing.name}
           placeholder="Ingredient"
           aria-label="Ingredient {i + 1} name"
-          class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm"
+          class="px-2 py-1.5 flex-1"
         />
         <select
           value={ing.section ?? '__none__'}
@@ -260,12 +261,13 @@
         <button type="button" onclick={() => removeIngredient(i)} aria-label="Remove ingredient {i + 1}" class="text-obsidian/40 hover:text-ochre">×</button>
       </div>
     {/each}
-    <button
+    <Button
       type="button"
       onclick={addIngredient}
-      class="border border-dashed border-drafting hover:border-ochre text-ochre text-xs uppercase tracking-wider py-2 rounded-sm transition-colors"
+      variant="dashed"
+      class="text-sm normal-case tracking-normal"
       data-testid="add-ingredient-btn"
-    >+ Add Ingredient</button>
+    >+ Add ingredient</Button>
   </fieldset>
 
   <fieldset class="flex flex-col gap-3">
@@ -308,12 +310,13 @@
         />
       </div>
     {/each}
-    <button
+    <Button
       type="button"
       onclick={addStep}
-      class="border border-dashed border-drafting hover:border-ochre text-ochre text-xs uppercase tracking-wider py-2 rounded-sm transition-colors"
+      variant="dashed"
+      class="text-sm normal-case tracking-normal"
       data-testid="add-step-btn"
-    >+ Add Step</button>
+    >+ Add step</Button>
   </fieldset>
 
   {#if error}
@@ -322,11 +325,11 @@
 
   <div class="flex justify-end gap-2 border-t border-drafting pt-4">
     <a href="/recipes/{recipe.id}" class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
-    <button
+    <Button
       type="submit"
+      variant="outline"
       disabled={submitting}
-      class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas disabled:opacity-50 rounded-sm"
       data-testid="batch-submit"
-    >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save Changes' : 'Record Batch')}</button>
+    >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save Changes' : 'Record Batch')}</Button>
   </div>
 </form>
