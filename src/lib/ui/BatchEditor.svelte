@@ -3,6 +3,7 @@
   import { untrack } from 'svelte';
   import { api } from './api-client';
   import { slugify, uniqueSlug } from '$lib/shared/slug';
+  import { moveItem } from '$lib/shared/array';
   import { parseAmount } from './layout/amount-parse';
   import UsesEditor from './UsesEditor.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
@@ -214,6 +215,24 @@
     <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
     {#each ingredients as ing, i (i)}
       <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
+        <div class="flex flex-col w-5 shrink-0">
+          <button
+            type="button"
+            onclick={() => ingredients = moveItem(ingredients, i, i - 1)}
+            disabled={i === 0}
+            aria-label="Move ingredient {i + 1} up"
+            class="text-[10px] leading-none text-obsidian/50 hover:text-ochre disabled:opacity-30 disabled:cursor-not-allowed py-0.5"
+            data-testid="ingredient-move-up"
+          >▲</button>
+          <button
+            type="button"
+            onclick={() => ingredients = moveItem(ingredients, i, i + 1)}
+            disabled={i === ingredients.length - 1}
+            aria-label="Move ingredient {i + 1} down"
+            class="text-[10px] leading-none text-obsidian/50 hover:text-ochre disabled:opacity-30 disabled:cursor-not-allowed py-0.5"
+            data-testid="ingredient-move-down"
+          >▼</button>
+        </div>
         <input bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" aria-label="Ingredient {i + 1} amount" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-24 text-sm" />
         <input bind:value={ing.unit} placeholder="Unit" aria-label="Ingredient {i + 1} unit" class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm w-20 text-sm" />
         <input
@@ -254,6 +273,24 @@
     {#each steps as step, i (i)}
       <div class="flex flex-col gap-2 border border-drafting/50 p-3 rounded-sm" data-testid="step-edit-row">
         <div class="flex gap-2 items-start">
+          <div class="flex flex-col w-5 shrink-0 pt-1">
+            <button
+              type="button"
+              onclick={() => steps = moveItem(steps, i, i - 1)}
+              disabled={i === 0}
+              aria-label="Move step {i + 1} up"
+              class="text-[10px] leading-none text-obsidian/50 hover:text-ochre disabled:opacity-30 disabled:cursor-not-allowed py-0.5"
+              data-testid="step-move-up"
+            >▲</button>
+            <button
+              type="button"
+              onclick={() => steps = moveItem(steps, i, i + 1)}
+              disabled={i === steps.length - 1}
+              aria-label="Move step {i + 1} down"
+              class="text-[10px] leading-none text-obsidian/50 hover:text-ochre disabled:opacity-30 disabled:cursor-not-allowed py-0.5"
+              data-testid="step-move-down"
+            >▼</button>
+          </div>
           <span class="font-mono text-xs text-obsidian/40 pt-2">{i + 1}.</span>
           <textarea
             bind:value={step.text}
