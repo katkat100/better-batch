@@ -1,6 +1,7 @@
 <!-- src/lib/ui/VariableDiffTable.svelte -->
 <script lang="ts">
   import type { VariableDiffRow } from '$lib/server';
+  import { displayUnit } from '$lib/shared/unit';
 
   let {
     rows,
@@ -15,14 +16,18 @@
   function formatValue(row: VariableDiffRow, side: 'a' | 'b'): string {
     const v = side === 'a' ? row.a : row.b;
     if (v === null || v === undefined) return '—';
-    if (typeof v === 'number') return row.unit ? `${v}${row.unit}` : `${v}`;
+    if (typeof v === 'number') {
+      const u = row.unit ? displayUnit(row.unit, v) : '';
+      return `${v}${u}`;
+    }
     return String(v);
   }
 
   function formatDelta(row: VariableDiffRow): string {
     if (row.delta === null || row.delta === 0) return '—';
     const sign = row.delta > 0 ? '+' : '';
-    return `${sign}${row.delta}${row.unit}`;
+    const u = row.unit ? displayUnit(row.unit, Math.abs(row.delta)) : '';
+    return `${sign}${row.delta}${u}`;
   }
 
   function deltaColor(row: VariableDiffRow): string {

@@ -1,6 +1,7 @@
 <!-- src/lib/ui/MergeVarRow.svelte -->
 <script lang="ts">
   import type { VariableSchemaItem, VariableValue } from '$lib/server';
+  import { displayUnit } from '$lib/shared/unit';
 
   type VarPick = { from: 'a' } | { from: 'b' } | { from: 'custom'; value: VariableValue };
 
@@ -22,7 +23,9 @@
 
   function format(v: VariableValue): string {
     if (v === null || v === undefined) return '—';
-    return item.unit ? `${v}${item.unit}` : String(v);
+    if (!item.unit) return String(v);
+    const u = typeof v === 'number' ? displayUnit(item.unit, v) : item.unit;
+    return `${v}${u}`;
   }
 
   function setCustom(raw: string) {
