@@ -2,7 +2,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  type Variant = 'primary' | 'outline' | 'ghost' | 'dashed' | 'danger' | 'success';
+  type Variant = 'primary' | 'outline' | 'ghost' | 'dashed' | 'danger' | 'success' | 'menuitem';
   type Size = 'sm' | 'md';
 
   let {
@@ -31,7 +31,8 @@
     outline: 'border border-ochre text-ochre hover:bg-ochre hover:text-canvas',
     ghost: 'text-obsidian/60 hover:text-obsidian',
     dashed: 'border border-dashed border-drafting text-obsidian/60 hover:border-ochre hover:text-ochre',
-    success: 'border border-juniper text-juniper hover:bg-juniper hover:text-canvas'
+    success: 'border border-juniper text-juniper hover:bg-juniper hover:text-canvas',
+    menuitem: 'text-obsidian hover:bg-drafting/40 text-left w-full'
   };
 
   const SIZE_CLASS: Record<Size, string> = {
