@@ -45,7 +45,7 @@
 </script>
 
 <li
-  class="flex gap-3 px-4 py-3 border-b border-drafting/50 transition-opacity"
+  class="flex gap-3 px-4 py-3 border-b border-drafting/50 transition-colors {isCurrent ? 'bg-ochre/5' : ''}"
   class:opacity-50={isChecked}
   data-testid="cook-step-row"
   data-step-index={index}
@@ -59,7 +59,7 @@
     class="mt-1.5"
     data-testid="cook-step-checkbox"
   />
-  <div class="flex-1 flex flex-col gap-1 {isCurrent ? 'border-l-2 border-ochre pl-3 -ml-3' : ''}">
+  <div class="flex-1 flex flex-col gap-1">
     <p class="text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}">
       <span class="font-mono text-ochre mr-1">{index + 1}.</span>
       {#each segments as seg, si (si)}
@@ -79,11 +79,11 @@
       {/each}
     </p>
     {#if step.uses.length > 0}
-      <div class="font-mono text-[11px] text-obsidian/60">
+      <div class="flex flex-col gap-0.5 font-mono text-[11px] text-obsidian/60">
         {#each step.uses as use, ui (ui)}
           {@const ing = ingById.get(use.ingredientId)}
           {#if ing}
-            <span>{use.amount}{ing.unit ? ing.unit : ''} {ing.name}</span>{#if ui < step.uses.length - 1}<span class="text-drafting"> · </span>{/if}
+            <span>{use.amount}{ing.unit ?? ''} {ing.name}</span>
           {/if}
         {/each}
       </div>

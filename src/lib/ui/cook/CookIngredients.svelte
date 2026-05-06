@@ -50,18 +50,20 @@
   }
 </script>
 
-<section class="px-4 py-3 border-b border-drafting bg-canvas/60" data-testid="cook-ingredients">
-  <h2 class="text-[10px] uppercase tracking-wider text-obsidian/50 mb-2">Ingredients</h2>
-  <div class="flex flex-wrap gap-x-3 gap-y-1.5 text-xs font-mono items-center">
-    {#each groups as group (group.section ?? '__none__')}
+<section class="px-4 py-3 border-b border-drafting bg-canvas/60 flex flex-col gap-2" data-testid="cook-ingredients">
+  <h2 class="text-[10px] uppercase tracking-wider text-obsidian/50">Ingredients</h2>
+  {#each groups as group (group.section ?? '__none__')}
+    <div class="flex flex-col gap-1">
       {#if group.section !== null}
-        <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{group.section}:</span>
+        <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{group.section}</span>
       {/if}
-      {#each group.items as ing (ing.id)}
-        <span class="border px-2 py-0.5 rounded-sm transition-colors {pillClass(ing)}" data-testid="cook-ing-pill" data-ingredient-id={ing.id}>
-          {ing.amount}{ing.unit ? ' ' + ing.unit : ''} {ing.name}
-        </span>
-      {/each}
-    {/each}
-  </div>
+      <div class="flex flex-wrap gap-x-2 gap-y-1.5 text-xs font-mono items-center">
+        {#each group.items as ing (ing.id)}
+          <span class="border px-2 py-0.5 rounded-sm transition-colors {pillClass(ing)}" data-testid="cook-ing-pill" data-ingredient-id={ing.id}>
+            {ing.amount}{ing.unit ?? ''} {ing.name}
+          </span>
+        {/each}
+      </div>
+    </div>
+  {/each}
 </section>

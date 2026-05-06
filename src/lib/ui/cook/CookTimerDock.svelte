@@ -60,6 +60,15 @@
     };
   });
 
+  // Reactive remaining-by-id map. Recomputes when tick or timers change.
+  const remainingById = $derived.by(() => {
+    tick; // explicit reactive read so this re-runs on every tick
+    const map = new Map<string, number>();
+    const now = Date.now();
+    for (const t of timers) map.set(t.id, remainingMs(t, now));
+    return map;
+  });
+
   function submitManual() {
     const total = mh * 3_600_000 + mm * 60_000 + ms * 1000;
     if (total <= 0) return;
@@ -69,14 +78,12 @@
   }
 </script>
 
-{#if timers.length > 0 || manualOpen}
-  <div
-    class="sticky bottom-0 z-30 bg-obsidian text-canvas px-4 py-2 flex items-center gap-4 overflow-x-auto"
-    data-testid="cook-timer-dock"
-  >
+<div
+  class="sticky bottom-0 z-30 bg-obsidian text-canvas px-4 py-2 flex items-center gap-4 overflow-x-auto relative"
+  data-testid="cook-timer-dock"
+>
     {#each timers as t (t.id)}
-      {@const _ = tick}
-      {@const rem = remainingMs(t, Date.now())}
+      {@const rem = remainingById.get(t.id) ?? 0}
       <div class="flex items-center gap-2 shrink-0" data-testid="dock-timer" data-timer-id={t.id}>
         <span class="font-mono {rem <= 0 ? 'text-ochre' : 'text-canvas'} text-base font-semibold min-w-[60px]">{fmt(rem)}</span>
         <span class="text-[10px] opacity-70 truncate max-w-[120px]">step {t.stepIndex + 1} · {t.label}</span>
@@ -94,6 +101,9 @@
         >×</button>
       </div>
     {/each}
+    {#if timers.length === 0}
+      <span class="text-[10px] opacity-50">No timers running</span>
+    {/if}
     <button
       type="button"
       onclick={() => manualOpen = !manualOpen}
@@ -102,7 +112,7 @@
     >+ Manual</button>
 
     {#if manualOpen}
-      <div class="absolute right-2 bottom-full mb-1 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56" data-testid="manual-timer-popover">
+      <div class="absolute right-2 bottom-full mb-1 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56 z-40" data-testid="manual-timer-popover">
         <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Manual timer</span>
         <div class="flex gap-2 font-mono text-sm">
           <input type="number" min="0" bind:value={mh} aria-label="Hours" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="h" />
@@ -116,5 +126,4 @@
         </div>
       </div>
     {/if}
-  </div>
-{/if}
+</div>

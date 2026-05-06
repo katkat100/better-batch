@@ -37,12 +37,12 @@
   <span class="ml-auto flex items-center gap-2">
     {#if started}
       <span class="text-[11px] font-mono text-obsidian/60" data-testid="cook-elapsed">{fmtElapsed(elapsedMs)}</span>
+      <button
+        type="button"
+        onclick={onEndCook}
+        class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider hover:bg-juniper hover:text-canvas rounded-sm"
+        data-testid="end-cook-btn"
+      >End Cook</button>
     {/if}
-    <button
-      type="button"
-      onclick={onEndCook}
-      class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider hover:bg-juniper hover:text-canvas rounded-sm"
-      data-testid="end-cook-btn"
-    >End Cook</button>
   </span>
 </header>
