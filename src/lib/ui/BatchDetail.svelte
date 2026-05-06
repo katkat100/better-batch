@@ -93,14 +93,14 @@
                 data-testid="new-batch-btn">+ New Batch</a
             >
 
-            {#if batch.status === "draft"}
-                <button
-                    type="button"
-                    onclick={onMarkCooked}
-                    class="border border-juniper text-juniper px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-juniper hover:text-canvas rounded-sm"
-                    data-testid="mark-cooked-btn">Mark as Cooked</button
+            {#if batch.status !== "archived"}
+                <a
+                    href="/recipes/{recipe.id}/batches/{batch.id}/cook"
+                    class="border border-juniper bg-juniper text-canvas px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-canvas hover:text-juniper rounded-sm"
+                    data-testid="cook-btn">Cook</a
                 >
-            {:else if batch.status === "cooked"}
+            {/if}
+            {#if batch.status === "cooked"}
                 <button
                     type="button"
                     onclick={onEditOutcome}
@@ -162,6 +162,14 @@
                                 class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
                                 data-testid="edit-batch-btn">Edit</a
                             >
+                        {/if}
+                        {#if batch.status === 'draft'}
+                            <button
+                                type="button"
+                                onclick={() => { moreOpen = false; onMarkCooked(); }}
+                                class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
+                                data-testid="mark-cooked-btn"
+                            >Mark as Cooked</button>
                         {/if}
                         <div class="h-px bg-drafting my-1"></div>
                         <button
