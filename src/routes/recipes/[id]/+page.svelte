@@ -78,6 +78,7 @@
               batches={data.batches}
               onMarkCooked={handleMarkCooked}
               onEditOutcome={handleEditOutcome}
+              onSelectBatch={(id) => selectedId = id}
             />
         {:else}
           <p class="text-sm text-obsidian/40">Select a batch to view details.</p>

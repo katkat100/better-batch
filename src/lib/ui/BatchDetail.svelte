@@ -16,13 +16,28 @@
         batches,
         onMarkCooked = () => {},
         onEditOutcome = () => {},
+        onSelectBatch = (_: string) => {},
     }: {
         recipe: Recipe;
         batch: Batch;
         batches: Batch[];
         onMarkCooked?: () => void;
         onEditOutcome?: () => void;
+        onSelectBatch?: (batchId: string) => void;
     } = $props();
+
+    const cookParent = $derived(
+        batch.outcomeNotes.startsWith("Captured during cook:") &&
+            batch.parentIds.length === 1
+            ? (batches.find((b) => b.id === batch.parentIds[0]) ?? null)
+            : null,
+    );
+
+    const noteBody = $derived(
+        cookParent
+            ? batch.outcomeNotes.replace(/^Captured during cook:\s*\n?/, "")
+            : batch.outcomeNotes,
+    );
 
     const cookedDateLabel = $derived(
         batch.cookedAt ? new Date(batch.cookedAt).toLocaleDateString() : null,
@@ -249,10 +264,21 @@
         </section>
     {:else if batch.outcomeNotes}
         <section class="flex flex-col gap-2 border-t border-drafting pt-4">
-            <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">
-                Notes
+            <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50 flex items-baseline gap-2 flex-wrap">
+                {#if cookParent}
+                    <span>Captured during cook</span>
+                    <span class="text-obsidian/40">·</span>
+                    <button
+                        type="button"
+                        onclick={() => onSelectBatch(cookParent.id)}
+                        class="text-ochre hover:underline normal-case tracking-normal"
+                        data-testid="captured-from-link"
+                    >{cookParent.label}</button>
+                {:else}
+                    <span>Notes</span>
+                {/if}
             </h3>
-            <p class="text-sm whitespace-pre-wrap">{batch.outcomeNotes}</p>
+            <p class="text-sm whitespace-pre-wrap">{noteBody}</p>
         </section>
     {/if}
 </article>
