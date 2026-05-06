@@ -28,6 +28,14 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
   await ingRows.nth(1).locator('input').nth(2).fill('water');
   await ingRows.nth(1).locator('input').nth(2).blur();
 
+  // Verify reorder: move water up, water becomes index 0
+  await ingRows.nth(1).getByTestId('ingredient-move-up').click();
+  await expect(ingRows.nth(0).locator('input').nth(2)).toHaveValue('water');
+  await expect(ingRows.nth(1).locator('input').nth(2)).toHaveValue('flour');
+  // Move water back down to restore order for the rest of the test
+  await ingRows.nth(0).getByTestId('ingredient-move-down').click();
+  await expect(ingRows.nth(0).locator('input').nth(2)).toHaveValue('flour');
+
   await page.getByTestId('add-step-btn').click();
   await page.getByTestId('step-text').nth(0).fill('Mix half the flour and all the water');
   const stepRows = page.getByTestId('step-edit-row');
@@ -40,6 +48,17 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
   await stepRows.nth(1).getByTestId('add-use-btn').click();
   await stepRows.nth(1).getByTestId('use-amount').nth(0).fill('250');
   await stepRows.nth(1).getByTestId('use-amount').nth(0).blur();
+
+  // Verify step reorder: move step 2 up, swapping with step 1
+  const stepTextLocator = page.getByTestId('step-text');
+  const text1 = await stepTextLocator.nth(0).inputValue();
+  const text2 = await stepTextLocator.nth(1).inputValue();
+  await stepRows.nth(1).getByTestId('step-move-up').click();
+  await expect(stepTextLocator.nth(0)).toHaveValue(text2);
+  await expect(stepTextLocator.nth(1)).toHaveValue(text1);
+  // Move back to restore for the submit step
+  await stepRows.nth(0).getByTestId('step-move-down').click();
+  await expect(stepTextLocator.nth(0)).toHaveValue(text1);
 
   await page.getByTestId('batch-submit').click();
 
