@@ -9,6 +9,7 @@
     import ConfirmDeleteDialog from "./ConfirmDeleteDialog.svelte";
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
+    import Button from '$lib/ui/primitives/Button.svelte';
 
     let {
         recipe,
@@ -153,26 +154,26 @@
                         class="absolute right-0 top-full mt-1 w-44 bg-canvas border border-obsidian rounded-sm shadow-lg z-30 flex flex-col py-1"
                         data-testid="more-actions-menu"
                     >
-                        <!-- raw: menu item styling — hover:bg-drafting/40 background highlight differs from ghost hover:text-obsidian -->
-                        <button
-                            type="button"
+                        <Button
+                            variant="menuitem"
+                            size="sm"
+                            class="py-2"
                             onclick={() => {
                                 moreOpen = false;
                                 compareOpen = true;
                             }}
-                            class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
-                            data-testid="compare-btn">Compare with…</button
-                        >
-                        <!-- raw: menu item styling -->
-                        <button
-                            type="button"
+                            data-testid="compare-btn"
+                        >Compare with…</Button>
+                        <Button
+                            variant="menuitem"
+                            size="sm"
+                            class="py-2"
                             onclick={() => {
                                 moreOpen = false;
                                 mergeOpen = true;
                             }}
-                            class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
-                            data-testid="merge-btn">Merge with…</button
-                        >
+                            data-testid="merge-btn"
+                        >Merge with…</Button>
                         {#if batch.status === "draft"}
                             <!-- raw: anchor menu item -->
                             <a
@@ -182,18 +183,19 @@
                             >
                         {/if}
                         {#if batch.status === 'draft'}
-                            <!-- raw: menu item styling -->
-                            <button
-                                type="button"
+                            <Button
+                                variant="menuitem"
+                                size="sm"
+                                class="py-2"
                                 onclick={() => { moreOpen = false; onMarkCooked(); }}
-                                class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
                                 data-testid="mark-cooked-btn"
-                            >Mark as Cooked</button>
+                            >Mark as Cooked</Button>
                         {/if}
                         <div class="h-px bg-drafting my-1"></div>
-                        <!-- raw: menu item styling — destructive ochre text with bg-ochre/10 hover differs from any Button variant -->
-                        <button
-                            type="button"
+                        <Button
+                            variant="menuitem"
+                            size="sm"
+                            class="py-2 text-ochre hover:bg-ochre/10 hover:text-ochre"
                             onclick={() => {
                                 moreOpen = false;
                                 if (canDelete) deleteOpen = true;
@@ -202,12 +204,10 @@
                             title={canDelete
                                 ? ""
                                 : `Delete child batches first (${childCount} child${childCount === 1 ? "" : "ren"})`}
-                            class="text-left px-3 py-2 text-xs uppercase tracking-wider text-ochre hover:bg-ochre/10 disabled:opacity-40 disabled:cursor-not-allowed"
                             data-testid="delete-batch-btn"
-                            >Delete{!canDelete
-                                ? ` (${childCount} child${childCount === 1 ? "" : "ren"})`
-                                : ""}</button
-                        >
+                        >Delete{!canDelete
+                            ? ` (${childCount} child${childCount === 1 ? "" : "ren"})`
+                            : ""}</Button>
                     </div>
                 {/if}
                 <BatchPickerDropdown
