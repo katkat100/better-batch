@@ -2,6 +2,7 @@
   import NotecardCard from '$lib/ui/NotecardCard.svelte';
   import Toolbar from '$lib/ui/Toolbar.svelte';
   import NewRecipeDialog from '$lib/ui/NewRecipeDialog.svelte';
+  import Button from '$lib/ui/primitives/Button.svelte';
   import type { IndexEntry } from '$lib/server';
 
   let { data }: { data: { index: IndexEntry[] } } = $props();
@@ -38,11 +39,11 @@
       <h1 class="font-serif text-4xl">Better Batch</h1>
       <p class="text-sm text-obsidian/60 font-sans">Record. Analyze. Refine. Archive.</p>
     </div>
-    <button
+    <Button
+      variant="outline"
       onclick={() => dialogOpen = true}
-      class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas transition-colors rounded-sm"
       data-testid="new-recipe-btn"
-    >+ New Recipe</button>
+    >+ New Recipe</Button>
   </header>
 
   <Toolbar bind:search bind:tag bind:status bind:sort {allTags} />
