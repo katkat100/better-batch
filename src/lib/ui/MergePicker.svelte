@@ -4,6 +4,8 @@
   import MergeVarRow from './MergeVarRow.svelte';
   import MergeIngredientRow from './MergeIngredientRow.svelte';
   import MergeStepRow from './MergeStepRow.svelte';
+  import Button from './primitives/Button.svelte';
+  import TextInput from './primitives/TextInput.svelte';
   import type {
     Recipe, Batch, Ingredient, Step, VariableValue,
     VariableDiffRow, IngredientDiffRow, StepObjectDiffRow
@@ -134,7 +136,7 @@
 
   <label class="flex flex-col gap-1 text-sm">
     <span class="text-[11px] uppercase tracking-wider">Label</span>
-    <input bind:value={label} required class="border border-drafting bg-canvas px-3 py-2 rounded-sm" data-testid="merge-label" />
+    <TextInput bind:value={label} required data-testid="merge-label" />
   </label>
 
   {#if recipe.variableSchema.length > 0}
@@ -189,11 +191,6 @@
 
   <div class="flex justify-end gap-2 border-t border-drafting pt-4">
     <a href="/recipes/{recipe.id}" class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
-    <button
-      type="submit"
-      disabled={submitting}
-      class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas disabled:opacity-50 rounded-sm"
-      data-testid="merge-submit"
-    >{submitting ? 'Merging…' : 'Record Merge'}</button>
+    <Button type="submit" variant="outline" disabled={submitting} data-testid="merge-submit">{submitting ? 'Merging…' : 'Record Merge'}</Button>
   </div>
 </form>
