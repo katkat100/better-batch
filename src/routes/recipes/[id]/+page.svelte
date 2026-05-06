@@ -5,6 +5,7 @@
   import OutcomeForm from '$lib/ui/OutcomeForm.svelte';
   import ConfirmDeleteDialog from '$lib/ui/ConfirmDeleteDialog.svelte';
   import EditVariablesDialog from '$lib/ui/EditVariablesDialog.svelte';
+  import Button from '$lib/ui/primitives/Button.svelte';
   import { api } from '$lib/ui/api-client';
   import { goto, invalidateAll } from '$app/navigation';
   import { untrack } from 'svelte';
@@ -52,18 +53,8 @@
           {#each data.recipe.tags as t}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
         </div>
       {/if}
-      <button
-        type="button"
-        onclick={() => editVarsOpen = true}
-        class="border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-ochre hover:text-ochre rounded-sm"
-        data-testid="edit-variables-btn"
-      >Edit Variables</button>
-      <button
-        type="button"
-        onclick={() => deleteDialogOpen = true}
-        class="border border-ochre text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
-        data-testid="delete-recipe-btn"
-      >Delete Recipe</button>
+      <Button variant="ghost" size="sm" class="border border-drafting hover:border-ochre" onclick={() => editVarsOpen = true} data-testid="edit-variables-btn">Edit Variables</Button>
+      <Button variant="outline" size="sm" onclick={() => deleteDialogOpen = true} data-testid="delete-recipe-btn">Delete Recipe</Button>
     </div>
   </header>
 
