@@ -141,7 +141,7 @@
           </ul>
           <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" bind:checked={forkAsDraft} data-testid="fork-as-draft-checkbox" />
-            Save these as a new draft batch
+            Carry these ideas into a new batch
           </label>
           {#if forkAsDraft}
             <label class="flex flex-col gap-1 text-sm">
