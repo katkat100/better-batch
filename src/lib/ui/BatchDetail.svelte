@@ -247,6 +247,13 @@
             {/if}
             <Rating value={batch.rating} />
         </section>
+    {:else if batch.outcomeNotes}
+        <section class="flex flex-col gap-2 border-t border-drafting pt-4">
+            <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">
+                Notes
+            </h3>
+            <p class="text-sm whitespace-pre-wrap">{batch.outcomeNotes}</p>
+        </section>
     {/if}
 </article>
 
