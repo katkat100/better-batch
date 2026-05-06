@@ -5,6 +5,8 @@
   import { api } from './api-client';
   import Rating from './Rating.svelte';
   import type { Batch } from '$lib/server';
+  import Dialog from '$lib/ui/primitives/Dialog.svelte';
+  import Button from '$lib/ui/primitives/Button.svelte';
 
   let {
     batch,
@@ -28,9 +30,9 @@
     notesEl?.focus();
   });
 
-  function backdropClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) onClose();
-  }
+  const dialogTitle = $derived(
+    mode === 'edit' ? `Edit outcome for ${batch.label}` : `Mark ${batch.label} as cooked`
+  );
 
   async function submit(e: SubmitEvent) {
     e.preventDefault();
@@ -51,26 +53,17 @@
   }
 </script>
 
-<svelte:window onkeydown={(e) => e.key === 'Escape' && onClose()} />
-
-<div
-  class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-50"
-  onclick={backdropClick}
-  onkeydown={(e) => e.key === 'Escape' && onClose()}
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="outcome-form-title"
-  tabindex="-1"
+<Dialog
+  open={true}
+  title={dialogTitle}
+  titleId="outcome-form-title"
+  onClose={onClose}
 >
   <form
     onsubmit={submit}
-    class="bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm"
+    class="flex flex-col gap-4"
     data-testid="outcome-form"
   >
-    <h2 id="outcome-form-title" class="font-serif text-xl">
-      {mode === 'edit' ? `Edit outcome for ${batch.label}` : `Mark ${batch.label} as cooked`}
-    </h2>
-
     {#if mode === 'cook'}
       <div class="border border-ochre bg-ochre/10 text-ochre p-3 rounded-sm text-sm" data-testid="cook-warning">
         <strong class="block">This will freeze the batch.</strong>
@@ -100,13 +93,13 @@
     {/if}
 
     <div class="flex justify-end gap-2 pt-2">
-      <button type="button" onclick={onClose} class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</button>
-      <button
+      <Button type="button" variant="ghost" onclick={onClose}>Cancel</Button>
+      <Button
         type="submit"
+        variant="success"
         disabled={submitting}
-        class="border border-juniper text-juniper px-4 py-2 text-sm uppercase tracking-wider hover:bg-juniper hover:text-canvas disabled:opacity-50 rounded-sm"
         data-testid="outcome-submit"
-      >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save' : 'Archive Batch')}</button>
+      >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save' : 'Archive Batch')}</Button>
     </div>
   </form>
-</div>
+</Dialog>
