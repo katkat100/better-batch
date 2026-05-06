@@ -45,48 +45,50 @@
 </script>
 
 <li
-  class="flex gap-3 px-4 py-3 border-b border-drafting/50 transition-colors {isCurrent ? 'bg-ochre/5' : ''}"
+  class="border-b border-drafting/50 transition-colors {isCurrent ? 'bg-ochre/5' : ''}"
   class:opacity-50={isChecked}
   data-testid="cook-step-row"
   data-step-index={index}
   data-current={isCurrent}
 >
-  <input
-    type="checkbox"
-    checked={isChecked}
-    onchange={(e) => onCheck(index, (e.currentTarget as HTMLInputElement).checked)}
-    aria-label="Mark step {index + 1} done"
-    class="mt-1.5"
-    data-testid="cook-step-checkbox"
-  />
-  <div class="flex-1 flex flex-col gap-1">
-    <p class="text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}">
-      <span class="font-mono text-ochre mr-1">{index + 1}.</span>
-      {#each segments as seg, si (si)}
-        {#if seg.kind === 'text'}
-          {seg.text}
-        {:else}
-          {@const active = activeTimerKeys.has(timerKey(seg.match))}
-          <button
-            type="button"
-            onclick={() => onStartTimer(index, seg.match)}
-            class="border-b {active ? 'border-solid bg-ochre/15' : 'border-dashed'} border-ochre text-ochre cursor-pointer px-0.5"
-            data-testid="timer-trigger"
-            data-step={index}
-            data-start={seg.match.start}
-          >{seg.text}</button>
-        {/if}
-      {/each}
-    </p>
-    {#if step.uses.length > 0}
-      <div class="flex flex-col gap-0.5 font-mono text-[11px] text-obsidian/60">
-        {#each step.uses as use, ui (ui)}
-          {@const ing = ingById.get(use.ingredientId)}
-          {#if ing}
-            <span>{use.amount}{ing.unit ?? ''} {ing.name}</span>
+  <label class="flex gap-3 px-4 py-3 cursor-pointer hover:bg-drafting/20">
+    <input
+      type="checkbox"
+      checked={isChecked}
+      onchange={(e) => onCheck(index, (e.currentTarget as HTMLInputElement).checked)}
+      aria-label="Mark step {index + 1} done"
+      class="mt-1.5"
+      data-testid="cook-step-checkbox"
+    />
+    <div class="flex-1 flex flex-col gap-1">
+      <p class="text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}">
+        <span class="font-mono text-ochre mr-1">{index + 1}.</span>
+        {#each segments as seg, si (si)}
+          {#if seg.kind === 'text'}
+            {seg.text}
+          {:else}
+            {@const active = activeTimerKeys.has(timerKey(seg.match))}
+            <button
+              type="button"
+              onclick={(e) => { e.preventDefault(); e.stopPropagation(); onStartTimer(index, seg.match); }}
+              class="border-b {active ? 'border-solid bg-ochre/15' : 'border-dashed'} border-ochre text-ochre cursor-pointer px-0.5"
+              data-testid="timer-trigger"
+              data-step={index}
+              data-start={seg.match.start}
+            >{seg.text}</button>
           {/if}
         {/each}
-      </div>
-    {/if}
-  </div>
+      </p>
+      {#if step.uses.length > 0}
+        <div class="flex flex-col gap-0.5 font-mono text-[11px] text-obsidian/60">
+          {#each step.uses as use, ui (ui)}
+            {@const ing = ingById.get(use.ingredientId)}
+            {#if ing}
+              <span>{use.amount}{ing.unit ?? ''} {ing.name}</span>
+            {/if}
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </label>
 </li>
