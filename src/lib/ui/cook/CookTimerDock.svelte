@@ -1,5 +1,8 @@
 <!-- src/lib/ui/cook/CookTimerDock.svelte -->
 <script lang="ts">
+  import Button from '$lib/ui/primitives/Button.svelte';
+  import TextInput from '$lib/ui/primitives/TextInput.svelte';
+
   export interface DockTimer {
     id: string;
     stepIndex: number;
@@ -87,6 +90,7 @@
       <div class="flex items-center gap-2 shrink-0" data-testid="dock-timer" data-timer-id={t.id}>
         <span class="font-mono {rem <= 0 ? 'text-ochre' : 'text-canvas'} text-base font-semibold min-w-[60px]">{fmt(rem)}</span>
         <span class="text-[10px] opacity-70 truncate max-w-[120px]">step {t.stepIndex + 1} · {t.label}</span>
+        <!-- raw: timer chip status styling -->
         <button
           type="button"
           onclick={() => onPauseToggle(t.id)}
@@ -121,10 +125,10 @@
       <input type="number" min="0" max="59" bind:value={mm} aria-label="Minutes" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="m" />
       <input type="number" min="0" max="59" bind:value={ms} aria-label="Seconds" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="s" />
     </div>
-    <input bind:value={mlabel} placeholder="Label (optional)" aria-label="Manual timer label" class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-xs" />
+    <TextInput bind:value={mlabel} placeholder="Label (optional)" aria-label="Manual timer label" class="px-2 py-1 text-xs" />
     <div class="flex justify-end gap-2">
       <button type="button" onclick={() => manualOpen = false} class="text-xs text-obsidian/60">Cancel</button>
-      <button type="button" onclick={submitManual} class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider rounded-sm" data-testid="manual-timer-submit">Start</button>
+      <Button variant="success" size="sm" onclick={submitManual} class="py-1" data-testid="manual-timer-submit">Start</Button>
     </div>
   </div>
 {/if}
