@@ -2,6 +2,9 @@
 <script lang="ts">
   import type { Ingredient, IngredientUse } from '$lib/server';
   import { parseAmount } from './layout/amount-parse';
+  import Button from './primitives/Button.svelte';
+  import Select from './primitives/Select.svelte';
+  import TextInput from './primitives/TextInput.svelte';
 
   let {
     ingredients,
@@ -102,9 +105,9 @@
   {#each uses as use, i (i)}
     {@const ing = ingredientById(use.ingredientId)}
     <div class="grid grid-cols-[1fr_6rem_2rem_1.5rem] gap-2 items-center text-sm" data-testid="use-row">
-      <select
+      <Select
         value={use.ingredientId}
-        onchange={(e) => {
+        onchange={(e: Event) => {
           const newId = (e.currentTarget as HTMLSelectElement).value;
           const currentAmount = uses[i].amount;
           // Auto-fill remaining only when amount is untouched (== 0). Preserve user-typed values.
@@ -112,20 +115,20 @@
           uses[i] = { ...uses[i], ingredientId: newId, amount: nextAmount };
         }}
         aria-label="Ingredient for use {i + 1}"
-        class="border border-drafting bg-canvas px-2 py-1 rounded-sm min-w-0"
+        class="min-w-0"
         data-testid="use-ingredient"
       >
         {#each ingredients as candidate (candidate.id)}
           <option value={candidate.id}>{candidate.name}{candidate.section ? ` (${candidate.section})` : ''}</option>
         {/each}
-      </select>
-      <input
-        type="text"
-        bind:value={amountInputs[i]}
+      </Select>
+      <TextInput
+        value={amountInputs[i] ?? ''}
+        oninput={(e) => { amountInputs[i] = (e.target as HTMLInputElement).value; }}
         onblur={() => commitAmount(i)}
         placeholder="Amount"
         aria-label="Amount for use {i + 1}"
-        class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-sm font-mono"
+        class="font-mono"
         data-testid="use-amount"
       />
       <span class="text-xs text-obsidian/50">{ing?.unit ?? ''}</span>
@@ -133,13 +136,13 @@
     </div>
   {/each}
 
-  <button
-    type="button"
+  <Button
+    variant="dashed"
     onclick={addUse}
     disabled={ingredients.length === 0}
-    class="border border-dashed border-drafting hover:border-ochre text-ochre text-[10px] uppercase tracking-wider py-1.5 rounded-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+    class="text-sm normal-case tracking-normal"
     data-testid="add-use-btn"
-  >+ Add Ingredient Use</button>
+  >+ Add ingredient use</Button>
 
   {#if uses.length > 0 && ingredients.length > 0}
     <div class="text-[10px] text-obsidian/50 mt-1 flex flex-wrap gap-x-3">
