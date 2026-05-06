@@ -1,6 +1,7 @@
 <!-- src/lib/ui/cook/CookTopBar.svelte -->
 <script lang="ts">
   import type { Recipe, Batch } from '$lib/server';
+  import Button from '$lib/ui/primitives/Button.svelte';
 
   let {
     recipe,
@@ -37,12 +38,13 @@
   <span class="ml-auto flex items-center gap-2">
     {#if started}
       <span class="text-[11px] font-mono text-obsidian/60" data-testid="cook-elapsed">{fmtElapsed(elapsedMs)}</span>
-      <button
-        type="button"
+      <Button
+        variant="success"
+        size="sm"
         onclick={onEndCook}
-        class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider hover:bg-juniper hover:text-canvas rounded-sm"
+        class="py-1"
         data-testid="end-cook-btn"
-      >End Cook</button>
+      >End Cook</Button>
     {/if}
   </span>
 </header>
