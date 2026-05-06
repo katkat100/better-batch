@@ -3,6 +3,10 @@
   import type { VariableSchemaItem, VariableType } from '$lib/server';
   import { api } from '$lib/ui/api-client';
   import { untrack } from 'svelte';
+  import Dialog from '$lib/ui/primitives/Dialog.svelte';
+  import Button from '$lib/ui/primitives/Button.svelte';
+  import TextInput from '$lib/ui/primitives/TextInput.svelte';
+  import Select from '$lib/ui/primitives/Select.svelte';
 
   let {
     open = $bindable(false),
@@ -92,127 +96,116 @@
       submitting = false;
     }
   }
-
-  function backdropClick(e: MouseEvent) {
-    if (e.target === e.currentTarget && !submitting) close();
-  }
 </script>
 
-<svelte:window onkeydown={(e) => open && e.key === 'Escape' && !submitting && close()} />
-
-{#if open}
-  <div
-    class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-50"
-    onclick={backdropClick}
-    onkeydown={(e) => e.key === 'Escape' && !submitting && close()}
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="edit-variables-dialog-title"
-    tabindex="-1"
+<Dialog
+  bind:open
+  title="Edit Variables"
+  titleId="edit-variables-dialog-title"
+  subtitle="Changes apply to all batches in this recipe."
+  class="max-w-2xl"
+  onClose={() => { if (!submitting) close(); }}
+>
+  <form
+    onsubmit={save}
+    class="flex flex-col gap-4"
+    data-testid="edit-variables-dialog"
   >
-    <form
-      onsubmit={save}
-      class="bg-canvas border border-obsidian p-6 w-full max-w-2xl flex flex-col gap-4 rounded-sm max-h-[90vh] overflow-auto"
-      data-testid="edit-variables-dialog"
-    >
-      <div>
-        <h2 id="edit-variables-dialog-title" class="font-serif text-xl">Edit Variables</h2>
-        <p class="text-sm text-obsidian/60 mt-1">Changes apply to all batches in this recipe.</p>
-      </div>
+    {#if serverError}
+      <p class="text-ochre text-sm" data-testid="edit-variables-error">{serverError}</p>
+    {/if}
 
-      {#if serverError}
-        <p class="text-ochre text-sm" data-testid="edit-variables-error">{serverError}</p>
-      {/if}
-
-      <div class="flex flex-col gap-2">
-        {#each rows as row, i (i)}
-          <div
-            class="flex flex-col gap-1 border border-drafting/50 p-2 rounded-sm"
-            data-testid="var-edit-row"
-          >
-            {#if row.confirming}
-              <div class="flex items-center justify-between gap-2 text-sm">
-                <span>Remove "{row.name.trim() || '(unnamed)'}"?</span>
-                <div class="flex gap-2">
-                  <button
-                    type="button"
-                    onclick={() => confirmRemove(i)}
-                    class="border border-ochre text-ochre px-2 py-1 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
-                    data-testid="var-remove-confirm"
-                  >Confirm</button>
-                  <button
-                    type="button"
-                    onclick={() => cancelRemove(i)}
-                    class="px-2 py-1 text-xs text-obsidian/60 hover:text-obsidian"
-                    data-testid="var-remove-cancel"
-                  >Cancel</button>
-                </div>
-              </div>
-            {:else}
-              <div class="flex gap-2 items-center">
-                <input
-                  bind:value={row.name}
-                  placeholder="Name"
-                  class="flex-1 border border-drafting bg-canvas px-2 py-1 rounded-sm text-sm"
-                  data-testid="var-name"
-                />
-                <input
-                  bind:value={row.unit}
-                  placeholder="Unit"
-                  class="w-24 border border-drafting bg-canvas px-2 py-1 rounded-sm text-sm font-mono"
-                  data-testid="var-unit"
-                />
-                <select
-                  bind:value={row.type}
-                  class="border border-drafting bg-canvas px-2 py-1 rounded-sm text-sm"
-                  data-testid="var-type"
-                >
-                  <option value="number">number</option>
-                  <option value="text">text</option>
-                </select>
-                <button
+    <div class="flex flex-col gap-2">
+      {#each rows as row, i (i)}
+        <div
+          class="flex flex-col gap-1 border border-drafting/50 p-2 rounded-sm"
+          data-testid="var-edit-row"
+        >
+          {#if row.confirming}
+            <div class="flex items-center justify-between gap-2 text-sm">
+              <span>Remove "{row.name.trim() || '(unnamed)'}"?</span>
+              <div class="flex gap-2">
+                <Button
                   type="button"
-                  onclick={() => startRemove(i)}
-                  aria-label="Remove variable"
-                  class="text-obsidian/50 hover:text-ochre px-2"
-                  data-testid="var-remove"
-                >×</button>
+                  variant="outline"
+                  size="sm"
+                  onclick={() => confirmRemove(i)}
+                  data-testid="var-remove-confirm"
+                >Confirm</Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onclick={() => cancelRemove(i)}
+                  data-testid="var-remove-cancel"
+                >Cancel</Button>
               </div>
-              {#if row.name.trim() === ''}
-                <p class="text-ochre text-xs">Name is required.</p>
-              {:else if isDuplicate(i)}
-                <p class="text-ochre text-xs">Duplicate name.</p>
-              {/if}
-              {#if row.originalType !== null && row.type !== row.originalType}
-                <p class="text-obsidian/60 text-xs">Existing values may not parse cleanly under the new type.</p>
-              {/if}
+            </div>
+          {:else}
+            <div class="flex gap-2 items-center">
+              <TextInput
+                bind:value={row.name}
+                placeholder="Name"
+                class="flex-1 px-2 py-1"
+                data-testid="var-name"
+              />
+              <TextInput
+                bind:value={row.unit}
+                placeholder="Unit"
+                class="w-24 px-2 py-1 font-mono"
+                data-testid="var-unit"
+              />
+              <Select
+                bind:value={row.type}
+                class="px-2 py-1"
+                data-testid="var-type"
+              >
+                <option value="number">number</option>
+                <option value="text">text</option>
+              </Select>
+              <button
+                type="button"
+                onclick={() => startRemove(i)}
+                aria-label="Remove variable"
+                class="text-obsidian/50 hover:text-ochre px-2"
+                data-testid="var-remove"
+              >×</button>
+            </div>
+            {#if row.name.trim() === ''}
+              <p class="text-ochre text-xs">Name is required.</p>
+            {:else if isDuplicate(i)}
+              <p class="text-ochre text-xs">Duplicate name.</p>
             {/if}
-          </div>
-        {/each}
-      </div>
+            {#if row.originalType !== null && row.type !== row.originalType}
+              <p class="text-obsidian/60 text-xs">Existing values may not parse cleanly under the new type.</p>
+            {/if}
+          {/if}
+        </div>
+      {/each}
+    </div>
 
-      <button
+    <Button
+      type="button"
+      variant="dashed"
+      onclick={addRow}
+      class="text-sm normal-case tracking-normal"
+      data-testid="add-variable-btn"
+    >+ Add Variable</Button>
+
+    <div class="flex justify-end gap-2 pt-2 border-t border-drafting">
+      <Button
         type="button"
-        onclick={addRow}
-        class="border border-dashed border-drafting text-obsidian/60 hover:text-ochre hover:border-ochre px-3 py-2 text-sm rounded-sm"
-        data-testid="add-variable-btn"
-      >+ Add Variable</button>
-
-      <div class="flex justify-end gap-2 pt-2 border-t border-drafting">
-        <button
-          type="button"
-          onclick={close}
-          disabled={submitting}
-          class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian"
-          data-testid="edit-variables-cancel"
-        >Cancel</button>
-        <button
-          type="submit"
-          disabled={!canSave}
-          class="border border-ochre {canSave ? 'bg-ochre text-canvas' : 'text-ochre opacity-50'} px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas disabled:cursor-not-allowed rounded-sm"
-          data-testid="edit-variables-submit"
-        >{submitting ? 'Saving…' : 'Save Changes'}</button>
-      </div>
-    </form>
-  </div>
-{/if}
+        variant="ghost"
+        onclick={close}
+        disabled={submitting}
+        data-testid="edit-variables-cancel"
+      >Cancel</Button>
+      <Button
+        type="submit"
+        variant={canSave ? 'primary' : 'outline'}
+        disabled={!canSave}
+        data-testid="edit-variables-submit"
+      >{submitting ? 'Saving…' : 'Save Changes'}</Button>
+    </div>
+  </form>
+</Dialog>
