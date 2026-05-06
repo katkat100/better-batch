@@ -9,6 +9,7 @@
     import ConfirmDeleteDialog from "./ConfirmDeleteDialog.svelte";
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
+    import Button from '$lib/ui/primitives/Button.svelte';
 
     let {
         recipe,
@@ -153,6 +154,7 @@
                         class="absolute right-0 top-full mt-1 w-44 bg-canvas border border-obsidian rounded-sm shadow-lg z-30 flex flex-col py-1"
                         data-testid="more-actions-menu"
                     >
+                        <!-- raw: menu item styling — hover:bg-drafting/40 background highlight differs from ghost hover:text-obsidian -->
                         <button
                             type="button"
                             onclick={() => {
@@ -162,6 +164,7 @@
                             class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
                             data-testid="compare-btn">Compare with…</button
                         >
+                        <!-- raw: menu item styling -->
                         <button
                             type="button"
                             onclick={() => {
@@ -172,6 +175,7 @@
                             data-testid="merge-btn">Merge with…</button
                         >
                         {#if batch.status === "draft"}
+                            <!-- raw: anchor menu item -->
                             <a
                                 href="/recipes/{recipe.id}/batches/{batch.id}/edit"
                                 class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
@@ -179,6 +183,7 @@
                             >
                         {/if}
                         {#if batch.status === 'draft'}
+                            <!-- raw: menu item styling -->
                             <button
                                 type="button"
                                 onclick={() => { moreOpen = false; onMarkCooked(); }}
@@ -187,6 +192,7 @@
                             >Mark as Cooked</button>
                         {/if}
                         <div class="h-px bg-drafting my-1"></div>
+                        <!-- raw: menu item styling — destructive ochre text with bg-ochre/10 hover differs from any Button variant -->
                         <button
                             type="button"
                             onclick={() => {
