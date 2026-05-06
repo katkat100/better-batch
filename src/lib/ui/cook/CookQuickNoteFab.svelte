@@ -1,5 +1,8 @@
 <!-- src/lib/ui/cook/CookQuickNoteFab.svelte -->
 <script lang="ts">
+  import Dialog from '$lib/ui/primitives/Dialog.svelte';
+  import Button from '$lib/ui/primitives/Button.svelte';
+
   let {
     notes = $bindable([])
   }: {
@@ -50,13 +53,7 @@
     notes = notes.filter((_, idx) => idx !== i);
     if (editingIndex === i) cancelEdit();
   }
-
-  function backdropClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) close();
-  }
 </script>
-
-<svelte:window onkeydown={(e) => open && e.key === 'Escape' && close()} />
 
 <button
   type="button"
@@ -71,87 +68,67 @@
   {/if}
 </button>
 
-{#if open}
-  <div
-    class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-40 p-4"
-    onclick={backdropClick}
-    onkeydown={(e) => e.key === 'Escape' && close()}
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="quick-note-title"
-    tabindex="-1"
-  >
-    <div
-      class="bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm max-h-[90vh] overflow-y-auto"
-      data-testid="quick-note-modal"
-    >
-      <div class="flex items-baseline justify-between">
-        <h2 id="quick-note-title" class="font-serif text-lg">Notes for next batch</h2>
-        <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{notes.length} captured</span>
-      </div>
+<Dialog bind:open title="Notes for next batch" titleId="quick-note-title" onClose={close}>
+  <div data-testid="quick-note-modal" class="flex flex-col gap-4">
+    <div class="flex justify-end">
+      <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{notes.length} captured</span>
+    </div>
 
-      {#if notes.length > 0}
-        <ul class="flex flex-col gap-2" data-testid="quick-note-list">
-          {#each notes as note, i (i)}
-            <li class="border border-drafting rounded-sm p-2 flex flex-col gap-2 text-sm" data-testid="quick-note-item">
-              {#if editingIndex === i}
-                <textarea
-                  bind:value={editDraft}
-                  rows="3"
-                  class="border border-drafting bg-canvas px-2 py-1 rounded-sm resize-none text-sm"
+    {#if notes.length > 0}
+      <ul class="flex flex-col gap-2" data-testid="quick-note-list">
+        {#each notes as note, i (i)}
+          <li class="border border-drafting rounded-sm p-2 flex flex-col gap-2 text-sm" data-testid="quick-note-item">
+            {#if editingIndex === i}
+              <textarea
+                bind:value={editDraft}
+                rows="3"
+                class="border border-drafting bg-canvas px-2 py-1 rounded-sm resize-none text-sm"
+                aria-label="Edit note {i + 1}"
+              ></textarea>
+              <div class="flex justify-end gap-2">
+                <Button type="button" variant="ghost" size="sm" onclick={cancelEdit}>Cancel</Button>
+                <Button type="button" variant="success" size="sm" onclick={saveEdit} data-testid="quick-note-save-edit">Save</Button>
+              </div>
+            {:else}
+              <p class="whitespace-pre-wrap">{note}</p>
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onclick={() => removeNote(i)}
+                  class="text-[10px] uppercase tracking-wider text-ochre/70 hover:text-ochre"
+                  data-testid="quick-note-delete"
+                  aria-label="Delete note {i + 1}"
+                >Delete</button>
+                <button
+                  type="button"
+                  onclick={() => startEdit(i)}
+                  class="text-[10px] uppercase tracking-wider text-obsidian/60 hover:text-obsidian"
+                  data-testid="quick-note-edit"
                   aria-label="Edit note {i + 1}"
-                ></textarea>
-                <div class="flex justify-end gap-2">
-                  <button type="button" onclick={cancelEdit} class="text-xs text-obsidian/60 hover:text-obsidian">Cancel</button>
-                  <button type="button" onclick={saveEdit} class="border border-juniper text-juniper px-3 py-1 text-xs uppercase tracking-wider hover:bg-juniper hover:text-canvas rounded-sm" data-testid="quick-note-save-edit">Save</button>
-                </div>
-              {:else}
-                <p class="whitespace-pre-wrap">{note}</p>
-                <div class="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onclick={() => removeNote(i)}
-                    class="text-[10px] uppercase tracking-wider text-ochre/70 hover:text-ochre"
-                    data-testid="quick-note-delete"
-                    aria-label="Delete note {i + 1}"
-                  >Delete</button>
-                  <button
-                    type="button"
-                    onclick={() => startEdit(i)}
-                    class="text-[10px] uppercase tracking-wider text-obsidian/60 hover:text-obsidian"
-                    data-testid="quick-note-edit"
-                    aria-label="Edit note {i + 1}"
-                  >Edit</button>
-                </div>
-              {/if}
-            </li>
-          {/each}
-        </ul>
-      {/if}
+                >Edit</button>
+              </div>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
 
-      <div class="flex flex-col gap-2 border-t border-drafting pt-3">
-        <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Add a new note</span>
-        <textarea
-          bind:value={draft}
-          rows="3"
-          placeholder="What would you change next time?"
-          class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm"
-          data-testid="quick-note-textarea"
-        ></textarea>
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            onclick={addNote}
-            disabled={!draft.trim()}
-            class="border border-ochre text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas disabled:opacity-40 disabled:cursor-not-allowed rounded-sm"
-            data-testid="quick-note-save"
-          >+ Add note</button>
-        </div>
-      </div>
-
-      <div class="flex justify-end pt-2 border-t border-drafting">
-        <button type="button" onclick={close} class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian" data-testid="quick-note-close">Close</button>
+    <div class="flex flex-col gap-2 border-t border-drafting pt-3">
+      <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Add a new note</span>
+      <textarea
+        bind:value={draft}
+        rows="3"
+        placeholder="What would you change next time?"
+        class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm"
+        data-testid="quick-note-textarea"
+      ></textarea>
+      <div class="flex justify-end gap-2">
+        <Button type="button" variant="outline" size="sm" onclick={addNote} disabled={!draft.trim()} data-testid="quick-note-save">+ Add note</Button>
       </div>
     </div>
+
+    <div class="flex justify-end pt-2 border-t border-drafting">
+      <Button type="button" variant="ghost" onclick={close} data-testid="quick-note-close">Close</Button>
+    </div>
   </div>
-{/if}
+</Dialog>
