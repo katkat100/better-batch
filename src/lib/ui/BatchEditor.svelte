@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
+  import { SvelteSet } from 'svelte/reactivity';
   import { untrack } from 'svelte';
   import { api } from './api-client';
   import { slugify, uniqueSlug } from '$lib/shared/slug';
@@ -52,7 +53,7 @@
   let error = $state<string | null>(null);
 
   const sectionOptions = $derived.by<string[]>(() => {
-    const set = new Set<string>();
+    const set = new SvelteSet<string>();
     for (const ing of ingredients) {
       if (ing.section && ing.section.trim()) set.add(ing.section.trim());
     }

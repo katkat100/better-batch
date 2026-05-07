@@ -10,6 +10,7 @@
   import { api } from '../api-client';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
+  import { SvelteSet } from 'svelte/reactivity';
   import { onMount, onDestroy } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
   import type { TimerMatch } from './layout/timer-parse';
@@ -69,7 +70,7 @@
   }
 
   function handleCheck(i: number, checked: boolean) {
-    const next = new Set(checkedSteps);
+    const next = new SvelteSet(checkedSteps);
     if (checked) next.add(i); else next.delete(i);
     checkedSteps = next;
     if (started && next.size === batch.steps.length && !wasFullChecked) {

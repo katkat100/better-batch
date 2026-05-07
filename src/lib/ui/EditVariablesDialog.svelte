@@ -3,6 +3,7 @@
   import type { VariableSchemaItem, VariableType } from '$lib/server';
   import { api } from '$lib/ui/api-client';
   import { untrack } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
@@ -40,8 +41,8 @@
   const trimmedNames = $derived(rows.map(r => r.name.trim()));
   const emptyNameIdx = $derived(trimmedNames.findIndex(n => n === ''));
   const duplicateNames = $derived.by(() => {
-    const seen = new Set<string>();
-    const dups = new Set<string>();
+    const seen = new SvelteSet<string>();
+    const dups = new SvelteSet<string>();
     for (const n of trimmedNames) {
       const key = n.toLowerCase();
       if (key === '') continue;

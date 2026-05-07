@@ -2,6 +2,7 @@
 <script lang="ts">
   import Button from '$lib/ui/primitives/Button.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
+  import { SvelteMap } from 'svelte/reactivity';
 
   export interface DockTimer {
     id: string;
@@ -66,7 +67,7 @@
   // Reactive remaining-by-id map. Recomputes when tick or timers change.
   const remainingById = $derived.by(() => {
     void tick; // explicit reactive read so this re-runs on every tick
-    const map = new Map<string, number>();
+    const map = new SvelteMap<string, number>();
     const now = Date.now();
     for (const t of timers) map.set(t.id, remainingMs(t, now));
     return map;

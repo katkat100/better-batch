@@ -1,13 +1,14 @@
 <!-- src/lib/ui/IngredientList.svelte -->
 <script lang="ts">
   import type { Ingredient } from '$lib/server';
+  import { SvelteMap } from 'svelte/reactivity';
   let { ingredients }: { ingredients: Ingredient[] } = $props();
 
   type Group = { section: string | null; items: Ingredient[] };
 
   const groups = $derived.by<Group[]>(() => {
     const order: (string | null)[] = [];
-    const map = new Map<string | null, Ingredient[]>();
+    const map = new SvelteMap<string | null, Ingredient[]>();
     for (const ing of ingredients) {
       const key = ing.section && ing.section.trim() ? ing.section.trim() : null;
       if (!map.has(key)) {

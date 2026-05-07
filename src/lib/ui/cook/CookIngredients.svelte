@@ -1,6 +1,7 @@
 <!-- src/lib/ui/cook/CookIngredients.svelte -->
 <script lang="ts">
   import type { Ingredient, Step } from '$lib/server';
+  import { SvelteSet, SvelteMap } from 'svelte/reactivity';
 
   let {
     ingredients,
@@ -19,7 +20,7 @@
   ));
 
   const usedInCheckedIds = $derived.by(() => {
-    const ids = new Set<string>();
+    const ids = new SvelteSet<string>();
     for (const i of checkedSteps) {
       for (const u of steps[i]?.uses ?? []) ids.add(u.ingredientId);
     }
@@ -29,7 +30,7 @@
   type Group = { section: string | null; items: Ingredient[] };
   const groups = $derived.by<Group[]>(() => {
     const order: (string | null)[] = [];
-    const map = new Map<string | null, Ingredient[]>();
+    const map = new SvelteMap<string | null, Ingredient[]>();
     for (const ing of ingredients) {
       const key = ing.section && ing.section.trim() ? ing.section.trim() : null;
       if (!map.has(key)) { map.set(key, []); order.push(key); }

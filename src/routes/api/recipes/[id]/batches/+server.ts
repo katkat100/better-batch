@@ -17,7 +17,7 @@ export async function POST({ params, request }: { params: { id: string }; reques
   // Validate parents belong to this recipe
   if (body.parentIds.length) {
     const all = await listBatches(params.id);
-    const ids = new Set(all.map((b: any) => b.id));
+    const ids = new Set(all.map(b => b.id));
     for (const pid of body.parentIds) {
       if (!ids.has(pid)) throw error(409, `parent ${pid} not in recipe`);
     }
