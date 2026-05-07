@@ -17,24 +17,24 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
 
   const ingRows = page.getByTestId('ingredient-edit-row');
   await page.getByTestId('add-ingredient-btn').click();
-  await ingRows.nth(0).locator('input').nth(0).fill('500');
-  await ingRows.nth(0).locator('input').nth(1).fill('g');
-  await ingRows.nth(0).locator('input').nth(2).fill('flour');
-  await ingRows.nth(0).locator('input').nth(2).blur();
+  await ingRows.nth(0).getByLabel(/^Ingredient 1 amount$/).fill('500');
+  await ingRows.nth(0).getByLabel(/^Ingredient 1 unit$/).fill('g');
+  await ingRows.nth(0).getByLabel(/^Ingredient 1 name$/).fill('flour');
+  await ingRows.nth(0).getByLabel(/^Ingredient 1 name$/).blur();
 
   await page.getByTestId('add-ingredient-btn').click();
-  await ingRows.nth(1).locator('input').nth(0).fill('100');
-  await ingRows.nth(1).locator('input').nth(1).fill('g');
-  await ingRows.nth(1).locator('input').nth(2).fill('water');
-  await ingRows.nth(1).locator('input').nth(2).blur();
+  await ingRows.nth(1).getByLabel(/^Ingredient 2 amount$/).fill('100');
+  await ingRows.nth(1).getByLabel(/^Ingredient 2 unit$/).fill('g');
+  await ingRows.nth(1).getByLabel(/^Ingredient 2 name$/).fill('water');
+  await ingRows.nth(1).getByLabel(/^Ingredient 2 name$/).blur();
 
   // Verify reorder: move water up, water becomes index 0
   await ingRows.nth(1).getByTestId('ingredient-move-up').click();
-  await expect(ingRows.nth(0).locator('input').nth(2)).toHaveValue('water');
-  await expect(ingRows.nth(1).locator('input').nth(2)).toHaveValue('flour');
+  await expect(ingRows.nth(0).getByLabel(/name$/)).toHaveValue('water');
+  await expect(ingRows.nth(1).getByLabel(/name$/)).toHaveValue('flour');
   // Move water back down to restore order for the rest of the test
   await ingRows.nth(0).getByTestId('ingredient-move-down').click();
-  await expect(ingRows.nth(0).locator('input').nth(2)).toHaveValue('flour');
+  await expect(ingRows.nth(0).getByLabel(/name$/)).toHaveValue('flour');
 
   await page.getByTestId('add-step-btn').click();
   await page.getByTestId('step-text').nth(0).fill('Mix half the flour and all the water');
