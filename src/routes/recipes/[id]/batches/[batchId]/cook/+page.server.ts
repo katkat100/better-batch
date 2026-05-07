@@ -7,8 +7,8 @@ export async function load({ params }) {
   try {
     recipe = await readRecipe(params.id);
     batch = await readBatch(params.id, params.batchId);
-  } catch (err: any) {
-    if (err.code === 'ENOENT') throw error(404, 'Not found');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'Not found');
     throw err;
   }
   if (batch.status === 'archived') {

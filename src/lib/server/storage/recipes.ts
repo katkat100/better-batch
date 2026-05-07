@@ -33,8 +33,8 @@ async function existingRecipeIds(): Promise<Set<string>> {
   try {
     const entries = await readdir(await recipesDir(), { withFileTypes: true });
     return new Set(entries.filter(e => e.isDirectory()).map(e => e.name));
-  } catch (err: any) {
-    if (err.code === 'ENOENT') return new Set();
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return new Set();
     throw err;
   }
 }

@@ -7,7 +7,7 @@ export async function GET({ params }: { params: { id: string } }) {
 
 export async function POST({ params, request }: { params: { id: string }; request: Request }) {
   try { await readRecipe(params.id); }
-  catch (err: any) { if (err.code === 'ENOENT') throw error(404, 'recipe not found'); throw err; }
+  catch (err) { if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'recipe not found'); throw err; }
 
   const body = await request.json();
   if (!body.label || typeof body.label !== 'string') throw error(400, 'label required');

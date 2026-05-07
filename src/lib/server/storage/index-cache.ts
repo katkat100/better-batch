@@ -35,8 +35,8 @@ export async function rebuildIndex(): Promise<IndexEntry[]> {
 export async function readIndex(): Promise<IndexEntry[]> {
   try {
     return JSON.parse(await readFile(await indexFile(), 'utf8')) as IndexEntry[];
-  } catch (err: any) {
-    if (err.code === 'ENOENT') return [];
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return [];
     throw err;
   }
 }

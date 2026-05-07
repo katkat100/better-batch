@@ -20,8 +20,8 @@ async function existingBatchIds(recipeId: string): Promise<Set<string>> {
   try {
     const entries = await readdir(await batchesDir(recipeId));
     return new Set(entries.filter(f => f.endsWith('.json')).map(f => f.replace(/\.json$/, '')));
-  } catch (err: any) {
-    if (err.code === 'ENOENT') return new Set();
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return new Set();
     throw err;
   }
 }
@@ -62,10 +62,10 @@ export async function createBatch(recipeId: string, input: CreateBatchInput): Pr
 interface LegacyIngredient { id?: string; name: string; amount: string; unit: string; section?: string; }
 type RawStep = string | { text: string; uses?: IngredientUse[] };
 
-function migrateBatchOnRead(raw: any): Batch {
+function migrateBatchOnRead(raw: Record<string, unknown>): Batch {
   // Ingredients: ensure id, leave section as-is (undefined if absent)
   const taken = new Set<string>();
-  const ingredients: Ingredient[] = (raw.ingredients ?? []).map((ing: LegacyIngredient) => {
+  const ingredients: Ingredient[] = ((raw.ingredients as LegacyIngredient[] | undefined) ?? []).map((ing) => {
     let id = ing.id;
     if (!id) {
       id = uniqueSlug(slugify(ing.name || 'ingredient'), taken);
@@ -75,7 +75,7 @@ function migrateBatchOnRead(raw: any): Batch {
   });
 
   // Steps: string → { text, uses: [] }; object passes through (with empty uses default)
-  const steps: Step[] = (raw.steps ?? []).map((s: RawStep) => {
+  const steps: Step[] = ((raw.steps as RawStep[] | undefined) ?? []).map((s) => {
     if (typeof s === 'string') return { text: s, uses: [] };
     return { text: s.text, uses: s.uses ?? [] };
   });

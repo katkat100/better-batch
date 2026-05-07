@@ -10,23 +10,27 @@ let dir: string;
 beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), 'bb-api-r-')); setDataDirForTest(dir); });
 afterEach(async () => { clearDataDirCache(); await rm(dir, { recursive: true, force: true }); });
 
-const reqJSON = (body: any) => new Request('http://x', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+const reqJSON = (body: unknown) => new Request('http://x', { method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' } });
+
+const evListPOST = (o: { request: Request }) => o as Parameters<typeof listPOST>[0];
+const evOneGET = (o: { params: { id: string } }) => o as Parameters<typeof oneGET>[0];
+const evOneDELETE = (o: { params: { id: string } }) => o as Parameters<typeof oneDELETE>[0];
 
 describe('recipes api', () => {
   it('POST creates, GET lists', async () => {
-    const created = await (await listPOST({ request: reqJSON({ name: 'Sourdough', preset: 'bread', tags: [] }) } as any)).json();
+    const created = await (await listPOST(evListPOST({ request: reqJSON({ name: 'Sourdough', preset: 'bread', tags: [] }) }))).json();
     expect(created.id).toBe('sourdough');
     const list = await (await listGET()).json();
-    expect(list.map((r: any) => r.id)).toEqual(['sourdough']);
+    expect(list.map((r: { id: string }) => r.id)).toEqual(['sourdough']);
   });
 
   it('GET /[id] returns 404 for missing', async () => {
-    await expect(oneGET({ params: { id: 'missing' } } as any)).rejects.toMatchObject({ status: 404 });
+    await expect(oneGET(evOneGET({ params: { id: 'missing' } }))).rejects.toMatchObject({ status: 404 });
   });
 
   it('DELETE removes the recipe', async () => {
-    await listPOST({ request: reqJSON({ name: 'X', preset: 'custom', tags: [] }) } as any);
-    await oneDELETE({ params: { id: 'x' } } as any);
+    await listPOST(evListPOST({ request: reqJSON({ name: 'X', preset: 'custom', tags: [] }) }));
+    await oneDELETE(evOneDELETE({ params: { id: 'x' } }));
     const list = await (await listGET()).json();
     expect(list).toEqual([]);
   });

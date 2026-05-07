@@ -7,8 +7,8 @@ export async function GET({ params }: { params: { id: string } }) {
     const recipe = await readRecipe(params.id);
     const batches = await listBatches(params.id);
     return json({ recipe, batches });
-  } catch (err: any) {
-    if (err.code === 'ENOENT') throw error(404, 'recipe not found');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'recipe not found');
     throw err;
   }
 }
@@ -17,7 +17,7 @@ export async function PATCH({ params, request }: { params: { id: string }; reque
   const patch = await request.json() as Partial<Recipe>;
   let current: Recipe;
   try { current = await readRecipe(params.id); }
-  catch (err: any) { if (err.code === 'ENOENT') throw error(404, 'recipe not found'); throw err; }
+  catch (err) { if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'recipe not found'); throw err; }
 
   if (patch.variableSchema && JSON.stringify(patch.variableSchema) !== JSON.stringify(current.variableSchema)) {
     const oldSchema = current.variableSchema;

@@ -43,7 +43,7 @@
   ));
 
   let elapsedTickId: ReturnType<typeof setInterval> | null = null;
-  let wakeLock: any = null;
+  let wakeLock: WakeLockSentinel | null = null;
 
   onMount(async () => {
     elapsedTickId = setInterval(() => {

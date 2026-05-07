@@ -3,7 +3,7 @@ import type { Batch, Ingredient, Step, VariableValue } from './types';
 export type FieldSource =
   | { from: 'a' }
   | { from: 'b' }
-  | { from: 'custom'; value: any };
+  | { from: 'custom'; value: unknown };
 
 export interface MergePicks {
   variables: Record<string, FieldSource>;

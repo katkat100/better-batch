@@ -6,14 +6,14 @@ const FROZEN_FIELDS = new Set(['ingredients', 'steps', 'variables', 'label', 'pa
 
 export async function GET({ params }: { params: { id: string; batchId: string } }) {
   try { return json(await readBatch(params.id, params.batchId)); }
-  catch (err: any) { if (err.code === 'ENOENT') throw error(404, 'batch not found'); throw err; }
+  catch (err) { if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'batch not found'); throw err; }
 }
 
 export async function PATCH({ params, request }: { params: { id: string; batchId: string }; request: Request }) {
   const patch = await request.json();
   let current: Batch;
   try { current = await readBatch(params.id, params.batchId); }
-  catch (err: any) { if (err.code === 'ENOENT') throw error(404, 'batch not found'); throw err; }
+  catch (err) { if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'batch not found'); throw err; }
 
   // Frozen-field check for cooked/archived batches
   if (current.status === 'cooked' || current.status === 'archived') {
@@ -59,8 +59,8 @@ export async function DELETE({ params }: { params: { id: string; batchId: string
     if (recipe.currentBatchId === params.batchId) {
       await updateRecipe(params.id, { currentBatchId: null });
     }
-  } catch (err: any) {
-    if (err.code !== 'ENOENT') throw err;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
   }
 
   await rebuildIndex();

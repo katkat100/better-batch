@@ -15,8 +15,8 @@ export async function load({ params, url }) {
     recipe = await readRecipe(params.id);
     a = await readBatch(params.id, aId);
     b = await readBatch(params.id, bId);
-  } catch (err: any) {
-    if (err.code === 'ENOENT') throw error(404, 'Not found');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'Not found');
     throw err;
   }
 

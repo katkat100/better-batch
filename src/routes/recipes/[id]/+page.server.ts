@@ -7,8 +7,8 @@ export async function load({ params }) {
     const recipe = await readRecipe(params.id);
     const batches = await listBatches(params.id);
     return { recipe, batches };
-  } catch (err: any) {
-    if (err.code === 'ENOENT') throw error(404, 'Recipe not found');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'Recipe not found');
     throw err;
   }
 }

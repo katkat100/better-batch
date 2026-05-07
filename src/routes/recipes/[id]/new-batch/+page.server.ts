@@ -8,8 +8,8 @@ export async function load({ params, url }) {
     const fromId = url.searchParams.get('from');
     const parent = fromId ? batches.find(b => b.id === fromId) ?? null : (batches[0] ?? null);
     return { recipe, parent };
-  } catch (err: any) {
-    if (err.code === 'ENOENT') throw error(404, 'Recipe not found');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'Recipe not found');
     throw err;
   }
 }
