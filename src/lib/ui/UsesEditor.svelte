@@ -1,6 +1,7 @@
 <!-- src/lib/ui/UsesEditor.svelte -->
 <script lang="ts">
   import type { Ingredient, IngredientUse } from '$lib/server';
+  import { SvelteMap } from 'svelte/reactivity';
   import { parseAmount } from './layout/amount-parse';
   import Button from './primitives/Button.svelte';
   import Select from './primitives/Select.svelte';
@@ -23,7 +24,7 @@
 
   // Sum within THIS step, per ingredient
   const allocated = $derived.by(() => {
-    const m = new Map<string, number>();
+    const m = new SvelteMap<string, number>();
     for (const u of uses) m.set(u.ingredientId, (m.get(u.ingredientId) ?? 0) + u.amount);
     return m;
   });
@@ -142,7 +143,7 @@
 
   {#if uses.length > 0 && ingredients.length > 0}
     <div class="text-[10px] text-obsidian/50 mt-1 flex flex-wrap gap-x-3">
-      {#each Array.from(allocated.entries()) as [ingId, sum]}
+      {#each Array.from(allocated.entries()) as [ingId, sum] (ingId)}
         {@const ing = ingredientById(ingId)}
         {@const master = masterAmount.get(ingId) ?? NaN}
         {#if ing}
