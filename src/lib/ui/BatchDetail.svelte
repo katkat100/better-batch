@@ -11,6 +11,7 @@
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
     import Button from "$lib/ui/primitives/Button.svelte";
+    import { validateBatch, type IngredientIssue } from '$lib/shared/batch-validation';
 
     let {
         recipe,
@@ -50,6 +51,12 @@
     );
     const canDelete = $derived(childCount === 0);
 
+    const detailIssues = $derived<IngredientIssue[]>(validateBatch(batch));
+    const hasInconsistency = $derived(
+        detailIssues.length > 0 || (batch.inconsistencyNote !== undefined && batch.inconsistencyNote !== '')
+    );
+    let popoverOpen = $state(false);
+
     let deleteOpen = $state(false);
 
     async function handleDelete() {
@@ -80,6 +87,45 @@
     >
         <div>
             <h2 class="font-serif text-2xl">{batch.label}</h2>
+            {#if hasInconsistency}
+                <button
+                    type="button"
+                    class="text-ochre text-sm align-middle ml-1 relative"
+                    aria-label="Show ingredient inconsistencies"
+                    onclick={() => popoverOpen = !popoverOpen}
+                    data-testid="inconsistency-badge"
+                >⚠
+                    {#if popoverOpen}
+                        <span
+                            role="dialog"
+                            class="absolute left-0 top-full mt-1 z-10 w-72 bg-canvas border border-drafting rounded-sm shadow-md p-3 text-left"
+                            data-testid="inconsistency-popover"
+                        >
+                            {#if detailIssues.length > 0}
+                                <ul class="font-mono text-xs space-y-1">
+                                    {#each detailIssues as issue (issue.ingredientId + ':' + issue.kind)}
+                                        <li class="text-ochre">
+                                            {#if issue.kind === 'unreferenced'}
+                                                ⚠ {issue.ingredientName}: never referenced in any step
+                                            {:else if (issue.sum ?? 0) > (issue.master ?? 0)}
+                                                ⚠ {issue.ingredientName}: used {issue.sum}{issue.unit ?? ''}, more than the {issue.master}{issue.unit ?? ''} listed
+                                            {:else}
+                                                ⚠ {issue.ingredientName}: used {issue.sum}{issue.unit ?? ''} of {issue.master}{issue.unit ?? ''}
+                                            {/if}
+                                        </li>
+                                    {/each}
+                                </ul>
+                            {/if}
+                            {#if batch.inconsistencyNote && batch.inconsistencyNote.trim()}
+                                <p class="text-xs text-obsidian/70 whitespace-pre-wrap mt-2 pt-2 border-t border-drafting">
+                                    <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Note:</span>
+                                    {batch.inconsistencyNote}
+                                </p>
+                            {/if}
+                        </span>
+                    {/if}
+                </button>
+            {/if}
             {#if batch.status === "cooked" && cookedDateLabel}
                 <p
                     class="text-[11px] uppercase tracking-wider text-juniper mt-1"
