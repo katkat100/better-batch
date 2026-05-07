@@ -12,6 +12,8 @@
   import RadioGroup from './primitives/RadioGroup.svelte';
   import TextInput from './primitives/TextInput.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
+  import PasteRecipeDialog from './PasteRecipeDialog.svelte';
+  import type { PasteParseResult } from '$lib/shared/recipe-paste';
 
   let {
     recipe,
@@ -51,6 +53,31 @@
 
   let submitting = $state(false);
   let error = $state<string | null>(null);
+
+  let pasteOpen = $state(false);
+
+  const formHasContent = $derived(
+    ingredients.length > 0 ||
+    steps.length > 0 ||
+    Object.values(variables).some(v => v !== null && v !== undefined && v !== '')
+  );
+
+  function applyPaste(result: PasteParseResult, mode: 'append' | 'replace') {
+    if (mode === 'replace') {
+      ingredients = result.ingredients;
+      steps = result.steps;
+      variables = { ...variables, ...result.variables };
+    } else {
+      ingredients = [...ingredients, ...result.ingredients];
+      steps = [...steps, ...result.steps];
+      for (const [k, v] of Object.entries(result.variables)) {
+        const cur = variables[k];
+        if (cur === null || cur === undefined || cur === '') {
+          variables[k] = v;
+        }
+      }
+    }
+  }
 
   const sectionOptions = $derived.by<string[]>(() => {
     const set = new SvelteSet<string>();
@@ -177,6 +204,16 @@
     <p class="text-sm text-obsidian/60">{recipe.name}</p>
   </header>
 
+  <div class="flex justify-end">
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onclick={() => pasteOpen = true}
+      data-testid="paste-recipe-btn"
+    >Paste Recipe</Button>
+  </div>
+
   <label class="flex flex-col gap-1 text-sm">
     <span class="text-[11px] uppercase tracking-wider">Label</span>
     <TextInput bind:value={label} required data-testid="batch-label" />
@@ -240,27 +277,27 @@
         </div>
 
         <div class="flex-1 flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-          <TextInput
-            bind:value={ing.name}
-            placeholder="Ingredient"
-            aria-label="Ingredient {i + 1} name"
-            class="px-2 py-1.5 md:flex-1 md:order-3"
-          />
-          <div class="flex gap-2 md:contents">
+          <div class="flex gap-2 md:contents order-2 md:order-none">
             <TextInput
               bind:value={ing.amount}
               onblur={() => evalIngredientAmountOnBlur(i)}
               placeholder="Amount"
               aria-label="Ingredient {i + 1} amount"
-              class="flex-1 md:flex-none md:w-24 md:order-1 px-2 py-1.5"
+              class="flex-1 md:flex-none md:w-24 px-2 py-1.5"
             />
             <TextInput
               bind:value={ing.unit}
               placeholder="Unit"
               aria-label="Ingredient {i + 1} unit"
-              class="flex-1 md:flex-none md:w-20 md:order-2 px-2 py-1.5"
+              class="flex-1 md:flex-none md:w-20 px-2 py-1.5"
             />
           </div>
+          <TextInput
+            bind:value={ing.name}
+            placeholder="Ingredient"
+            aria-label="Ingredient {i + 1} name"
+            class="px-2 py-1.5 md:flex-1 order-1 md:order-none"
+          />
           <select
             value={ing.section ?? '__none__'}
             onchange={(e) => {
@@ -268,7 +305,7 @@
               ing.section = val === '__none__' ? undefined : val;
             }}
             aria-label="Ingredient {i + 1} section"
-            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm md:w-32 md:order-4"
+            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm md:w-32 order-3 md:order-none"
             data-testid="ingredient-section"
           >
             <option value="__none__">(no section)</option>
@@ -359,3 +396,10 @@
     >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save Changes' : 'Record Batch')}</Button>
   </div>
 </form>
+
+<PasteRecipeDialog
+  bind:open={pasteOpen}
+  schema={recipe.variableSchema}
+  {formHasContent}
+  onApply={applyPaste}
+/>

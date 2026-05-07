@@ -60,6 +60,22 @@ describe('layoutGraph', () => {
     expect(out.edges).toContainEqual({ from: 'v2b', to: 'v3' });
   });
 
+  it('places each child under its parent (no crossing lines between disjoint subtrees)', () => {
+    // Mirrors the screenshot bug: initial → {LiHi Mui, Pistachio, Savory Garlic};
+    // Savory Garlic → Savory Pesto, LiHi Mui → LiHi Mui with...
+    const out = layoutGraph([
+      mk('initial', [], '2026-01-01T00:00:00Z'),
+      mk('lihi', ['initial'], '2026-01-02T00:00:00Z'),
+      mk('pistachio', ['initial'], '2026-01-03T00:00:00Z'),
+      mk('garlic', ['initial'], '2026-01-04T00:00:00Z'),
+      mk('pesto', ['garlic'], '2026-01-05T00:00:00Z'),
+      mk('lihi-with', ['lihi'], '2026-01-06T00:00:00Z')
+    ]);
+    const col = (id: string) => out.nodes.find(n => n.id === id)!.col;
+    expect(col('pesto')).toBe(col('garlic'));
+    expect(col('lihi-with')).toBe(col('lihi'));
+  });
+
   it('returns total width and height in pixels', () => {
     const out = layoutGraph([mk('v1', []), mk('v2', ['v1'])], { colWidth: 60, rowHeight: 50 });
     expect(out.height).toBe(50); // 2 rows → height = (rows - 1) * rowHeight

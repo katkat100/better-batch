@@ -27,21 +27,47 @@ export function layoutGraph(batches: Batch[], opts: LayoutOptions = {}): Layout 
   }
   batches.forEach(b => computeDepth(b.id));
 
-  // Group by row, sort each row by createdAt for deterministic columns
+  // Group by row
   const byRow = new Map<number, Batch[]>();
   for (const b of batches) {
     const r = depth.get(b.id)!;
     if (!byRow.has(r)) byRow.set(r, []);
     byRow.get(r)!.push(b);
   }
-  for (const list of byRow.values()) {
-    list.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
-  }
 
-  // Assign columns: simple sequential within each row
+  // Assign columns row-by-row, anchoring each child to its parent's column.
+  // Target col = avg of parent cols (0 for roots). Sort by target (then createdAt
+  // as tiebreaker), then place sequentially: each node lands at its target unless
+  // that would collide with the previous node, in which case it shifts right.
+  // This keeps children directly beneath their parents and prevents crossings
+  // between siblings drawn from different parent columns.
   const colOf = new Map<string, number>();
-  for (const [, list] of byRow) {
-    list.forEach((b, i) => colOf.set(b.id, i));
+  const sortedRows = [...byRow.keys()].sort((a, b) => a - b);
+  for (const r of sortedRows) {
+    const list = byRow.get(r)!;
+    const targets = new Map<string, number>();
+    for (const b of list) {
+      if (b.parentIds.length === 0) {
+        targets.set(b.id, 0);
+      } else {
+        const pcols = b.parentIds
+          .map(p => colOf.get(p))
+          .filter((c): c is number => c !== undefined);
+        const avg = pcols.length ? pcols.reduce((s, c) => s + c, 0) / pcols.length : 0;
+        targets.set(b.id, avg);
+      }
+    }
+    list.sort((a, b) => {
+      const ta = targets.get(a.id)!;
+      const tb = targets.get(b.id)!;
+      return ta - tb || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
+    });
+    let prevCol = -Infinity;
+    for (const b of list) {
+      const col = Math.max(targets.get(b.id)!, prevCol + 1);
+      colOf.set(b.id, col);
+      prevCol = col;
+    }
   }
 
   const nodes: LayoutNode[] = batches.map(b => {
