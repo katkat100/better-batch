@@ -1,17 +1,17 @@
 import type { Batch, Ingredient, Step, VariableValue } from './types';
 
-export type FieldSource =
+type FieldSource =
   | { from: 'a' }
   | { from: 'b' }
   | { from: 'custom'; value: unknown };
 
-export interface MergePicks {
+interface MergePicks {
   variables: Record<string, FieldSource>;
   ingredients: FieldSource;        // pick whole list from a or b (custom = explicit array)
   steps: FieldSource;
 }
 
-export interface MergeResult {
+interface MergeResult {
   variables: Record<string, VariableValue>;
   ingredients: Ingredient[];
   steps: Step[];

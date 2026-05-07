@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 let cachedRoot: string | null = null;
 
-export async function getDataDir(): Promise<string> {
+async function getDataDir(): Promise<string> {
   if (cachedRoot) return cachedRoot;
   const override = process.env.BB_DATA_DIR;
   if (override) { cachedRoot = resolve(override); return cachedRoot; }

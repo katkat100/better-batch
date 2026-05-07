@@ -4,7 +4,7 @@ import { batchesDir, batchFile } from './paths';
 import { slugify, uniqueSlug } from '../../shared/slug';
 import type { Batch, BatchStatus, Ingredient, IngredientUse, VariableValue, Step } from '../domain/types';
 
-export interface CreateBatchInput {
+interface CreateBatchInput {
   label: string;
   parentIds: string[];
   status: BatchStatus;

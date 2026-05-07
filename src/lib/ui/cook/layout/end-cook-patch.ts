@@ -1,6 +1,6 @@
 import type { Batch } from '$lib/server';
 
-export interface EndCookSessionState {
+interface EndCookSessionState {
   mode: 'first-cook' | 're-cook';
   startedAt: number;
   endedAt: number;

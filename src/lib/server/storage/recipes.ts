@@ -22,7 +22,7 @@ const PRESET_SCHEMAS: Record<RecipePreset, VariableSchemaItem[]> = {
   custom: []
 };
 
-export interface CreateRecipeInput {
+interface CreateRecipeInput {
   name: string;
   description?: string;
   preset: RecipePreset;

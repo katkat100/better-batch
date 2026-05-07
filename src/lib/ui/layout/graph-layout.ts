@@ -4,7 +4,7 @@ export interface LayoutNode { id: string; col: number; row: number; x: number; y
 export interface LayoutEdge { from: string; to: string; }
 export interface Layout { nodes: LayoutNode[]; edges: LayoutEdge[]; width: number; height: number; }
 
-export interface LayoutOptions { colWidth?: number; rowHeight?: number; }
+interface LayoutOptions { colWidth?: number; rowHeight?: number; }
 
 export function layoutGraph(batches: Batch[], opts: LayoutOptions = {}): Layout {
   if (batches.length === 0) return { nodes: [], edges: [], width: 0, height: 0 };

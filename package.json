@@ -12,7 +12,8 @@
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "knip": "knip"
+    "knip": "knip",
+    "check": "bun run typecheck && bun run lint && bun run knip && bun test"
   },
   "devDependencies": {
     "@eslint/js": "^9",
