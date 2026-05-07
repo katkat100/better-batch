@@ -7,6 +7,7 @@
   import { parseAmount } from './layout/amount-parse';
   import UsesEditor from './UsesEditor.svelte';
   import Button from './primitives/Button.svelte';
+  import RadioGroup from './primitives/RadioGroup.svelte';
   import TextInput from './primitives/TextInput.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
 
@@ -181,10 +182,14 @@
 
   <fieldset class="flex flex-col gap-1 text-sm">
     <legend class="text-[11px] uppercase tracking-wider mb-2">Status</legend>
-    <div class="flex gap-4">
-      <label class="flex items-center gap-2"><input type="radio" bind:group={status} value="draft" /> Draft</label>
-      <label class="flex items-center gap-2"><input type="radio" bind:group={status} value="cooked" /> Cooked</label>
-    </div>
+    <RadioGroup
+      bind:value={status}
+      options={[
+        { value: 'draft', label: 'Draft' },
+        { value: 'cooked', label: 'Cooked' }
+      ]}
+      name="status"
+    />
   </fieldset>
 
   {#if recipe.variableSchema.length > 0}
