@@ -102,6 +102,9 @@ export async function listBatches(recipeId: string): Promise<Batch[]> {
 export async function updateBatch(recipeId: string, batchId: string, patch: Partial<Batch>): Promise<Batch> {
   const current = await readBatch(recipeId, batchId);
   const next: Batch = { ...current, ...patch, id: current.id, recipeId: current.recipeId, createdAt: current.createdAt };
+  if ('inconsistencyNote' in patch && !patch.inconsistencyNote) {
+    delete (next as Partial<Batch>).inconsistencyNote;
+  }
   await writeFileAtomic(await batchFile(recipeId, batchId), JSON.stringify(next, null, 2));
   return next;
 }

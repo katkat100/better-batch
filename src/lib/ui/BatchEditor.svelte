@@ -15,6 +15,7 @@
   import PasteRecipeDialog from './PasteRecipeDialog.svelte';
   import type { PasteParseResult } from '$lib/shared/recipe-paste';
   import { validateBatch, type IngredientIssue } from '$lib/shared/batch-validation';
+  import InconsistencyDialog from './InconsistencyDialog.svelte';
 
   let {
     recipe,
@@ -54,6 +55,9 @@
 
   let submitting = $state(false);
   let error = $state<string | null>(null);
+  let showUnreferencedHighlights = $state(false);
+  let inconsistencyDialogOpen = $state(false);
+  let pendingSubmit = $state<((note: string | null) => Promise<void>) | null>(null);
 
   let pasteOpen = $state(false);
 
@@ -131,6 +135,10 @@
     liveIssues.filter(i => i.kind === 'sum-mismatch').map(i => i.ingredientId)
   ));
 
+  const unreferencedIds = $derived(new Set(
+    liveIssues.filter(i => i.kind === 'unreferenced').map(i => i.ingredientId)
+  ));
+
   function addIngredient() { ingredients = [...ingredients, { id: '', name: '', amount: '', unit: '' }]; }
   function removeIngredient(i: number) {
     const removedId = ingredients[i].id;
@@ -172,15 +180,52 @@
   async function submit(e: SubmitEvent) {
     e.preventDefault();
     if (!label.trim()) { error = 'Label required'; return; }
+
+    if (liveIssues.length > 0) {
+      pendingSubmit = (note: string | null) => doSave(note);
+      inconsistencyDialogOpen = true;
+      return;
+    }
+    await doSave(null);
+  }
+
+  async function doSave(noteOverride: string | null): Promise<void> {
     submitting = true;
     error = null;
     try {
-      // Drop ingredient rows with empty names; renumber and rebuild use refs
       const cleanIngredients = ingredients.filter(i => i.name.trim());
       const validIds = new Set(cleanIngredients.map(i => i.id));
       const cleanSteps: Step[] = steps
         .filter(s => s.text.trim())
         .map(s => ({ text: s.text.trim(), uses: s.uses.filter(u => validIds.has(u.ingredientId)) }));
+
+      // Recompute against the cleaned data we're actually about to save.
+      const cleanedSnapshot = {
+        id: existing?.id ?? 'draft',
+        recipeId: recipe.id,
+        label: label.trim(),
+        parentIds: existing?.parentIds ?? (parent ? [parent.id] : []),
+        status,
+        cookedAt: existing?.cookedAt ?? null,
+        variables,
+        ingredients: cleanIngredients,
+        steps: cleanSteps,
+        outcomeNotes: existing?.outcomeNotes ?? '',
+        rating: existing?.rating ?? null,
+        createdAt: existing?.createdAt ?? new Date().toISOString()
+      };
+      const cleanedIssues = validateBatch(cleanedSnapshot);
+
+      // finalNote convention (matches storage rule from Task 2):
+      //   '' (empty)         → clear any prior note (auto-clear on clean save)
+      //   ' ' (single space) → user overrode with no note text (badge still shows)
+      //   real string        → user's note
+      let finalNote: string;
+      if (cleanedIssues.length === 0) {
+        finalNote = '';
+      } else {
+        finalNote = (noteOverride ?? '').trim() || ' ';
+      }
 
       let result: Batch;
       if (mode === 'edit' && existing) {
@@ -189,7 +234,8 @@
           status,
           variables,
           ingredients: cleanIngredients,
-          steps: cleanSteps
+          steps: cleanSteps,
+          inconsistencyNote: finalNote
         });
       } else {
         result = await api.createBatch(recipe.id, {
@@ -198,7 +244,8 @@
           status,
           variables,
           ingredients: cleanIngredients,
-          steps: cleanSteps
+          steps: cleanSteps,
+          inconsistencyNote: finalNote
         });
       }
       goto(resolve(`/recipes/${recipe.id}?batch=${result.id}`));
@@ -206,7 +253,24 @@
       error = err instanceof Error ? err.message : 'Failed to save batch';
     } finally {
       submitting = false;
+      inconsistencyDialogOpen = false;
+      pendingSubmit = null;
     }
+  }
+
+  function handleFixIt() {
+    showUnreferencedHighlights = true;
+    inconsistencyDialogOpen = false;
+    pendingSubmit = null;
+  }
+
+  async function handleSaveAnyway(note: string) {
+    if (submitting) return;
+    showUnreferencedHighlights = true;
+    const fn = pendingSubmit;
+    pendingSubmit = null;
+    inconsistencyDialogOpen = false;
+    if (fn) await fn(note);
   }
 </script>
 
@@ -277,9 +341,13 @@
     <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
     {#each ingredients as ing, i (i)}
       <div
-  class="flex gap-2 items-start md:items-center {sumMismatchIds.has(ing.id) ? 'border border-ochre rounded-sm p-1 -m-1' : ''}"
+  class="flex gap-2 items-start md:items-center {sumMismatchIds.has(ing.id) || (showUnreferencedHighlights && unreferencedIds.has(ing.id)) ? 'border border-ochre rounded-sm p-1 -m-1' : ''}"
   data-testid="ingredient-edit-row"
-  data-ingredient-issue={sumMismatchIds.has(ing.id) ? 'sum-mismatch' : undefined}
+  data-ingredient-issue={
+    sumMismatchIds.has(ing.id) ? 'sum-mismatch'
+    : (showUnreferencedHighlights && unreferencedIds.has(ing.id)) ? 'unreferenced'
+    : undefined
+  }
 >
         <div class="flex flex-col w-5 shrink-0 pt-1 md:pt-0">
           <button
@@ -329,6 +397,13 @@
               data-testid="ingredient-sum-warning"
               data-ingredient-id={ing.id}
             >⚠ used {issue.sum}/{issue.master}{issue.unit ?? ''}</span>
+          {/if}
+          {#if showUnreferencedHighlights && unreferencedIds.has(ing.id) && !sumMismatchIds.has(ing.id)}
+            <span
+              class="text-[10px] text-ochre whitespace-nowrap order-4 md:order-none md:self-center"
+              data-testid="ingredient-unreferenced-warning"
+              data-ingredient-id={ing.id}
+            >⚠ never used</span>
           {/if}
           <select
             value={ing.section ?? '__none__'}
@@ -435,4 +510,11 @@
   schema={recipe.variableSchema}
   {formHasContent}
   onApply={applyPaste}
+/>
+
+<InconsistencyDialog
+  bind:open={inconsistencyDialogOpen}
+  issues={liveIssues}
+  onFix={handleFixIt}
+  onSaveAnyway={handleSaveAnyway}
 />
