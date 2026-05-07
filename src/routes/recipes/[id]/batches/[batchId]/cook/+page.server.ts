@@ -1,8 +1,8 @@
-// src/routes/recipes/[id]/batches/[batchId]/cook/+page.server.ts
 import { error, redirect } from '@sveltejs/kit';
 import { readRecipe, readBatch } from '$lib/server';
+import type { PageServerLoad } from './$types';
 
-export async function load({ params }) {
+export const load: PageServerLoad = async ({ params }) => {
   let recipe, batch;
   try {
     recipe = await readRecipe(params.id);
@@ -15,4 +15,4 @@ export async function load({ params }) {
     throw redirect(303, `/recipes/${params.id}`);
   }
   return { recipe, batch };
-}
+};

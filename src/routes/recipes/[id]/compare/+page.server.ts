@@ -1,11 +1,11 @@
-// src/routes/recipes/[id]/compare/+page.server.ts
 import { error } from '@sveltejs/kit';
 import {
   readRecipe, readBatch,
   variableDiff, ingredientDiff, stepTextDiff
 } from '$lib/server/index.js';
+import type { PageServerLoad } from './$types';
 
-export async function load({ params, url }) {
+export const load: PageServerLoad = async ({ params, url }) => {
   const aId = url.searchParams.get('a');
   const bId = url.searchParams.get('b');
   if (!aId || !bId) throw error(400, 'compare requires ?a=...&b=...');
@@ -25,4 +25,4 @@ export async function load({ params, url }) {
   const stepLines = stepTextDiff(a.steps, b.steps);
 
   return { recipe, a, b, varRows, ingRows, stepLines };
-}
+};

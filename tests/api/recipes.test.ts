@@ -20,7 +20,7 @@ describe('recipes api', () => {
   it('POST creates, GET lists', async () => {
     const created = await (await listPOST(evListPOST({ request: reqJSON({ name: 'Sourdough', preset: 'bread', tags: [] }) }))).json();
     expect(created.id).toBe('sourdough');
-    const list = await (await listGET()).json();
+    const list = await (await listGET({} as Parameters<typeof listGET>[0])).json();
     expect(list.map((r: { id: string }) => r.id)).toEqual(['sourdough']);
   });
 
@@ -31,7 +31,7 @@ describe('recipes api', () => {
   it('DELETE removes the recipe', async () => {
     await listPOST(evListPOST({ request: reqJSON({ name: 'X', preset: 'custom', tags: [] }) }));
     await oneDELETE(evOneDELETE({ params: { id: 'x' } }));
-    const list = await (await listGET()).json();
+    const list = await (await listGET({} as Parameters<typeof listGET>[0])).json();
     expect(list).toEqual([]);
   });
 });

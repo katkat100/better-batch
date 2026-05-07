@@ -1,11 +1,12 @@
 import { json, error } from '@sveltejs/kit';
 import { createBatch, listBatches, readRecipe, updateRecipe, rebuildIndex } from '../../../../../lib/server/index.js';
+import type { RequestHandler } from './$types';
 
-export async function GET({ params }: { params: { id: string } }) {
+export const GET: RequestHandler = async ({ params }) => {
   return json(await listBatches(params.id));
-}
+};
 
-export async function POST({ params, request }: { params: { id: string }; request: Request }) {
+export const POST: RequestHandler = async ({ params, request }) => {
   try { await readRecipe(params.id); }
   catch (err) { if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'recipe not found'); throw err; }
 
@@ -32,4 +33,4 @@ export async function POST({ params, request }: { params: { id: string }; reques
   await updateRecipe(params.id, { currentBatchId: batch.id });
   await rebuildIndex();
   return json(batch, { status: 201 });
-}
+};

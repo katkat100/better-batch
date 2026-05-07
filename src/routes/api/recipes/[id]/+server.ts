@@ -1,8 +1,9 @@
 import { json, error } from '@sveltejs/kit';
 import { readRecipe, updateRecipe, deleteRecipe, listBatches, rebuildIndex, migrateBatchVariables, updateBatch } from '../../../../lib/server/index.js';
 import type { Recipe, VariableSchemaItem } from '../../../../lib/server/index.js';
+import type { RequestHandler } from './$types';
 
-export async function GET({ params }: { params: { id: string } }) {
+export const GET: RequestHandler = async ({ params }) => {
   try {
     const recipe = await readRecipe(params.id);
     const batches = await listBatches(params.id);
@@ -11,9 +12,9 @@ export async function GET({ params }: { params: { id: string } }) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') throw error(404, 'recipe not found');
     throw err;
   }
-}
+};
 
-export async function PATCH({ params, request }: { params: { id: string }; request: Request }) {
+export const PATCH: RequestHandler = async ({ params, request }) => {
   const patch = await request.json() as Partial<Recipe>;
   let current: Recipe;
   try { current = await readRecipe(params.id); }
@@ -32,10 +33,10 @@ export async function PATCH({ params, request }: { params: { id: string }; reque
   const next = await updateRecipe(params.id, patch);
   await rebuildIndex();
   return json(next);
-}
+};
 
-export async function DELETE({ params }: { params: { id: string } }) {
+export const DELETE: RequestHandler = async ({ params }) => {
   await deleteRecipe(params.id);
   await rebuildIndex();
   return new Response(null, { status: 204 });
-}
+};
