@@ -65,7 +65,7 @@
 
   // Reactive remaining-by-id map. Recomputes when tick or timers change.
   const remainingById = $derived.by(() => {
-    tick; // explicit reactive read so this re-runs on every tick
+    void tick; // explicit reactive read so this re-runs on every tick
     const map = new Map<string, number>();
     const now = Date.now();
     for (const t of timers) map.set(t.id, remainingMs(t, now));

@@ -50,9 +50,10 @@
       if (started && startedAt !== null) elapsedMs = Date.now() - startedAt;
     }, 5000);
     try {
-      // @ts-ignore — Wake Lock typed in lib.dom but optional in older targets
       wakeLock = await navigator.wakeLock?.request('screen');
-    } catch {}
+    } catch {
+      // wake lock unavailable or denied; proceed without it
+    }
   });
 
   onDestroy(() => {

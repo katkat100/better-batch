@@ -17,7 +17,7 @@
   role={editable ? 'group' : 'img'}
   aria-label={editable ? 'Rate this batch' : (value === null ? 'No rating' : `Rating: ${value} out of 5`)}
 >
-  {#each [1, 2, 3, 4, 5] as n}
+  {#each [1, 2, 3, 4, 5] as n (n)}
     {@const filled = value !== null && n <= value}
     {#if editable}
       <button

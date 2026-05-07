@@ -35,7 +35,7 @@
     return `M ${fromX} ${fromY} C ${fromX} ${midY}, ${toX} ${midY}, ${toX} ${toY}`;
   }
 
-  function fill(status: Batch['status'], isSelected: boolean): string {
+  function fill(status: Batch['status']): string {
     if (status === 'cooked') return 'var(--color-juniper)';
     if (status === 'archived') return 'var(--color-drafting)';
     return 'var(--color-canvas)'; // draft = hollow
@@ -50,7 +50,7 @@
 
 <svg width={svgWidth} height={svgHeight} viewBox="0 0 {svgWidth} {svgHeight}" class="block overflow-visible">
   <!-- edges -->
-  {#each layout.edges as e}
+  {#each layout.edges as e (`${e.from}->${e.to}`)}
     {@const from = nodeById.get(e.from)}
     {@const to = nodeById.get(e.to)}
     {#if from && to}
@@ -64,7 +64,7 @@
   {/each}
 
   <!-- nodes -->
-  {#each layout.nodes as n}
+  {#each layout.nodes as n (n.id)}
     {@const batch = byId.get(n.id)!}
     {@const isSelected = n.id === selectedId}
     <g
@@ -84,7 +84,7 @@
       {/if}
       <circle
         r={NODE_R}
-        fill={fill(batch.status, isSelected)}
+        fill={fill(batch.status)}
         stroke={stroke(batch.status)}
         stroke-width="1.5"
       />

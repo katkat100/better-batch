@@ -22,9 +22,6 @@
     existing?: Batch | null;
   } = $props();
 
-  // Source object — either the parent (create mode) or the batch being edited
-  const source = $derived(mode === 'edit' ? existing : parent);
-
   let label = $state(untrack(() =>
     mode === 'edit' && existing
       ? existing.label
@@ -194,7 +191,7 @@
     <fieldset class="flex flex-col gap-3">
       <legend class="text-[11px] uppercase tracking-wider mb-1">Variables</legend>
       <div class="grid grid-cols-2 gap-3">
-        {#each recipe.variableSchema as schema}
+        {#each recipe.variableSchema as schema (schema.name)}
           {@const current = variables[schema.name]}
           <label class="flex flex-col gap-1 text-sm">
             <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{schema.name} {schema.unit && `(${schema.unit})`}</span>
@@ -268,7 +265,7 @@
             data-testid="ingredient-section"
           >
             <option value="__none__">(no section)</option>
-            {#each sectionOptions as sec}
+            {#each sectionOptions as sec (sec)}
               <option value={sec}>{sec}</option>
             {/each}
             <option value="__new__">+ New section…</option>

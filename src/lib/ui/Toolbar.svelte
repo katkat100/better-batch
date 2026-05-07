@@ -30,7 +30,7 @@
     Tag
     <Select bind:value={tag} class="px-2 py-1 text-xs">
       <option value="">All</option>
-      {#each allTags as t}
+      {#each allTags as t (t)}
         <option value={t}>{t}</option>
       {/each}
     </Select>

@@ -53,7 +53,7 @@
     <div class="flex items-end gap-3">
       {#if data.recipe.tags.length}
         <div class="flex gap-1.5 text-[10px] uppercase tracking-wider text-obsidian/60">
-          {#each data.recipe.tags as t}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
+          {#each data.recipe.tags as t (t)}<span class="border border-drafting px-2 py-0.5 rounded-sm">{t}</span>{/each}
         </div>
       {/if}
       <Button variant="ghost" size="sm" class="border border-drafting hover:border-ochre" onclick={() => editVarsOpen = true} data-testid="edit-variables-btn">Edit Variables</Button>

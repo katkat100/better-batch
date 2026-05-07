@@ -149,7 +149,7 @@
         <span>Result</span>
         <span></span>
       </div>
-      {#each recipe.variableSchema as item, i (item.name)}
+      {#each recipe.variableSchema as item (item.name)}
         {@const rowIdx = varRows.findIndex(r => r.name === item.name)}
         {#if rowIdx >= 0}
           <MergeVarRow

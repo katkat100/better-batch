@@ -6,8 +6,7 @@ export async function GET({ params }: { params: { id: string } }) {
 }
 
 export async function POST({ params, request }: { params: { id: string }; request: Request }) {
-  let recipe;
-  try { recipe = await readRecipe(params.id); }
+  try { await readRecipe(params.id); }
   catch (err: any) { if (err.code === 'ENOENT') throw error(404, 'recipe not found'); throw err; }
 
   const body = await request.json();

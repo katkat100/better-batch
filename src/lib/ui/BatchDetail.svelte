@@ -17,7 +17,7 @@
         batches,
         onMarkCooked = () => {},
         onEditOutcome = () => {},
-        onSelectBatch = (_: string) => {},
+        onSelectBatch = (_batchId: string) => {},
     }: {
         recipe: Recipe;
         batch: Batch;
@@ -67,11 +67,6 @@
         goto(`/recipes/${recipe.id}/merge?a=${batch.id}&b=${otherId}`);
     }
 
-    function closeAllMenus() {
-        moreOpen = false;
-        compareOpen = false;
-        mergeOpen = false;
-    }
 </script>
 
 <article
@@ -237,7 +232,7 @@
 
     {#if recipe.variableSchema.length > 0}
         <section class="flex flex-wrap gap-2" data-testid="variable-strip">
-            {#each recipe.variableSchema as schema}
+            {#each recipe.variableSchema as schema (schema.name)}
                 <VariableTile
                     {schema}
                     value={batch.variables[schema.name] ?? null}

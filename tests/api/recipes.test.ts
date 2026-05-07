@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setDataDirForTest, clearDataDirCache } from '../../src/lib/server/storage/paths';
 import { GET as listGET, POST as listPOST } from '../../src/routes/api/recipes/+server';
-import { GET as oneGET, PATCH as onePATCH, DELETE as oneDELETE } from '../../src/routes/api/recipes/[id]/+server';
+import { GET as oneGET, DELETE as oneDELETE } from '../../src/routes/api/recipes/[id]/+server';
 
 let dir: string;
 beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), 'bb-api-r-')); setDataDirForTest(dir); });

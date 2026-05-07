@@ -23,7 +23,7 @@
     <h2 class="font-serif text-xl leading-tight">{entry.name}</h2>
     {#if entry.tags.length > 0}
       <div class="flex flex-wrap gap-1 text-[10px] uppercase tracking-wider text-obsidian/60">
-        {#each entry.tags as tag}
+        {#each entry.tags as tag (tag)}
           <span>{tag}</span>
         {/each}
       </div>
