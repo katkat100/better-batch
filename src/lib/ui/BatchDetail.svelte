@@ -9,7 +9,7 @@
     import ConfirmDeleteDialog from "./ConfirmDeleteDialog.svelte";
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
-    import Button from '$lib/ui/primitives/Button.svelte';
+    import Button from "$lib/ui/primitives/Button.svelte";
 
     let {
         recipe,
@@ -80,7 +80,7 @@
     data-batch-id={batch.id}
 >
     <header
-        class="flex items-start justify-between border-b border-drafting pb-3"
+        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-2 border-b border-drafting pb-3 pt-3 lg:pt-0"
     >
         <div>
             <h2 class="font-serif text-2xl">{batch.label}</h2>
@@ -102,10 +102,12 @@
                 </p>
             {/if}
         </div>
-        <div class="flex gap-2 items-start">
+        <div
+            class="flex flex-wrap lg:flex-nowrap gap-2 items-start lg:justify-end"
+        >
             <a
                 href="/recipes/{recipe.id}/new-batch?from={batch.id}"
-                class="border border-ochre text-center text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
+                class="border border-ochre whitespace-nowrap text-center text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
                 data-testid="new-batch-btn">+ New Batch</a
             >
 
@@ -162,8 +164,8 @@
                                 moreOpen = false;
                                 compareOpen = true;
                             }}
-                            data-testid="compare-btn"
-                        >Compare with…</Button>
+                            data-testid="compare-btn">Compare with…</Button
+                        >
                         <Button
                             variant="menuitem"
                             size="sm"
@@ -172,8 +174,8 @@
                                 moreOpen = false;
                                 mergeOpen = true;
                             }}
-                            data-testid="merge-btn"
-                        >Merge with…</Button>
+                            data-testid="merge-btn">Merge with…</Button
+                        >
                         {#if batch.status === "draft"}
                             <!-- raw: anchor menu item -->
                             <a
@@ -182,14 +184,18 @@
                                 data-testid="edit-batch-btn">Edit</a
                             >
                         {/if}
-                        {#if batch.status === 'draft'}
+                        {#if batch.status === "draft"}
                             <Button
                                 variant="menuitem"
                                 size="sm"
                                 class="py-2"
-                                onclick={() => { moreOpen = false; onMarkCooked(); }}
+                                onclick={() => {
+                                    moreOpen = false;
+                                    onMarkCooked();
+                                }}
                                 data-testid="mark-cooked-btn"
-                            >Mark as Cooked</Button>
+                                >Mark as Cooked</Button
+                            >
                         {/if}
                         <div class="h-px bg-drafting my-1"></div>
                         <Button
@@ -205,9 +211,10 @@
                                 ? ""
                                 : `Delete child batches first (${childCount} child${childCount === 1 ? "" : "ren"})`}
                             data-testid="delete-batch-btn"
-                        >Delete{!canDelete
-                            ? ` (${childCount} child${childCount === 1 ? "" : "ren"})`
-                            : ""}</Button>
+                            >Delete{!canDelete
+                                ? ` (${childCount} child${childCount === 1 ? "" : "ren"})`
+                                : ""}</Button
+                        >
                     </div>
                 {/if}
                 <BatchPickerDropdown
@@ -269,7 +276,9 @@
         </section>
     {:else if batch.outcomeNotes}
         <section class="flex flex-col gap-2 border-t border-drafting pt-4">
-            <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50 flex items-baseline gap-2 flex-wrap">
+            <h3
+                class="text-[11px] uppercase tracking-wider text-obsidian/50 flex items-baseline gap-2 flex-wrap"
+            >
                 {#if cookParent}
                     <span>Captured during cook</span>
                     <span class="text-obsidian/40">·</span>
@@ -278,7 +287,8 @@
                         onclick={() => onSelectBatch(cookParent.id)}
                         class="text-ochre hover:underline normal-case tracking-normal"
                         data-testid="captured-from-link"
-                    >{cookParent.label}</button>
+                        >{cookParent.label}</button
+                    >
                 {:else}
                     <span>Notes</span>
                 {/if}

@@ -29,6 +29,9 @@
   let deleteDialogOpen = $state(false);
   let editVarsOpen = $state(false);
 
+  type MobileTab = 'batches' | 'detail';
+  let mobileTab = $state<MobileTab>('detail');
+
   async function handleDeleteRecipe() {
     await api.deleteRecipe(data.recipe.id);
     goto('/');
@@ -64,12 +67,38 @@
       <a href="/recipes/{data.recipe.id}/new-batch" class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm">+ Record V1</a>
     </div>
   {:else}
-    <div class="flex-1 grid grid-cols-[340px_1fr] gap-6 min-h-0">
-      <aside class="border-r border-drafting pr-6 overflow-auto">
-        <h2 class="text-[11px] uppercase tracking-wider text-obsidian/50 mb-3">Batches ({data.batches.length})</h2>
-        <BatchGraph batches={data.batches} {selectedId} onSelect={(id) => selectedId = id} />
+    <div class="flex-1 flex flex-col lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 min-h-0">
+      <!-- Mobile-only tab bar -->
+      <div class="border-b border-drafting flex lg:hidden">
+        <button
+          type="button"
+          onclick={() => mobileTab = 'batches'}
+          class="flex-1 px-4 py-3 text-xs uppercase tracking-wider text-center {
+            mobileTab === 'batches'
+              ? 'text-ochre border-b-2 border-ochre -mb-px font-bold'
+              : 'text-obsidian/60 hover:text-obsidian'
+          }"
+          data-testid="mobile-tab-batches"
+        >Batches ({data.batches.length})</button>
+        <button
+          type="button"
+          onclick={() => mobileTab = 'detail'}
+          class="flex-1 px-4 py-3 text-xs uppercase tracking-wider text-center truncate {
+            mobileTab === 'detail'
+              ? 'text-ochre border-b-2 border-ochre -mb-px font-bold'
+              : 'text-obsidian/60 hover:text-obsidian'
+          }"
+          data-testid="mobile-tab-detail"
+        >{selected?.label ?? 'Detail'}</button>
+      </div>
+
+      <aside
+        class="overflow-auto flex flex-col items-center lg:items-stretch lg:border-r lg:border-drafting lg:pr-6 {mobileTab === 'batches' ? '' : 'hidden'} lg:block"
+      >
+        <h2 class="text-[11px] uppercase tracking-wider text-obsidian/50 mb-3 hidden lg:block">Batches ({data.batches.length})</h2>
+        <BatchGraph batches={data.batches} {selectedId} onSelect={(id) => { selectedId = id; mobileTab = 'detail'; }} />
       </aside>
-      <section class="overflow-auto">
+      <section class="overflow-auto {mobileTab === 'detail' ? '' : 'hidden'} lg:block">
         {#if selected}
           <BatchDetail
               recipe={data.recipe}
