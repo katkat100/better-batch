@@ -46,27 +46,24 @@
     const firstAvailable = ingredients[0];
     if (!firstAvailable) return;
     const defaultAmount = remainingFor(firstAvailable.id);
+    const amountStr = String(defaultAmount);
     uses = [...uses, { ingredientId: firstAvailable.id, amount: defaultAmount }];
+    amountInputs = [...amountInputs, amountStr];
+    lastSynced = [...lastSynced, amountStr];
   }
 
   function removeUse(i: number) {
     uses = uses.filter((_, idx) => idx !== i);
+    amountInputs = amountInputs.filter((_, idx) => idx !== i);
+    lastSynced = lastSynced.filter((_, idx) => idx !== i);
   }
 
   // Local input strings so the user can type "1/2" without immediately collapsing to 0.5.
-  // Sync length to uses.length without reading amountInputs (avoids self-triggering effect).
-  let amountInputs = $state<string[]>([]);
+  // Initialized from uses synchronously so bind:value never receives undefined on first render.
+  let amountInputs = $state<string[]>(uses.map(u => String(u.amount)));
   // Track what we last programmatically wrote to each amountInputs slot, so we can
   // distinguish "user typed a new value" from "display still shows the old auto-fill".
-  let lastSynced = $state<string[]>([]);
-  $effect(() => {
-    if (amountInputs.length !== uses.length) {
-      const next = uses.map((u, i) => amountInputs[i] ?? String(u.amount));
-      amountInputs = next;
-      // Reset lastSynced to match; new entries get their amount as the "our write" baseline.
-      lastSynced = uses.map((u, i) => lastSynced[i] ?? String(u.amount));
-    }
-  });
+  let lastSynced = $state<string[]>(uses.map(u => String(u.amount)));
 
   // When uses[i].amount changes programmatically (e.g. addUse / onchange auto-fill),
   // re-sync the displayed input only if the user hasn't overridden it since we last synced.
@@ -123,8 +120,7 @@
         {/each}
       </Select>
       <TextInput
-        value={amountInputs[i] ?? ''}
-        oninput={(e) => { amountInputs[i] = (e.target as HTMLInputElement).value; }}
+        bind:value={amountInputs[i]}
         onblur={() => commitAmount(i)}
         placeholder="Amount"
         aria-label="Amount for use {i + 1}"
