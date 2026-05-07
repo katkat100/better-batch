@@ -1,0 +1,12 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: typecheck
+      run: bun run typecheck
+    - name: lint
+      glob: "*.{ts,js,svelte}"
+      run: bunx eslint {staged_files}
+    - name: knip
+      run: bun run knip
+    - name: test
+      run: bun test
