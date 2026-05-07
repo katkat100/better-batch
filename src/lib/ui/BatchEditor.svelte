@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { untrack } from 'svelte';
   import { api } from './api-client';
   import { slugify, uniqueSlug } from '$lib/shared/slug';
@@ -152,7 +153,7 @@
           steps: cleanSteps
         });
       }
-      goto(`/recipes/${recipe.id}?batch=${result.id}`);
+      goto(resolve(`/recipes/${recipe.id}?batch=${result.id}`));
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to save batch';
     } finally {
@@ -348,7 +349,7 @@
   {/if}
 
   <div class="flex justify-end gap-2 border-t border-drafting pt-4">
-    <a href="/recipes/{recipe.id}" class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
+    <a href={resolve(`/recipes/${recipe.id}`)} class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
     <Button
       type="submit"
       variant="outline"

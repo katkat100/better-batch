@@ -9,6 +9,7 @@
   import EndCookDialog from './EndCookDialog.svelte';
   import { api } from '../api-client';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { onMount, onDestroy } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
   import type { TimerMatch } from './layout/timer-parse';
@@ -127,7 +128,7 @@
     forkAsDraft: boolean;
     forkLabel: string;
   }) {
-    let navigateTo = `/recipes/${recipe.id}?batch=${batch.id}`;
+    let navigateTo = resolve(`/recipes/${recipe.id}?batch=${batch.id}`);
 
     if (Object.keys(input.patch).length > 0) {
       await api.patchBatch(recipe.id, batch.id, input.patch);
@@ -149,7 +150,7 @@
         steps: cloned.steps,
         outcomeNotes: description
       });
-      navigateTo = `/recipes/${recipe.id}?batch=${newBatch.id}`;
+      navigateTo = resolve(`/recipes/${recipe.id}?batch=${newBatch.id}`);
     }
 
     await goto(navigateTo);

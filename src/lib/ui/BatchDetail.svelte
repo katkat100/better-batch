@@ -6,6 +6,7 @@
     import Rating from "./Rating.svelte";
     import BatchPickerDropdown from "./BatchPickerDropdown.svelte";
     import { goto, invalidateAll } from "$app/navigation";
+    import { resolve } from "$app/paths";
     import ConfirmDeleteDialog from "./ConfirmDeleteDialog.svelte";
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
@@ -61,10 +62,10 @@
     let moreOpen = $state(false);
 
     function handleCompareWith(otherId: string) {
-        goto(`/recipes/${recipe.id}/compare?a=${batch.id}&b=${otherId}`);
+        goto(resolve(`/recipes/${recipe.id}/compare?a=${batch.id}&b=${otherId}`));
     }
     function handleMergeWith(otherId: string) {
-        goto(`/recipes/${recipe.id}/merge?a=${batch.id}&b=${otherId}`);
+        goto(resolve(`/recipes/${recipe.id}/merge?a=${batch.id}&b=${otherId}`));
     }
 
 </script>
@@ -101,14 +102,14 @@
             class="flex flex-wrap lg:flex-nowrap gap-2 items-start lg:justify-end"
         >
             <a
-                href="/recipes/{recipe.id}/new-batch?from={batch.id}"
+                href={resolve(`/recipes/${recipe.id}/new-batch?from=${batch.id}`)}
                 class="border border-ochre whitespace-nowrap text-center text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
                 data-testid="new-batch-btn">+ New Batch</a
             >
 
             {#if batch.status !== "archived"}
                 <a
-                    href="/recipes/{recipe.id}/batches/{batch.id}/cook"
+                    href={resolve(`/recipes/${recipe.id}/batches/${batch.id}/cook`)}
                     class="border border-juniper bg-juniper text-canvas px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-canvas hover:text-juniper rounded-sm"
                     data-testid="cook-btn">Cook</a
                 >
@@ -174,7 +175,7 @@
                         {#if batch.status === "draft"}
                             <!-- raw: anchor menu item -->
                             <a
-                                href="/recipes/{recipe.id}/batches/{batch.id}/edit"
+                                href={resolve(`/recipes/${recipe.id}/batches/${batch.id}/edit`)}
                                 class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
                                 data-testid="edit-batch-btn">Edit</a
                             >

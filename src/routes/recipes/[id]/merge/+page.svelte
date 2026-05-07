@@ -3,6 +3,7 @@
   import MergePicker from '$lib/ui/MergePicker.svelte';
   import { api } from '$lib/ui/api-client';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import type {
     Recipe, Batch, VariableValue, Ingredient, Step,
     VariableDiffRow, IngredientDiffRow, StepObjectDiffRow
@@ -34,13 +35,13 @@
       ingredients: input.ingredients,
       steps: finalSteps
     });
-    goto(`/recipes/${data.recipe.id}?batch=${batch.id}`);
+    goto(resolve(`/recipes/${data.recipe.id}?batch=${batch.id}`));
   }
 </script>
 
 <div class="max-w-5xl mx-auto p-6 flex flex-col gap-4">
   <nav class="flex items-center gap-2 text-sm">
-    <a href="/recipes/{data.recipe.id}" class="text-obsidian/60 hover:text-obsidian">← {data.recipe.name}</a>
+    <a href={resolve(`/recipes/${data.recipe.id}`)} class="text-obsidian/60 hover:text-obsidian">← {data.recipe.name}</a>
   </nav>
 
   <MergePicker

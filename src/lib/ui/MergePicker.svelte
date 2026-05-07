@@ -5,6 +5,7 @@
   import MergeIngredientRow from './MergeIngredientRow.svelte';
   import MergeStepRow from './MergeStepRow.svelte';
   import Button from './primitives/Button.svelte';
+  import { resolve } from '$app/paths';
   import TextInput from './primitives/TextInput.svelte';
   import type {
     Recipe, Batch, Ingredient, Step, VariableValue,
@@ -190,7 +191,7 @@
   {/if}
 
   <div class="flex justify-end gap-2 border-t border-drafting pt-4">
-    <a href="/recipes/{recipe.id}" class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
+    <a href={resolve(`/recipes/${recipe.id}`)} class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
     <Button type="submit" variant="outline" disabled={submitting} data-testid="merge-submit">{submitting ? 'Merging…' : 'Record Merge'}</Button>
   </div>
 </form>

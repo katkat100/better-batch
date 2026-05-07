@@ -1,5 +1,6 @@
 <script lang="ts">
   import Sparkline from './Sparkline.svelte';
+  import { resolve } from '$app/paths';
   import type { IndexEntry } from '$lib/server';
 
   let { entry }: { entry: IndexEntry } = $props();
@@ -14,7 +15,7 @@
 </script>
 
 <a
-  href="/recipes/{entry.id}"
+  href={resolve(`/recipes/${entry.id}`)}
   class="notecard block aspect-[4/6] border border-drafting bg-canvas hover:border-obsidian transition-colors p-4 flex flex-col gap-3 rounded-sm"
   data-testid="recipe-card"
   data-recipe-id={entry.id}

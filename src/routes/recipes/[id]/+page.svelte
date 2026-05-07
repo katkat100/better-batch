@@ -8,6 +8,7 @@
   import Button from '$lib/ui/primitives/Button.svelte';
   import { api } from '$lib/ui/api-client';
   import { goto, invalidateAll } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { untrack } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
 
@@ -34,13 +35,13 @@
 
   async function handleDeleteRecipe() {
     await api.deleteRecipe(data.recipe.id);
-    goto('/');
+    goto(resolve('/'));
   }
 </script>
 
 <div class="max-w-7xl mx-auto p-6 flex flex-col gap-4 min-h-screen">
   <nav class="flex items-center gap-2 text-sm">
-    <a href="/" class="text-obsidian/60 hover:text-obsidian">← All recipes</a>
+    <a href={resolve('/')} class="text-obsidian/60 hover:text-obsidian">← All recipes</a>
   </nav>
 
   <header class="flex items-end justify-between border-b border-drafting pb-3">
@@ -64,7 +65,7 @@
   {#if data.batches.length === 0}
     <div class="flex-1 flex flex-col items-center justify-center gap-4 text-center">
       <p class="text-sm text-obsidian/60">No batches yet. Record your first one to get started.</p>
-      <a href="/recipes/{data.recipe.id}/new-batch" class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm">+ Record V1</a>
+      <a href={resolve(`/recipes/${data.recipe.id}/new-batch`)} class="border border-ochre text-ochre px-4 py-2 text-sm uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm">+ Record V1</a>
     </div>
   {:else}
     <div class="flex-1 flex flex-col lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 min-h-0">

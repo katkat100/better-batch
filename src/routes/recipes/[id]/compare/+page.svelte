@@ -1,6 +1,7 @@
 <!-- src/routes/recipes/[id]/compare/+page.svelte -->
 <script lang="ts">
   import CompareView from '$lib/ui/CompareView.svelte';
+  import { resolve } from '$app/paths';
   import type { Recipe, Batch, VariableDiffRow, IngredientDiffRow, DiffLine } from '$lib/server';
 
   let { data }: { data: {
@@ -11,7 +12,7 @@
 
 <div class="max-w-5xl mx-auto p-6 flex flex-col gap-4">
   <nav class="flex items-center gap-2 text-sm">
-    <a href="/recipes/{data.recipe.id}" class="text-obsidian/60 hover:text-obsidian">← {data.recipe.name}</a>
+    <a href={resolve(`/recipes/${data.recipe.id}`)} class="text-obsidian/60 hover:text-obsidian">← {data.recipe.name}</a>
   </nav>
 
   <CompareView

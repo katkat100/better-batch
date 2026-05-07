@@ -2,6 +2,7 @@
 <script lang="ts">
   import type { Recipe, Batch } from '$lib/server';
   import Button from '$lib/ui/primitives/Button.svelte';
+  import { resolve } from '$app/paths';
 
   let {
     recipe,
@@ -29,7 +30,7 @@
 </script>
 
 <header class="sticky top-0 z-20 bg-canvas border-b border-drafting flex items-center gap-3 px-4 py-2 text-sm">
-  <a href="/recipes/{recipe.id}" class="text-obsidian/60 hover:text-obsidian text-xs whitespace-nowrap" aria-label="Back to recipe">
+  <a href={resolve(`/recipes/${recipe.id}`)} class="text-obsidian/60 hover:text-obsidian text-xs whitespace-nowrap" aria-label="Back to recipe">
     ← {recipe.name}
   </a>
   <span class="text-obsidian/40">·</span>

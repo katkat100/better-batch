@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto, invalidateAll } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { api } from './api-client';
   import type { RecipePreset } from '$lib/server';
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
@@ -27,7 +28,7 @@
       await invalidateAll();
       open = false;
       name = ''; description = ''; preset = 'custom'; tagsInput = '';
-      goto(`/recipes/${recipe.id}`);
+      goto(resolve(`/recipes/${recipe.id}`));
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to create recipe';
     } finally {
