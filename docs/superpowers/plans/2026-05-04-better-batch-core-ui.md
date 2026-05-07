@@ -1159,7 +1159,7 @@ export async function load({ params }) {
         <h2 class="text-[11px] uppercase tracking-wider text-obsidian/50 mb-3">Batches ({data.batches.length})</h2>
         <BatchGraph batches={data.batches} {selectedId} onSelect={(id) => selectedId = id} />
       </aside>
-      <section class="overflow-auto">
+      <section class="">
         {#if selected}
           <BatchDetail recipe={data.recipe} batch={selected} onMarkCooked={handleMarkCooked} />
         {:else}
