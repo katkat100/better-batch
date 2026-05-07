@@ -215,8 +215,8 @@
   <fieldset class="flex flex-col gap-2">
     <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
     {#each ingredients as ing, i (i)}
-      <div class="flex gap-2 items-center" data-testid="ingredient-edit-row">
-        <div class="flex flex-col w-5 shrink-0">
+      <div class="flex gap-2 items-start md:items-center" data-testid="ingredient-edit-row">
+        <div class="flex flex-col w-5 shrink-0 pt-1 md:pt-0">
           <button
             type="button"
             onclick={() => ingredients = moveItem(ingredients, i, i - 1)}
@@ -234,31 +234,53 @@
             data-testid="ingredient-move-down"
           >▼</button>
         </div>
-        <TextInput bind:value={ing.amount} onblur={() => evalIngredientAmountOnBlur(i)} placeholder="Amount" aria-label="Ingredient {i + 1} amount" class="px-2 py-1.5 w-24" />
-        <TextInput bind:value={ing.unit} placeholder="Unit" aria-label="Ingredient {i + 1} unit" class="px-2 py-1.5 w-20" />
-        <TextInput
-          bind:value={ing.name}
-          placeholder="Ingredient"
-          aria-label="Ingredient {i + 1} name"
-          class="px-2 py-1.5 flex-1"
-        />
-        <select
-          value={ing.section ?? '__none__'}
-          onchange={(e) => {
-            const val = (e.currentTarget as HTMLSelectElement).value;
-            ing.section = val === '__none__' ? undefined : val;
-          }}
-          aria-label="Ingredient {i + 1} section"
-          class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm w-32"
-          data-testid="ingredient-section"
-        >
-          <option value="__none__">(no section)</option>
-          {#each sectionOptions as sec}
-            <option value={sec}>{sec}</option>
-          {/each}
-          <option value="__new__">+ New section…</option>
-        </select>
-        <button type="button" onclick={() => removeIngredient(i)} aria-label="Remove ingredient {i + 1}" class="text-obsidian/40 hover:text-ochre">×</button>
+
+        <div class="flex-1 flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
+          <TextInput
+            bind:value={ing.name}
+            placeholder="Ingredient"
+            aria-label="Ingredient {i + 1} name"
+            class="px-2 py-1.5 md:flex-1 md:order-3"
+          />
+          <div class="flex gap-2 md:contents">
+            <TextInput
+              bind:value={ing.amount}
+              onblur={() => evalIngredientAmountOnBlur(i)}
+              placeholder="Amount"
+              aria-label="Ingredient {i + 1} amount"
+              class="flex-1 md:flex-none md:w-24 md:order-1 px-2 py-1.5"
+            />
+            <TextInput
+              bind:value={ing.unit}
+              placeholder="Unit"
+              aria-label="Ingredient {i + 1} unit"
+              class="flex-1 md:flex-none md:w-20 md:order-2 px-2 py-1.5"
+            />
+          </div>
+          <select
+            value={ing.section ?? '__none__'}
+            onchange={(e) => {
+              const val = (e.currentTarget as HTMLSelectElement).value;
+              ing.section = val === '__none__' ? undefined : val;
+            }}
+            aria-label="Ingredient {i + 1} section"
+            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm md:w-32 md:order-4"
+            data-testid="ingredient-section"
+          >
+            <option value="__none__">(no section)</option>
+            {#each sectionOptions as sec}
+              <option value={sec}>{sec}</option>
+            {/each}
+            <option value="__new__">+ New section…</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          onclick={() => removeIngredient(i)}
+          aria-label="Remove ingredient {i + 1}"
+          class="text-obsidian/40 hover:text-ochre pt-2 md:pt-0"
+        >×</button>
       </div>
     {/each}
     <Button
