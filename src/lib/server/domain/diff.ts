@@ -26,7 +26,7 @@ export function variableDiff(
   });
 }
 
-export type DiffOp = 'ctx' | 'add' | 'rem';
+type DiffOp = 'ctx' | 'add' | 'rem';
 export interface DiffLine { op: DiffOp; text: string; }
 
 export function textArrayDiff(a: string[], b: string[]): DiffLine[] {
@@ -48,7 +48,7 @@ export function textArrayDiff(a: string[], b: string[]): DiffLine[] {
   return out.reverse();
 }
 
-export type IngredientDiffOp = 'ctx' | 'add' | 'rem' | 'mod';
+type IngredientDiffOp = 'ctx' | 'add' | 'rem' | 'mod';
 export interface IngredientDiffRow {
   op: IngredientDiffOp;
   a?: Ingredient;

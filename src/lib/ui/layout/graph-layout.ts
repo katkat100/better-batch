@@ -1,7 +1,7 @@
 import type { Batch } from '../../server/domain/types';
 
-export interface LayoutNode { id: string; col: number; row: number; x: number; y: number; }
-export interface LayoutEdge { from: string; to: string; }
+interface LayoutNode { id: string; col: number; row: number; x: number; y: number; }
+interface LayoutEdge { from: string; to: string; }
 export interface Layout { nodes: LayoutNode[]; edges: LayoutEdge[]; width: number; height: number; }
 
 interface LayoutOptions { colWidth?: number; rowHeight?: number; }
