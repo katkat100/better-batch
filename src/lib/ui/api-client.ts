@@ -34,6 +34,7 @@ export const api = {
     steps: Step[];
     outcomeNotes?: string;
     rating?: 1 | 2 | 3 | 4 | 5 | null;
+    inconsistencyNote?: string;
   }): Promise<Batch> {
     return jsonOrThrow(await fetch(`/api/recipes/${recipeId}/batches`, {
       method: 'POST',

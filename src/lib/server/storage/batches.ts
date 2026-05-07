@@ -14,6 +14,7 @@ interface CreateBatchInput {
   outcomeNotes?: string;
   rating?: 1 | 2 | 3 | 4 | 5 | null;
   cookedAt?: string | null;
+  inconsistencyNote?: string;
 }
 
 async function existingBatchIds(recipeId: string): Promise<Set<string>> {
@@ -52,6 +53,7 @@ export async function createBatch(recipeId: string, input: CreateBatchInput): Pr
     steps: input.steps,
     outcomeNotes: input.outcomeNotes ?? '',
     rating: input.rating ?? null,
+    ...(input.inconsistencyNote ? { inconsistencyNote: input.inconsistencyNote } : {}),
     createdAt: now
   };
   await mkdir(await batchesDir(recipeId), { recursive: true });

@@ -55,6 +55,7 @@ export interface Batch {
   steps: Step[];
   outcomeNotes: string;
   rating: 1 | 2 | 3 | 4 | 5 | null;
+  inconsistencyNote?: string;
   createdAt: string;
 }
 
