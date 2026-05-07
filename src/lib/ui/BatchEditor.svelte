@@ -14,6 +14,7 @@
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
   import PasteRecipeDialog from './PasteRecipeDialog.svelte';
   import type { PasteParseResult } from '$lib/shared/recipe-paste';
+  import { validateBatch, type IngredientIssue } from '$lib/shared/batch-validation';
 
   let {
     recipe,
@@ -110,6 +111,25 @@
   });
 
   const allUses = $derived(steps.flatMap(s => s.uses));
+
+  const liveIssues = $derived<IngredientIssue[]>(validateBatch({
+    id: existing?.id ?? 'draft',
+    recipeId: recipe.id,
+    label: label.trim() || 'draft',
+    parentIds: existing?.parentIds ?? (parent ? [parent.id] : []),
+    status,
+    cookedAt: existing?.cookedAt ?? null,
+    variables,
+    ingredients,
+    steps,
+    outcomeNotes: existing?.outcomeNotes ?? '',
+    rating: existing?.rating ?? null,
+    createdAt: existing?.createdAt ?? new Date().toISOString()
+  }));
+
+  const sumMismatchIds = $derived(new Set(
+    liveIssues.filter(i => i.kind === 'sum-mismatch').map(i => i.ingredientId)
+  ));
 
   function addIngredient() { ingredients = [...ingredients, { id: '', name: '', amount: '', unit: '' }]; }
   function removeIngredient(i: number) {
@@ -256,7 +276,11 @@
   <fieldset class="flex flex-col gap-2">
     <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
     {#each ingredients as ing, i (i)}
-      <div class="flex gap-2 items-start md:items-center" data-testid="ingredient-edit-row">
+      <div
+  class="flex gap-2 items-start md:items-center {sumMismatchIds.has(ing.id) ? 'border border-ochre rounded-sm p-1 -m-1' : ''}"
+  data-testid="ingredient-edit-row"
+  data-ingredient-issue={sumMismatchIds.has(ing.id) ? 'sum-mismatch' : undefined}
+>
         <div class="flex flex-col w-5 shrink-0 pt-1 md:pt-0">
           <button
             type="button"
@@ -298,6 +322,14 @@
             aria-label="Ingredient {i + 1} name"
             class="px-2 py-1.5 md:flex-1 order-1 md:order-none"
           />
+          {#if sumMismatchIds.has(ing.id)}
+            {@const issue = liveIssues.find(x => x.kind === 'sum-mismatch' && x.ingredientId === ing.id)!}
+            <span
+              class="text-[10px] text-ochre whitespace-nowrap order-4 md:order-none md:self-center"
+              data-testid="ingredient-sum-warning"
+              data-ingredient-id={ing.id}
+            >⚠ used {issue.sum}/{issue.master}{issue.unit ?? ''}</span>
+          {/if}
           <select
             value={ing.section ?? '__none__'}
             onchange={(e) => {
@@ -370,6 +402,7 @@
           bind:uses={step.uses}
           ingredients={ingredients.filter(ing => ing.id && ing.name)}
           allUses={allUses}
+          mismatchedIds={sumMismatchIds}
         />
       </div>
     {/each}

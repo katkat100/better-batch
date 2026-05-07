@@ -10,11 +10,13 @@
   let {
     ingredients,
     uses = $bindable([]),
-    allUses = []
+    allUses = [],
+    mismatchedIds = new Set<string>()
   }: {
     ingredients: Ingredient[];
     uses?: IngredientUse[];
     allUses?: IngredientUse[];
+    mismatchedIds?: Set<string>;
   } = $props();
 
   // Map ingredientId → master amount (numeric, may be NaN for non-numeric master amounts)
@@ -102,7 +104,11 @@
   <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Ingredients used</span>
   {#each uses as use, i (i)}
     {@const ing = ingredientById(use.ingredientId)}
-    <div class="grid grid-cols-[1fr_6rem_2rem_1.5rem] gap-2 items-center text-sm" data-testid="use-row">
+    <div
+  class="grid grid-cols-[1fr_6rem_2rem_1.5rem] gap-2 items-center text-sm {mismatchedIds.has(use.ingredientId) ? 'border border-ochre rounded-sm p-1 -m-1' : ''}"
+  data-testid="use-row"
+  data-use-issue={mismatchedIds.has(use.ingredientId) ? 'sum-mismatch' : undefined}
+>
       <Select
         value={use.ingredientId}
         onchange={(e: Event) => {
@@ -147,8 +153,8 @@
         {@const ing = ingredientById(ingId)}
         {@const master = masterAmount.get(ingId) ?? NaN}
         {#if ing}
-          {@const overflowing = !Number.isNaN(master) && sum > master}
-          <span class={overflowing ? 'text-ochre' : ''} data-testid="allocation-indicator" data-ingredient={ingId}>
+          {@const mismatched = !Number.isNaN(master) && sum !== master}
+          <span class={mismatched ? 'text-ochre' : ''} data-testid="allocation-indicator" data-ingredient={ingId}>
             {sum}/{Number.isNaN(master) ? '?' : master}{ing.unit} {ing.name}
           </span>
         {/if}
