@@ -2,6 +2,7 @@
 <script lang="ts">
   import type { Step, Ingredient } from '$lib/server';
   import { parseTimers, type TimerMatch } from './layout/timer-parse';
+  import Checkbox from '$lib/ui/primitives/Checkbox.svelte';
 
   let {
     step,
@@ -52,8 +53,7 @@
   data-current={isCurrent}
 >
   <label class="flex gap-3 px-4 py-3 cursor-pointer hover:bg-drafting/20">
-    <input
-      type="checkbox"
+    <Checkbox
       checked={isChecked}
       onchange={(e) => onCheck(index, (e.currentTarget as HTMLInputElement).checked)}
       aria-label="Mark step {index + 1} done"

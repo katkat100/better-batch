@@ -5,6 +5,7 @@
   import type { Batch } from '$lib/server';
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
+  import Checkbox from '$lib/ui/primitives/Checkbox.svelte';
 
   let {
     open = $bindable(false),
@@ -125,7 +126,7 @@
           {/each}
         </ul>
         <label class="flex items-center gap-2 text-sm">
-          <input type="checkbox" bind:checked={forkAsDraft} data-testid="fork-as-draft-checkbox" />
+          <Checkbox bind:checked={forkAsDraft} data-testid="fork-as-draft-checkbox" />
           Carry these ideas into a new batch
         </label>
         {#if forkAsDraft}
