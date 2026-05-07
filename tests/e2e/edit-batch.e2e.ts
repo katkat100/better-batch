@@ -60,6 +60,12 @@ test('edit a draft batch with sections and step uses', async ({ page }) => {
   await stepRows.nth(0).getByTestId('step-move-down').click();
   await expect(stepTextLocator.nth(0)).toHaveValue(text1);
 
+  // Reference water in step 1 so it isn't flagged as unreferenced by the inconsistency check
+  await stepRows.nth(0).getByTestId('add-use-btn').click();
+  await stepRows.nth(0).getByTestId('use-ingredient').last().selectOption({ label: 'water' });
+  await stepRows.nth(0).getByTestId('use-amount').last().fill('100');
+  await stepRows.nth(0).getByTestId('use-amount').last().blur();
+
   await page.getByTestId('batch-submit').click();
 
   await expect(page.getByTestId('batch-detail')).toBeVisible();
