@@ -153,8 +153,8 @@
         {@const ing = ingredientById(ingId)}
         {@const master = masterAmount.get(ingId) ?? NaN}
         {#if ing}
-          {@const mismatched = !Number.isNaN(master) && sum !== master}
-          <span class={mismatched ? 'text-ochre' : ''} data-testid="allocation-indicator" data-ingredient={ingId}>
+          {@const overflowing = !Number.isNaN(master) && sum > master}
+          <span class={overflowing ? 'text-ochre' : ''} data-testid="allocation-indicator" data-ingredient={ingId}>
             {sum}/{Number.isNaN(master) ? '?' : master}{ing.unit} {ing.name}
           </span>
         {/if}
