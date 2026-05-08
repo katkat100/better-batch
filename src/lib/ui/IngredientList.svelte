@@ -2,7 +2,16 @@
 <script lang="ts">
   import type { Ingredient } from '$lib/server';
   import { SvelteMap } from 'svelte/reactivity';
-  let { ingredients }: { ingredients: Ingredient[] } = $props();
+  import { multiplyAmount } from './layout/multiply-amount';
+  import type { Multiplier } from './MultiplierToggle.svelte';
+
+  let {
+    ingredients,
+    multiplier = 1
+  }: {
+    ingredients: Ingredient[];
+    multiplier?: Multiplier;
+  } = $props();
 
   type Group = { section: string | null; items: Ingredient[] };
 
@@ -40,7 +49,7 @@
       <ul class="font-mono text-sm space-y-1">
         {#each group.items as ing (ing.id)}
           <li class="flex gap-3 border-b border-drafting/50 pb-1" data-testid="ingredient-row" data-ingredient-id={ing.id}>
-            <span class="text-ochre min-w-[80px]">{ing.amount}{ing.unit ? ` ${ing.unit}` : ''}</span>
+            <span class="text-ochre min-w-[80px]">{multiplyAmount(ing.amount, multiplier)}{ing.unit ? ` ${ing.unit}` : ''}</span>
             <span>{ing.name}</span>
           </li>
         {/each}

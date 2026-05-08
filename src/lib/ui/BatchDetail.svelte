@@ -12,6 +12,7 @@
     import type { Recipe, Batch } from "$lib/server";
     import Button from "$lib/ui/primitives/Button.svelte";
     import { validateBatch, type IngredientIssue } from '$lib/shared/batch-validation';
+    import MultiplierToggle, { type Multiplier } from './MultiplierToggle.svelte';
 
     let {
         recipe,
@@ -56,6 +57,7 @@
         detailIssues.length > 0 || (batch.inconsistencyNote !== undefined && batch.inconsistencyNote !== '')
     );
     let popoverOpen = $state(false);
+    let multiplier = $state<Multiplier>(1);
 
     let deleteOpen = $state(false);
 
@@ -289,17 +291,25 @@
     {/if}
 
     <section class="flex flex-col gap-2">
-        <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">
-            Ingredients
-        </h3>
-        <IngredientList ingredients={batch.ingredients} />
+        <div class="flex items-center justify-between">
+            <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">
+                Ingredients
+            </h3>
+            {#if batch.ingredients.length > 0}
+                <MultiplierToggle
+                    value={multiplier}
+                    onChange={(next) => multiplier = next}
+                />
+            {/if}
+        </div>
+        <IngredientList ingredients={batch.ingredients} {multiplier} />
     </section>
 
     <section class="flex flex-col gap-2">
         <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">
             Steps
         </h3>
-        <StepsList steps={batch.steps} ingredients={batch.ingredients} />
+        <StepsList steps={batch.steps} ingredients={batch.ingredients} {multiplier} />
     </section>
 
     {#if batch.status === "cooked"}

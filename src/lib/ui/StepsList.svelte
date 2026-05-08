@@ -1,10 +1,24 @@
 <!-- src/lib/ui/StepsList.svelte -->
 <script lang="ts">
   import type { Step, Ingredient } from '$lib/server';
+  import type { Multiplier } from './MultiplierToggle.svelte';
 
-  let { steps, ingredients }: { steps: Step[]; ingredients: Ingredient[] } = $props();
+  let {
+    steps,
+    ingredients,
+    multiplier = 1
+  }: {
+    steps: Step[];
+    ingredients: Ingredient[];
+    multiplier?: Multiplier;
+  } = $props();
 
   const ingredientById = $derived(new Map(ingredients.map(i => [i.id, i] as const)));
+
+  function scaledAmount(amount: number): number {
+    if (multiplier === 1) return amount;
+    return parseFloat((amount * multiplier).toFixed(4));
+  }
 </script>
 
 {#if steps.length === 0}
@@ -21,7 +35,7 @@
               {#each step.uses as use, ui (ui)}
                 {@const ing = ingredientById.get(use.ingredientId)}
                 {#if ing}
-                  <span>{use.amount}{ing.unit ? ing.unit : ''} {ing.name}</span>
+                  <span>{scaledAmount(use.amount)}{ing.unit ? ing.unit : ''} {ing.name}</span>
                 {/if}
               {/each}
             </div>
