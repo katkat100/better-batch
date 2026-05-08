@@ -3,6 +3,15 @@
   import Button from '$lib/ui/primitives/Button.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
   import { SvelteMap } from 'svelte/reactivity';
+  import {
+    playFinishChime,
+    vibrateFinish,
+    ensureNotificationPermission,
+    fireNotification,
+    startTitleFlash,
+    stopTitleFlash,
+    updateTitleFlashCount
+  } from './cook-alerts';
 
   export interface DockTimer {
     id: string;
@@ -26,6 +35,17 @@
     onRemove: (id: string) => void;
     onAddManual: (durationMs: number, label: string) => void;
   } = $props();
+
+  // ms timestamp at which a timer's alarm first fired. Set once per timer and
+  // never replaced, so the alarm cannot fire more than once. The entry is
+  // dropped only when the timer itself is removed.
+  const finishedAtById = new SvelteMap<string, number>();
+  const liveNotifications = new SvelteMap<string, Notification>();
+  let notifyEnabled = $state(false);
+  type PermState = 'default' | 'denied' | 'granted' | 'unsupported';
+  let notifyPermission = $state<PermState>(
+    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
+  );
 
   let manualOpen = $state(false);
   let mh = $state(0);
@@ -73,6 +93,73 @@
     return map;
   });
 
+  // Live overshoot per timer. Grows from when the alarm fired until the timer
+  // is dismissed (which removes it from the dock entirely).
+  const overshootById = $derived.by(() => {
+    void tick;
+    const m = new SvelteMap<string, number>();
+    const now = Date.now();
+    for (const [id, finAt] of finishedAtById) m.set(id, Math.max(0, now - finAt));
+    return m;
+  });
+
+  // Drop alarm state and close any live notification when a timer is removed.
+  $effect(() => {
+    const liveIds = new Set(timers.map(t => t.id));
+    for (const id of [...finishedAtById.keys()]) if (!liveIds.has(id)) finishedAtById.delete(id);
+    for (const id of [...liveNotifications.keys()]) {
+      if (!liveIds.has(id)) {
+        liveNotifications.get(id)?.close();
+        liveNotifications.delete(id);
+      }
+    }
+  });
+
+  // Detect first-finish per timer and fire alerts. The presence of an entry in
+  // finishedAtById is the gate — it's set once and never replaced, so the
+  // chime, vibration, and notification fire exactly once per timer no matter
+  // how long the user takes to dismiss.
+  $effect(() => {
+    for (const t of timers) {
+      const rem = remainingById.get(t.id);
+      if (rem === undefined || rem > 0) continue;
+      if (finishedAtById.has(t.id)) continue;
+      finishedAtById.set(t.id, Date.now());
+      playFinishChime();
+      vibrateFinish();
+      if (notifyEnabled) {
+        const n = fireNotification(t.label, t.stepIndex, `timer-${t.id}`);
+        if (n) {
+          liveNotifications.set(t.id, n);
+          n.onclick = () => { onRemove(t.id); window.focus(); };
+        }
+      }
+    }
+  });
+
+  // Title flash while any finished timer is still in the dock.
+  $effect(() => {
+    const pending = timers.filter(t => finishedAtById.has(t.id)).length;
+    if (pending > 0) {
+      startTitleFlash(pending);
+      updateTitleFlashCount(pending);
+    } else {
+      stopTitleFlash();
+    }
+    return () => stopTitleFlash();
+  });
+
+  async function toggleNotifications(): Promise<void> {
+    if (notifyPermission === 'unsupported') return;
+    if (!notifyEnabled) {
+      const perm = await ensureNotificationPermission();
+      notifyPermission = perm;
+      notifyEnabled = perm === 'granted';
+    } else {
+      notifyEnabled = false;
+    }
+  }
+
   function submitManual() {
     const total = mh * 3_600_000 + mm * 60_000 + ms * 1000;
     if (total <= 0) return;
@@ -88,31 +175,68 @@
 >
     {#each timers as t (t.id)}
       {@const rem = remainingById.get(t.id) ?? 0}
-      <div class="flex items-center gap-2 shrink-0" data-testid="dock-timer" data-timer-id={t.id}>
-        <span class="font-mono {rem <= 0 ? 'text-ochre' : 'text-canvas'} text-base font-semibold min-w-[60px]">{fmt(rem)}</span>
-        <span class="text-[10px] opacity-70 truncate max-w-[120px]">step {t.stepIndex + 1} · {t.label}</span>
-        <!-- raw: timer chip status styling -->
-        <button
-          type="button"
-          onclick={() => onPauseToggle(t.id)}
-          class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 border border-canvas/30 hover:border-canvas rounded-sm"
-          aria-label={t.pausedAt !== null ? 'Resume timer' : 'Pause timer'}
-        >{t.pausedAt !== null ? 'play' : 'pause'}</button>
-        <button
-          type="button"
-          onclick={() => onRemove(t.id)}
-          class="text-canvas/50 hover:text-ochre"
-          aria-label="Remove timer"
-        >×</button>
+      {@const finished = finishedAtById.has(t.id)}
+      {@const overshoot = overshootById.get(t.id) ?? 0}
+      <div
+        class="flex items-center gap-2 shrink-0 {finished ? 'animate-pulse' : ''}"
+        data-testid="dock-timer"
+        data-timer-id={t.id}
+        data-needs-ack={finished ? 'true' : undefined}
+      >
+        {#if finished}
+          <span
+            class="font-mono text-ochre text-base font-semibold min-w-[68px]"
+            data-testid="timer-overshoot"
+            data-overshoot-ms={overshoot}
+            title="Time elapsed since the timer ended"
+          >+{fmt(overshoot)}</span>
+        {:else}
+          <span class="font-mono text-canvas text-base font-semibold min-w-[68px]">{fmt(rem)}</span>
+        {/if}
+        <span class="text-[10px] opacity-70 truncate max-w-[120px]">{t.stepIndex >= 0 ? `step ${t.stepIndex + 1} · ${t.label}` : t.label}</span>
+        {#if finished}
+          <button
+            type="button"
+            onclick={() => onRemove(t.id)}
+            class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 border border-ochre text-ochre hover:bg-ochre hover:text-canvas rounded-sm"
+            data-testid="ack-timer-btn"
+            aria-label="Dismiss and remove timer"
+          >dismiss</button>
+        {:else}
+          <button
+            type="button"
+            onclick={() => onPauseToggle(t.id)}
+            class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 border border-canvas/30 hover:border-canvas rounded-sm"
+            aria-label={t.pausedAt !== null ? 'Resume timer' : 'Pause timer'}
+          >{t.pausedAt !== null ? 'play' : 'pause'}</button>
+          <button
+            type="button"
+            onclick={() => onRemove(t.id)}
+            class="text-canvas/50 hover:text-ochre"
+            aria-label="Remove timer"
+          >×</button>
+        {/if}
       </div>
     {/each}
     {#if timers.length === 0}
       <span class="text-[10px] opacity-50">No timers running</span>
     {/if}
+    {#if notifyPermission !== 'unsupported'}
+      <button
+        type="button"
+        onclick={toggleNotifications}
+        class="ml-auto text-[10px] uppercase tracking-wider px-2 py-1 border border-canvas/30 hover:border-canvas rounded-sm shrink-0"
+        data-testid="toggle-notifications-btn"
+        aria-label={notifyEnabled ? 'Disable browser notifications' : 'Enable browser notifications'}
+        aria-pressed={notifyEnabled}
+        title={notifyPermission === 'denied' ? 'Browser notifications blocked' : (notifyEnabled ? 'Notifications on' : 'Notifications off')}
+        disabled={notifyPermission === 'denied'}
+      >{notifyEnabled ? '🔔 on' : '🔔 off'}</button>
+    {/if}
     <button
       type="button"
       onclick={() => manualOpen = !manualOpen}
-      class="ml-auto text-[10px] uppercase tracking-wider px-2 py-1 border border-canvas/30 hover:border-canvas rounded-sm shrink-0"
+      class="{notifyPermission === 'unsupported' ? 'ml-auto' : ''} text-[10px] uppercase tracking-wider px-2 py-1 border border-canvas/30 hover:border-canvas rounded-sm shrink-0"
       data-testid="add-manual-timer-btn"
     >+ Manual</button>
 
