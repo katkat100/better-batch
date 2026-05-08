@@ -148,7 +148,7 @@
   >+ Add ingredient use</Button>
 
   {#if uses.length > 0 && ingredients.length > 0}
-    <div class="text-[10px] text-obsidian/50 mt-1 flex flex-wrap gap-x-3">
+    <div class="text-[10px] text-obsidian/50 mt-1 flex flex-col gap-y-0.5">
       {#each Array.from(allocated.entries()) as [ingId, sum] (ingId)}
         {@const ing = ingredientById(ingId)}
         {@const master = masterAmount.get(ingId) ?? NaN}

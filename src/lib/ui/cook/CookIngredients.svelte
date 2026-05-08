@@ -58,9 +58,9 @@
       {#if group.section !== null}
         <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{group.section}</span>
       {/if}
-      <div class="flex flex-wrap gap-x-2 gap-y-1.5 text-xs font-mono items-center">
+      <div class="flex flex-col gap-1.5 text-xs font-mono">
         {#each group.items as ing (ing.id)}
-          <span class="border px-2 py-0.5 rounded-sm transition-colors {pillClass(ing)}" data-testid="cook-ing-pill" data-ingredient-id={ing.id}>
+          <span class="border px-2 py-0.5 rounded-sm transition-colors self-start {pillClass(ing)}" data-testid="cook-ing-pill" data-ingredient-id={ing.id}>
             {ing.amount}{ing.unit ?? ''} {ing.name}
           </span>
         {/each}
