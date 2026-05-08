@@ -49,7 +49,7 @@
   title="Paste Recipe"
   titleId="paste-recipe-dialog-title"
   subtitle="Paste a recipe and we'll fill in what we can."
-  class="max-w-2xl"
+  size="2xl"
   onClose={close}
 >
   <div class="flex flex-col gap-4" data-testid="paste-recipe-dialog">

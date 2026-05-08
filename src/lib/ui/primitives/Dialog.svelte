@@ -2,11 +2,14 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
+  type Size = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
   let {
     open = $bindable(false),
     title,
     titleId,
     subtitle,
+    size = 'md',
     class: extraClass = '',
     onClose,
     children
@@ -15,6 +18,7 @@
     title: string;
     titleId?: string;
     subtitle?: string;
+    size?: Size;
     class?: string;
     onClose?: () => void;
     children: Snippet;
@@ -32,7 +36,17 @@
     if (e.target === e.currentTarget) close();
   }
 
-  const DEFAULT_CARD = 'bg-canvas border border-obsidian p-6 w-full max-w-md flex flex-col gap-4 rounded-sm max-h-[90vh] overflow-auto';
+  // Single max-width per size — applied as the only `max-w-*` on the card so
+  // there's no class-ordering collision when consumers pass extra classes.
+  const SIZE_CLASS: Record<Size, string> = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl'
+  };
+  const sizeClass = $derived(SIZE_CLASS[size]);
+  const CARD_BASE = 'bg-canvas border border-obsidian p-6 w-full flex flex-col gap-4 rounded-sm max-h-[90vh] overflow-auto';
 </script>
 
 <svelte:window onkeydown={(e) => open && e.key === 'Escape' && close()} />
@@ -47,7 +61,7 @@
     aria-labelledby={headingId}
     tabindex="-1"
   >
-    <div class="{DEFAULT_CARD} {extraClass}">
+    <div class="{CARD_BASE} {sizeClass} {extraClass}">
       <div>
         <h2 id={headingId} class="font-serif text-xl">{title}</h2>
         {#if subtitle}<p class="text-sm text-obsidian/60 mt-1">{subtitle}</p>{/if}

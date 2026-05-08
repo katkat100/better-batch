@@ -104,7 +104,7 @@
   title="Edit Variables"
   titleId="edit-variables-dialog-title"
   subtitle="Changes apply to all batches in this recipe."
-  class="max-w-2xl"
+  size="2xl"
   onClose={() => { if (!submitting) close(); }}
 >
   <form
@@ -147,7 +147,7 @@
               <TextInput
                 bind:value={row.name}
                 placeholder="Name"
-                class="flex-1 px-2 py-1"
+                class="flex-1 min-w-0 px-2 py-1"
                 data-testid="var-name"
               />
               <TextInput
