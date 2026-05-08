@@ -5,10 +5,12 @@
 
 ## Summary
 
-Let the user scale a batch's ingredient and step-use amounts during cook
-by toggling between 1x, 2x, and 3x without modifying the saved recipe or
-batch values. When a cook session is completed at a multiplier other than
-1x, prepend a one-liner `Cooked at {N}x` to the saved cook outcome notes
+Let the user scale a batch's ingredient and step-use amounts by toggling
+between 1x, 2x, and 3x in both the read-only batch detail view and in
+cook view, without modifying the saved recipe or batch values. The
+toggle is purely a display transform in both surfaces. When a cook
+session in cook view is completed at a multiplier other than 1x,
+prepend a one-liner `Cooked at {N}x` to the saved cook outcome notes
 so the cook history reflects the actual size that was made.
 
 ## Motivation
@@ -32,10 +34,23 @@ later if the user wants them.
 
 ### Where the control lives
 
-Inside the existing `CookIngredients.svelte` section header, beside the
-"Ingredients" label. Visible the entire time cook view is open, so the
-user can flip the multiplier before, during, or after cooking; whichever
-value is set when they confirm End Cook is the one recorded.
+Two surfaces, two independent toggles, sharing one underlying component
+(`MultiplierToggle.svelte`) and one display helper (`multiplyAmount`):
+
+- **Cook view** — inside the `CookIngredients.svelte` section header,
+  beside the "Ingredients" label. The user can flip the multiplier
+  before, during, or after cooking; whichever value is set when they
+  confirm End Cook is the one recorded in the outcome notes.
+- **Batch detail view** — inside the `BatchDetail.svelte` ingredients
+  section header, in the same visual position. Display-only; does **not**
+  drive the cook-notes marker (only the cook-view toggle does that).
+
+The two toggles do not share state. Setting 2x on the batch detail
+page and then clicking "Start Cooking" enters cook view at 1x; the
+user re-selects in cook view if they want it. (Pre-filling was
+considered but rejected — the user's selection in cook view is the one
+that becomes the historical record, so requiring an explicit choice
+there is the safer default.)
 
 ### What gets multiplied
 
@@ -46,9 +61,10 @@ value is set when they confirm End Cook is the one recorded.
 What does **not** change:
 - The persisted `Batch.ingredients[].amount` and
   `Batch.steps[].uses[].amount` values. Multiplication is purely a
-  display transform.
-- The non-cook editor view (`BatchEditor`) and the read-only
-  `BatchDetail` view. They continue to show the recipe at 1x.
+  display transform on both surfaces.
+- `BatchEditor` (the create/edit form). The editor always shows the
+  recipe master values 1:1 since editing should not be subject to a
+  display scale.
 - The ingredient consistency validator. The validator still operates on
   the underlying batch state, not on multiplied display values.
 
@@ -99,28 +115,37 @@ plain-text marker is parseable enough; we can revisit then.
 
 ### State
 
-`CookView.svelte` owns the multiplier:
+Two view-owned states, no sharing:
 
 ```ts
+// CookView.svelte
+let multiplier = $state<1 | 2 | 3>(1);
+
+// BatchDetail.svelte
 let multiplier = $state<1 | 2 | 3>(1);
 ```
 
-It passes the value as a prop down two paths:
-
-1. To `CookIngredients` for both the toggle UI and ingredient-pill
-   display.
-2. To `CookStepList` → `CookStepRow` for step-use display.
-
+`CookView` passes the value down to `CookIngredients` (toggle UI +
+ingredient pills) and to `CookStepList` → `CookStepRow` (step uses).
 It also passes the value into `EndCookDialog`'s `buildEndCookPatch`
-input, so the marker is composed at submission time using whatever the
-multiplier is at that moment.
+input so the marker is composed at submission time.
+
+`BatchDetail` passes the value down to `IngredientList` (ingredient
+amounts) and to `StepsList` (step-use amounts). The toggle UI sits in
+the ingredients section header.
+
+The toggles use the same `MultiplierToggle.svelte` component
+(`src/lib/ui/MultiplierToggle.svelte`) so the visual + interaction
+language is identical across both surfaces. The component takes
+`value: 1 | 2 | 3` and `onChange: (next: 1 | 2 | 3) => void`.
 
 ### New helper: `multiplyAmount`
 
-`src/lib/ui/cook/layout/multiply-amount.ts`:
+Lives at `src/lib/ui/layout/multiply-amount.ts` (shared with the read
+view, not cook-specific):
 
 ```ts
-import { parseAmount } from '../../layout/amount-parse';
+import { parseAmount } from './amount-parse';
 
 export function multiplyAmount(amount: string, multiplier: number): string {
   if (multiplier === 1) return amount;
@@ -137,48 +162,56 @@ step-use inline display.
 
 ### Toggle UI
 
-Inside `CookIngredients.svelte`, the section header changes from a flat
-`<h2>Ingredients</h2>` to a flex row:
+`MultiplierToggle.svelte` renders three segmented buttons sharing the
+same visual language as the existing dock toggle chips
+(`text-[10px] tracking-wider uppercase`, ochre highlight for the active
+value, `aria-pressed` reflecting state). Both `CookIngredients` and
+`BatchDetail` mount it next to their ingredients section header:
 
 ```
 [ Ingredients ]                              [ 1x ] [ 2x ] [ 3x ]
 ```
 
-The buttons are the same visual language as the existing dock toggle
-buttons (small uppercase `text-[10px] tracking-wider`, ochre highlight
-for the active value). Aria-pressed reflects the active state.
+The toggle hides itself entirely when the batch has zero ingredients
+(no point in offering scaling for an empty list).
 
 ### Step-use display
 
-`CookStepRow.svelte` already renders `step.uses[].amount` in a per-step
-"ingredients used" list. `IngredientUse.amount` is already a `number`,
-so it doesn't go through `multiplyAmount`. Instead, the format helper
-inside `CookStepRow` applies the same rounding pattern inline:
+`CookStepRow.svelte` (cook view) and `StepsList.svelte` (batch detail
+view) both render `step.uses[].amount`. `IngredientUse.amount` is
+already a `number`, so it doesn't go through `multiplyAmount`. Both
+components apply the same inline rounding pattern at display time:
 
 ```ts
 const display = parseFloat((use.amount * multiplier).toFixed(4));
 ```
 
-This keeps the float-artifact mitigation consistent with `multiplyAmount`
+This keeps float-artifact mitigation consistent with `multiplyAmount`
 for ingredient masters.
 
 ## Files touched
 
 **New:**
-- `src/lib/ui/cook/layout/multiply-amount.ts`
-- `tests/ui/cook/multiply-amount.test.ts`
+- `src/lib/ui/layout/multiply-amount.ts`
+- `src/lib/ui/MultiplierToggle.svelte`
+- `tests/ui/multiply-amount.test.ts`
 
-**Modified:**
+**Modified — cook view:**
 - `src/lib/ui/cook/CookView.svelte` — declare `multiplier` state, pass to children and to `EndCookDialog`.
-- `src/lib/ui/cook/CookIngredients.svelte` — accept `multiplier` prop and `onMultiplierChange` callback, render the segmented toggle in the header, route ingredient amounts through `multiplyAmount`.
+- `src/lib/ui/cook/CookIngredients.svelte` — accept `multiplier` and `onMultiplierChange`, render `MultiplierToggle` in the header, route ingredient amounts through `multiplyAmount`.
 - `src/lib/ui/cook/CookStepList.svelte` — pass-through `multiplier` prop.
 - `src/lib/ui/cook/CookStepRow.svelte` — accept `multiplier`, scale `step.uses[].amount` for display.
 - `src/lib/ui/cook/EndCookDialog.svelte` — accept `multiplier` prop, pass into `buildEndCookPatch`.
 - `src/lib/ui/cook/layout/end-cook-patch.ts` — accept `multiplier` on `EndCookSessionState`, prepend the marker when ≠ 1 in both first-cook and re-cook paths.
 
+**Modified — batch detail view:**
+- `src/lib/ui/BatchDetail.svelte` — declare its own `multiplier` state, render `MultiplierToggle` next to the ingredients section header, pass `multiplier` to `IngredientList` and `StepsList`.
+- `src/lib/ui/IngredientList.svelte` — accept `multiplier` prop, route each row's amount through `multiplyAmount`.
+- `src/lib/ui/StepsList.svelte` — accept `multiplier` prop, scale `use.amount` inline at display time.
+
 ## Testing
 
-**Unit tests for `multiplyAmount`** (`tests/ui/cook/multiply-amount.test.ts`):
+**Unit tests for `multiplyAmount`** (`tests/ui/multiply-amount.test.ts`):
 
 - `multiplyAmount('500', 1)` → `'500'` (passthrough at 1x).
 - `multiplyAmount('500', 2)` → `'1000'`.
