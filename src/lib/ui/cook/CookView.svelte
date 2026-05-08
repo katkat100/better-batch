@@ -14,6 +14,7 @@
   import { onMount, onDestroy } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
   import type { TimerMatch } from './layout/timer-parse';
+  import type { Multiplier } from '../MultiplierToggle.svelte';
 
   let {
     recipe,
@@ -23,6 +24,7 @@
     batch: Batch;
   } = $props();
 
+  let multiplier = $state<Multiplier>(1);
   let started = $state(false);
   let startedAt = $state<number | null>(null);
   let elapsedMs = $state(0);
@@ -176,6 +178,8 @@
     steps={batch.steps}
     {currentStepIndex}
     {checkedSteps}
+    {multiplier}
+    onMultiplierChange={(next) => multiplier = next}
   />
 
   <CookStepList
@@ -184,6 +188,7 @@
     {checkedSteps}
     {currentStepIndex}
     {activeTimerKeys}
+    {multiplier}
     onCheck={handleCheck}
     onStartTimer={handleStartTimer}
   />
@@ -209,5 +214,6 @@
   stepsChecked={checkedSteps.size}
   stepsTotal={batch.steps.length}
   {quickNotes}
+  {multiplier}
   onSubmit={handleEndCookSubmit}
 />

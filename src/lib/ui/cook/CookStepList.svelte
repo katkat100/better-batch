@@ -3,6 +3,7 @@
   import CookStepRow from './CookStepRow.svelte';
   import type { Step, Ingredient } from '$lib/server';
   import type { TimerMatch } from './layout/timer-parse';
+  import type { Multiplier } from '../MultiplierToggle.svelte';
 
   let {
     steps,
@@ -10,6 +11,7 @@
     checkedSteps,
     currentStepIndex,
     activeTimerKeys,
+    multiplier,
     onCheck,
     onStartTimer
   }: {
@@ -18,6 +20,7 @@
     checkedSteps: Set<number>;
     currentStepIndex: number;
     activeTimerKeys: Set<string>;
+    multiplier: Multiplier;
     onCheck: (i: number, checked: boolean) => void;
     onStartTimer: (stepIndex: number, match: TimerMatch) => void;
   } = $props();
@@ -45,6 +48,7 @@
           isChecked={checkedSteps.has(i)}
           {ingredients}
           {activeTimerKeys}
+          {multiplier}
           {onCheck}
           {onStartTimer}
         />

@@ -16,6 +16,7 @@
     stepsChecked,
     stepsTotal,
     quickNotes,
+    multiplier,
     onSubmit
   }: {
     open?: boolean;
@@ -26,6 +27,7 @@
     stepsChecked: number;
     stepsTotal: number;
     quickNotes: string[];
+    multiplier: number;
     onSubmit: (input: {
       patch: Partial<Batch>;
       forkAsDraft: boolean;
@@ -73,7 +75,8 @@
         endedAt: startedAt + elapsedMs,
         outcomeNotes,
         rating,
-        existingOutcomeNotes: batch.outcomeNotes
+        existingOutcomeNotes: batch.outcomeNotes,
+        multiplier
       });
       await onSubmit({ patch, forkAsDraft, forkLabel: forkLabel.trim() });
       close();

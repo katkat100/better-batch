@@ -3,6 +3,7 @@
   import type { Step, Ingredient } from '$lib/server';
   import { parseTimers, type TimerMatch } from './layout/timer-parse';
   import Checkbox from '$lib/ui/primitives/Checkbox.svelte';
+  import type { Multiplier } from '../MultiplierToggle.svelte';
 
   let {
     step,
@@ -11,6 +12,7 @@
     isChecked,
     ingredients,
     activeTimerKeys,
+    multiplier,
     onCheck,
     onStartTimer
   }: {
@@ -20,6 +22,7 @@
     isChecked: boolean;
     ingredients: Ingredient[];
     activeTimerKeys: Set<string>;
+    multiplier: Multiplier;
     onCheck: (i: number, checked: boolean) => void;
     onStartTimer: (stepIndex: number, match: TimerMatch) => void;
   } = $props();
@@ -42,6 +45,11 @@
 
   function timerKey(m: TimerMatch): string {
     return `${index}:${m.start}:${m.end}`;
+  }
+
+  function scaledUseAmount(amount: number): number {
+    if (multiplier === 1) return amount;
+    return parseFloat((amount * multiplier).toFixed(4));
   }
 </script>
 
@@ -84,7 +92,7 @@
           {#each step.uses as use, ui (ui)}
             {@const ing = ingById.get(use.ingredientId)}
             {#if ing}
-              <span>{use.amount}{ing.unit ?? ''} {ing.name}</span>
+              <span>{scaledUseAmount(use.amount)}{ing.unit ?? ''} {ing.name}</span>
             {/if}
           {/each}
         </div>
