@@ -7,18 +7,38 @@
     import EditVariablesDialog from "$lib/ui/EditVariablesDialog.svelte";
     import Button from "$lib/ui/primitives/Button.svelte";
     import { api } from "$lib/ui/api-client";
-    import { goto, invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll, replaceState } from "$app/navigation";
+    import { page } from "$app/state";
     import { resolve } from "$app/paths";
     import { untrack } from "svelte";
     import type { Recipe, Batch } from "$lib/server";
 
-    let { data }: { data: { recipe: Recipe; batches: Batch[] } } = $props();
+    let { data }: { data: { recipe: Recipe; batches: Batch[]; queryBatchId: string | null } } = $props();
 
     let selectedId = $state<string | null>(
         untrack(
-            () => data.recipe.currentBatchId ?? data.batches[0]?.id ?? null,
+            () => data.queryBatchId ?? data.recipe.currentBatchId ?? data.batches[0]?.id ?? null,
         ),
     );
+
+    // Re-sync when the loader emits a new ?batch=... (e.g. after BatchEditor
+    // redirects post-save). User clicks inside the graph route through
+    // selectBatch(), which uses replaceState — that doesn't re-run the
+    // loader, so this effect doesn't fire on click.
+    $effect(() => {
+        if (data.queryBatchId) selectedId = data.queryBatchId;
+    });
+
+    // Mutate selectedId AND the URL together, so a refresh preserves the
+    // user's selection. replaceState is shallow: it updates the URL and
+    // browser history without re-running the loader.
+    function selectBatch(id: string) {
+        selectedId = id;
+        replaceState(
+            resolve(`/recipes/${data.recipe.id}?batch=${id}`),
+            page.state,
+        );
+    }
     let cooking = $state<Batch | null>(null);
     let editingOutcome = $state<Batch | null>(null);
 
@@ -146,7 +166,7 @@
                     batches={data.batches}
                     {selectedId}
                     onSelect={(id) => {
-                        selectedId = id;
+                        selectBatch(id);
                         mobileTab = "detail";
                     }}
                 />
@@ -159,7 +179,7 @@
                         batches={data.batches}
                         onMarkCooked={handleMarkCooked}
                         onEditOutcome={handleEditOutcome}
-                        onSelectBatch={(id) => (selectedId = id)}
+                        onSelectBatch={selectBatch}
                     />
                 {:else}
                     <p class="text-sm text-obsidian/40">
