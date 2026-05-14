@@ -145,6 +145,13 @@
                     Archived
                 </p>
             {/if}
+            {#if batch.cookMultiplier && batch.cookMultiplier > 1}
+                <span
+                    class="inline-block text-[10px] uppercase tracking-wider border border-ochre text-ochre px-1.5 py-0.5 rounded-sm mt-1 ml-1"
+                    data-testid="cook-multiplier-badge"
+                    title="Cooked at this size"
+                >{batch.cookMultiplier}x</span>
+            {/if}
         </div>
         <div
             class="flex flex-wrap lg:flex-nowrap gap-2 items-start lg:justify-end"
