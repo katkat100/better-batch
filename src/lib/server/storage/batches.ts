@@ -15,6 +15,7 @@ interface CreateBatchInput {
   rating?: 1 | 2 | 3 | 4 | 5 | null;
   cookedAt?: string | null;
   inconsistencyNote?: string;
+  cookMultiplier?: number;
 }
 
 async function existingBatchIds(recipeId: string): Promise<Set<string>> {
@@ -54,6 +55,7 @@ export async function createBatch(recipeId: string, input: CreateBatchInput): Pr
     outcomeNotes: input.outcomeNotes ?? '',
     rating: input.rating ?? null,
     ...(input.inconsistencyNote ? { inconsistencyNote: input.inconsistencyNote } : {}),
+    ...(input.cookMultiplier && input.cookMultiplier > 1 ? { cookMultiplier: input.cookMultiplier } : {}),
     createdAt: now
   };
   await mkdir(await batchesDir(recipeId), { recursive: true });
@@ -104,6 +106,9 @@ export async function updateBatch(recipeId: string, batchId: string, patch: Part
   const next: Batch = { ...current, ...patch, id: current.id, recipeId: current.recipeId, createdAt: current.createdAt };
   if ('inconsistencyNote' in patch && !patch.inconsistencyNote) {
     delete (next as Partial<Batch>).inconsistencyNote;
+  }
+  if ('cookMultiplier' in patch && (!patch.cookMultiplier || patch.cookMultiplier <= 1)) {
+    delete (next as Partial<Batch>).cookMultiplier;
   }
   await writeFileAtomic(await batchFile(recipeId, batchId), JSON.stringify(next, null, 2));
   return next;

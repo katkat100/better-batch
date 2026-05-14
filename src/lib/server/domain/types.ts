@@ -56,6 +56,7 @@ export interface Batch {
   outcomeNotes: string;
   rating: 1 | 2 | 3 | 4 | 5 | null;
   inconsistencyNote?: string;
+  cookMultiplier?: number;
   createdAt: string;
 }
 

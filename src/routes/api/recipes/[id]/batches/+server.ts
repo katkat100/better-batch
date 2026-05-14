@@ -29,7 +29,8 @@ export const POST: RequestHandler = async ({ params, request }) => {
     variables: body.variables ?? {}, ingredients: body.ingredients ?? [], steps: body.steps ?? [],
     outcomeNotes: body.outcomeNotes, rating: body.rating ?? null,
     cookedAt: body.status === 'cooked' ? (body.cookedAt ?? new Date().toISOString()) : null,
-    inconsistencyNote: typeof body.inconsistencyNote === 'string' ? body.inconsistencyNote : undefined
+    inconsistencyNote: typeof body.inconsistencyNote === 'string' ? body.inconsistencyNote : undefined,
+    cookMultiplier: typeof body.cookMultiplier === 'number' ? body.cookMultiplier : undefined
   });
   await updateRecipe(params.id, { currentBatchId: batch.id });
   await rebuildIndex();

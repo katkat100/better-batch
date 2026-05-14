@@ -35,6 +35,7 @@ export const api = {
     outcomeNotes?: string;
     rating?: 1 | 2 | 3 | 4 | 5 | null;
     inconsistencyNote?: string;
+    cookMultiplier?: number;
   }): Promise<Batch> {
     return jsonOrThrow(await fetch(`/api/recipes/${recipeId}/batches`, {
       method: 'POST',
