@@ -4,6 +4,8 @@
   import NewRecipeDialog from '$lib/ui/NewRecipeDialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
   import type { IndexEntry } from '$lib/server';
+  import { exportSnapshot, importSnapshot } from '$lib/data/snapshot';
+  import { invalidateAll } from '$app/navigation';
 
   let { data }: { data: { index: IndexEntry[] } } = $props();
 
@@ -12,6 +14,15 @@
   let status = $state<'all' | 'has_cooked' | 'drafts_only'>('all');
   let sort = $state<'last_cooked' | 'name' | 'batch_count'>('last_cooked');
   let dialogOpen = $state(false);
+  let fileInput = $state<HTMLInputElement | null>(null);
+
+  async function handleImportFile(e: Event) {
+    const file = (e.currentTarget as HTMLInputElement).files?.[0];
+    if (!file) return;
+    await importSnapshot(file);
+    (e.currentTarget as HTMLInputElement).value = '';
+    await invalidateAll();
+  }
 
   const allTags = $derived([...new Set(data.index.flatMap(e => e.tags))].sort());
 
@@ -39,11 +50,33 @@
       <h1 class="font-serif text-4xl">Better Batch</h1>
       <p class="text-sm text-obsidian/60 font-sans">Record. Analyze. Refine. Archive.</p>
     </div>
-    <Button
-      variant="outline"
-      onclick={() => dialogOpen = true}
-      data-testid="new-recipe-btn"
-    >+ New Recipe</Button>
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        onclick={exportSnapshot}
+        class="border border-drafting text-obsidian/70 px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+        data-testid="export-snapshot-btn"
+      >Export</button>
+      <button
+        type="button"
+        onclick={() => fileInput?.click()}
+        class="border border-drafting text-obsidian/70 px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
+        data-testid="import-snapshot-btn"
+      >Import</button>
+      <input
+        type="file"
+        accept="application/json"
+        bind:this={fileInput}
+        onchange={handleImportFile}
+        class="hidden"
+        data-testid="import-snapshot-input"
+      />
+      <Button
+        variant="outline"
+        onclick={() => dialogOpen = true}
+        data-testid="new-recipe-btn"
+      >+ New Recipe</Button>
+    </div>
   </header>
 
   <Toolbar bind:search bind:tag bind:status bind:sort {allTags} />
