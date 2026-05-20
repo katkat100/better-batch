@@ -1,28 +1,24 @@
 import type { Recipe, Batch, IndexEntry, RecipePreset, BatchStatus, VariableValue, Ingredient, Step } from '$lib/server';
-
-async function jsonOrThrow<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`${res.status} ${res.statusText}: ${body}`);
-  }
-  return res.json() as Promise<T>;
-}
+import { createRecipe, readRecipe, updateRecipe, deleteRecipe } from '$lib/data/recipes';
+import { createBatch, updateBatch, deleteBatch, listBatches } from '$lib/data/batches';
+import { readIndex, rebuildIndex } from '$lib/data/index-cache';
 
 export const api = {
   async listRecipes(): Promise<IndexEntry[]> {
-    return jsonOrThrow(await fetch('/api/recipes'));
+    return readIndex();
   },
 
   async createRecipe(input: { name: string; preset: RecipePreset; tags: string[]; description?: string }): Promise<Recipe> {
-    return jsonOrThrow(await fetch('/api/recipes', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(input)
-    }));
+    const recipe = await createRecipe(input);
+    await rebuildIndex();
+    return recipe;
   },
 
   async getRecipe(id: string): Promise<{ recipe: Recipe; batches: Batch[] }> {
-    return jsonOrThrow(await fetch(`/api/recipes/${id}`));
+    const recipe = await readRecipe(id);
+    if (!recipe) throw new Error(`Recipe not found: ${id}`);
+    const batches = await listBatches(id);
+    return { recipe, batches };
   },
 
   async createBatch(recipeId: string, input: {
@@ -37,42 +33,30 @@ export const api = {
     inconsistencyNote?: string;
     cookMultiplier?: number;
   }): Promise<Batch> {
-    return jsonOrThrow(await fetch(`/api/recipes/${recipeId}/batches`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(input)
-    }));
+    const batch = await createBatch(recipeId, input);
+    await rebuildIndex();
+    return batch;
   },
 
   async patchBatch(recipeId: string, batchId: string, patch: Partial<Batch>): Promise<Batch> {
-    return jsonOrThrow(await fetch(`/api/recipes/${recipeId}/batches/${batchId}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(patch)
-    }));
+    const batch = await updateBatch(recipeId, batchId, patch);
+    await rebuildIndex();
+    return batch;
   },
 
   async deleteRecipe(id: string): Promise<void> {
-    const res = await fetch(`/api/recipes/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`${res.status} ${res.statusText}: ${body}`);
-    }
+    await deleteRecipe(id);
+    await rebuildIndex();
   },
 
   async patchRecipe(id: string, patch: Partial<Recipe>): Promise<Recipe> {
-    return jsonOrThrow(await fetch(`/api/recipes/${id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(patch)
-    }));
+    const recipe = await updateRecipe(id, patch);
+    await rebuildIndex();
+    return recipe;
   },
 
   async deleteBatch(recipeId: string, batchId: string): Promise<void> {
-    const res = await fetch(`/api/recipes/${recipeId}/batches/${batchId}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`${res.status} ${res.statusText}: ${body}`);
-    }
+    await deleteBatch(recipeId, batchId);
+    await rebuildIndex();
   }
 };
