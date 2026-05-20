@@ -1,4 +1,29 @@
-import type { VariableSchemaItem, VariableValue } from './types';
+import type { VariableSchemaItem, VariableValue, RecipePreset } from './types';
+
+/**
+ * Get the variable schema for a given preset.
+ */
+const PRESET_SCHEMAS: Record<RecipePreset, VariableSchemaItem[]> = {
+  bread: [
+    { name: 'hydration', unit: '%', type: 'number' },
+    { name: 'bulk_ferment', unit: 'h', type: 'number' },
+    { name: 'bake_temp', unit: '°F', type: 'number' },
+    { name: 'yield', unit: 'loaves', type: 'number' }
+  ],
+  sauce: [
+    { name: 'simmer_time', unit: 'min', type: 'number' },
+    { name: 'yield', unit: 'cups', type: 'number' }
+  ],
+  braise: [
+    { name: 'braise_time', unit: 'h', type: 'number' },
+    { name: 'oven_temp', unit: '°F', type: 'number' }
+  ],
+  custom: []
+};
+
+export function presetVariableSchema(preset: RecipePreset): VariableSchemaItem[] {
+  return PRESET_SCHEMAS[preset];
+}
 
 /**
  * Migrate a batch's variables map from oldSchema to newSchema.
