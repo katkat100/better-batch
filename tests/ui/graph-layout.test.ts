@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
 import { layoutGraph } from '../../src/lib/ui/layout/graph-layout';
-import type { Batch } from '../../src/lib/server/domain/types';
+import type { Batch } from '../../src/lib/data/types';
 
 const mk = (id: string, parentIds: string[], createdAt = '2026-01-01T00:00:00Z'): Batch => ({
   id, recipeId: 'r', label: id, parentIds,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
 import { validateBatch } from '../../src/lib/shared/batch-validation';
-import type { Batch } from '../../src/lib/server/domain/types';
+import type { Batch } from '../../src/lib/data/types';
 
 const mk = (over: Partial<Batch> = {}): Batch => ({
   id: 'b1', recipeId: 'r1', label: 'b1', parentIds: [],

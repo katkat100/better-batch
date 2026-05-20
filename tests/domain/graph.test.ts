@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { childrenOf, ancestorsOf, rootBatches, isMerge } from '../../src/lib/server/domain/graph';
-import type { Batch } from '../../src/lib/server/domain/types';
+import { childrenOf, ancestorsOf, rootBatches, isMerge } from '../../src/lib/data/graph';
+import type { Batch } from '../../src/lib/data/types';
 
 const mk = (id: string, parentIds: string[]): Batch => ({
   id, recipeId: 'r', label: id, parentIds,

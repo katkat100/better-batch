@@ -3,7 +3,7 @@ import { writeFileAtomic } from './atomic';
 import { indexFile } from './paths';
 import { listRecipes } from './recipes';
 import { listBatches } from './batches';
-import type { IndexEntry } from '../domain/types';
+import type { IndexEntry } from '../../data/types';
 
 export async function rebuildIndex(): Promise<IndexEntry[]> {
   const recipes = await listRecipes();

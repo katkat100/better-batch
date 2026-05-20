@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { migrateBatchVariables } from '../../src/lib/server/domain/schema';
-import type { VariableSchemaItem } from '../../src/lib/server/domain/types';
+import { migrateBatchVariables } from '../../src/lib/data/schema';
+import type { VariableSchemaItem } from '../../src/lib/data/types';
 
 const oldSchema: VariableSchemaItem[] = [
   { name: 'hydration', unit: '%', type: 'number' },

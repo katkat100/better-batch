@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { variableDiff, textArrayDiff, ingredientDiff, stepTextDiff, stepObjectDiff } from '../../src/lib/server/domain/diff';
-import type { VariableSchemaItem, Ingredient, Step } from '../../src/lib/server/domain/types';
+import { variableDiff, textArrayDiff, ingredientDiff, stepTextDiff, stepObjectDiff } from '../../src/lib/data/diff';
+import type { VariableSchemaItem, Ingredient, Step } from '../../src/lib/data/types';
 
 const schema: VariableSchemaItem[] = [
   { name: 'hydration', unit: '%', type: 'number' },

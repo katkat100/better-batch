@@ -2,7 +2,7 @@ import { readFile, readdir, rm, mkdir } from 'node:fs/promises';
 import { writeFileAtomic } from './atomic';
 import { batchesDir, batchFile } from './paths';
 import { slugify, uniqueSlug } from '../../shared/slug';
-import type { Batch, BatchStatus, Ingredient, IngredientUse, VariableValue, Step } from '../domain/types';
+import type { Batch, BatchStatus, Ingredient, IngredientUse, VariableValue, Step } from '../../data/types';
 
 interface CreateBatchInput {
   label: string;

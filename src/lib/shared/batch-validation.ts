@@ -1,4 +1,4 @@
-import type { Batch } from '../server/domain/types';
+import type { Batch } from '../data/types';
 import { parseAmount } from '../ui/layout/amount-parse';
 
 export interface IngredientIssue {

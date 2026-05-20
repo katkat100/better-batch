@@ -1,8 +1,8 @@
-export * from './domain/types';
-export * from './domain/graph';
-export * from './domain/diff';
-export * from './domain/merge';
-export * from './domain/schema';
+export * from '../data/types';
+export * from '../data/graph';
+export * from '../data/diff';
+export * from '../data/merge';
+export * from '../data/schema';
 export * from '../shared/slug';
 
 export * from './storage/recipes';

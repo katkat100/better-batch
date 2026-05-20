@@ -27,6 +27,7 @@
     "@types/node": "^25.6.0",
     "eslint": "^10",
     "eslint-plugin-svelte": "^3.17.1",
+    "fake-indexeddb": "^6.2.5",
     "globals": "^17.6.0",
     "knip": "^6",
     "lefthook": "^2.1.6",
@@ -37,5 +38,8 @@
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.59.2",
     "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "idb": "^8.0.3"
   }
 }

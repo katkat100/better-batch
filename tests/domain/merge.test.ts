@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { resolveMerge } from '../../src/lib/server/domain/merge';
-import type { Batch } from '../../src/lib/server/domain/types';
+import { resolveMerge } from '../../src/lib/data/merge';
+import type { Batch } from '../../src/lib/data/types';
 
 const a: Batch = {
   id: 'v4a', recipeId: 'r', label: 'a', parentIds: ['v3'], status: 'cooked', cookedAt: null,

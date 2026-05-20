@@ -1,4 +1,4 @@
-import type { Batch } from '../../server/domain/types';
+import type { Batch } from '../../data/types';
 
 interface LayoutNode { id: string; col: number; row: number; x: number; y: number; }
 interface LayoutEdge { from: string; to: string; }
