@@ -17,7 +17,7 @@
 
     let selectedId = $state<string | null>(
         untrack(
-            () => data.queryBatchId ?? data.recipe.currentBatchId ?? data.batches[0]?.id ?? null,
+            () => data.queryBatchId ?? data.recipe?.currentBatchId ?? data.batches[0]?.id ?? null,
         ),
     );
 
@@ -65,6 +65,7 @@
     }
 </script>
 
+{#if data.recipe}
 <div class="max-w-7xl mx-auto p-6 flex flex-col gap-4 min-h-screen">
     <nav class="flex items-center gap-2 text-sm">
         <a href={resolve("/")} class="text-obsidian/60 hover:text-obsidian"
@@ -227,3 +228,4 @@
     typedMatch={data.recipe.name}
     onConfirm={handleDeleteRecipe}
 />
+{/if}

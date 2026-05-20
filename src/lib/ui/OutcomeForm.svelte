@@ -41,7 +41,10 @@
     try {
       // In cook mode flip to cooked; in edit mode keep status as-is
       const patch: Partial<Batch> = { outcomeNotes, rating };
-      if (mode === 'cook') patch.status = 'cooked';
+      if (mode === 'cook') {
+        patch.status = 'cooked';
+        patch.cookedAt = new Date().toISOString();
+      }
       await api.patchBatch(recipeId, batch.id, patch);
       await invalidateAll();
       onClose();

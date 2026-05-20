@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { clearTestData } from './helpers';
 
-test.beforeEach(async () => { await clearTestData(); });
+test.beforeEach(async ({ page }) => { await clearTestData({ page }); });
 
 test('edit a draft batch with sections and step uses', async ({ page }) => {
   await page.goto('/');

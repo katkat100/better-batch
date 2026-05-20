@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { clearTestData } from './helpers';
 
-test.beforeEach(async () => { await clearTestData(); });
+test.beforeEach(async ({ page }) => { await clearTestData({ page }); });
 
 test('edit variables: add, rename, remove, validate', async ({ page }) => {
   // Create a bread recipe (seeds 4 known variables)

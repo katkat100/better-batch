@@ -54,7 +54,9 @@ export async function createBatch(recipeId: string, input: CreateBatchInput): Pr
     createdAt: now
   };
   const db = await openDb();
-  await db.put('batches', batch);
+  // Deep-clone via JSON round-trip to strip any Svelte $state Proxy wrappers,
+  // which cannot be structured-cloned by IndexedDB.
+  await db.put('batches', JSON.parse(JSON.stringify(batch)));
   return batch;
 }
 
@@ -93,7 +95,9 @@ export async function updateBatch(
   if ('cookMultiplier' in patch && (!patch.cookMultiplier || patch.cookMultiplier <= 1)) {
     delete (next as Partial<Batch>).cookMultiplier;
   }
-  await db.put('batches', next);
+  // Deep-clone via JSON round-trip to strip any Svelte $state Proxy wrappers,
+  // which cannot be structured-cloned by IndexedDB.
+  await db.put('batches', JSON.parse(JSON.stringify(next)));
   return next;
 }
 

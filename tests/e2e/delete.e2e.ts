@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 import { clearTestData } from './helpers';
 
-test.beforeEach(async () => { await clearTestData(); });
+test.beforeEach(async ({ page }) => { await clearTestData({ page }); });
 
 test('delete batch (with children check) and delete recipe (typed confirm)', async ({ page }) => {
   // Create recipe

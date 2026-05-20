@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { clearTestData } from './helpers';
 
-test.beforeEach(async () => {
-  await clearTestData();
+test.beforeEach(async ({ page }) => {
+  await clearTestData({ page });
 });
 
 test('create recipe, record V1, mark as cooked', async ({ page }) => {

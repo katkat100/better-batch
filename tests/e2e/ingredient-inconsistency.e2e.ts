@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { clearTestData } from './helpers';
 
-test.beforeEach(async () => { await clearTestData(); });
+test.beforeEach(async ({ page }) => { await clearTestData({ page }); });
 
 test('saving with an unused ingredient prompts override-with-note and surfaces a badge', async ({ page }) => {
   // Create a recipe

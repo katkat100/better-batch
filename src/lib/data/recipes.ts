@@ -32,7 +32,9 @@ export async function createRecipe(input: CreateRecipeInput): Promise<Recipe> {
     updatedAt: now
   };
   const db = await openDb();
-  await db.put('recipes', recipe);
+  // Deep-clone via JSON round-trip to strip any Svelte $state Proxy wrappers,
+  // which cannot be structured-cloned by IndexedDB.
+  await db.put('recipes', JSON.parse(JSON.stringify(recipe)));
   return recipe;
 }
 
@@ -53,7 +55,9 @@ export async function updateRecipe(id: string, patch: Partial<Recipe>): Promise<
     createdAt: current.createdAt,
     updatedAt: new Date().toISOString()
   };
-  await db.put('recipes', next);
+  // Deep-clone via JSON round-trip to strip any Svelte $state Proxy wrappers,
+  // which cannot be structured-cloned by IndexedDB.
+  await db.put('recipes', JSON.parse(JSON.stringify(next)));
   return next;
 }
 
