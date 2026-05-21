@@ -11,7 +11,7 @@
     import { api } from "./api-client";
     import type { Recipe, Batch } from "$lib/server";
     import Button from "$lib/ui/primitives/Button.svelte";
-    import { validateBatch, type IngredientIssue } from '$lib/shared/batch-validation';
+    import { validateBatch, formatIngredientIssue, type IngredientIssue } from '$lib/shared/batch-validation';
     import MultiplierToggle, { type Multiplier } from './MultiplierToggle.svelte';
 
     let {
@@ -106,17 +106,7 @@
                             {#if detailIssues.length > 0}
                                 <ul class="font-mono text-xs space-y-1">
                                     {#each detailIssues as issue (issue.ingredientId + ':' + issue.kind + ':' + (issue.stepIndex ?? ''))}
-                                        <li class="text-ochre">
-                                            {#if issue.kind === 'unreferenced'}
-                                                ⚠ {issue.ingredientName}: never referenced in any step
-                                            {:else if issue.kind === 'orphan-use'}
-                                                ⚠ Step {(issue.stepIndex ?? 0) + 1}: references a deleted ingredient
-                                            {:else if (issue.sum ?? 0) > (issue.master ?? 0)}
-                                                ⚠ {issue.ingredientName}: used {issue.sum}{issue.unit ?? ''}, more than the {issue.master}{issue.unit ?? ''} listed
-                                            {:else}
-                                                ⚠ {issue.ingredientName}: used {issue.sum}{issue.unit ?? ''} of {issue.master}{issue.unit ?? ''}
-                                            {/if}
-                                        </li>
+                                        <li class="text-ochre">⚠ {formatIngredientIssue(issue)}</li>
                                     {/each}
                                 </ul>
                             {/if}

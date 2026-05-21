@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { validateBatch } from '../../src/lib/shared/batch-validation';
+import { validateBatch, formatIngredientIssue } from '../../src/lib/shared/batch-validation';
 import type { Batch } from '../../src/lib/data/types';
 
 const mk = (over: Partial<Batch> = {}): Batch => ({
@@ -172,5 +172,64 @@ describe('validateBatch', () => {
     const mismatch = issues.find(i => i.kind === 'sum-mismatch')!;
     expect(mismatch.sum).toBe(300);
     expect(mismatch.master).toBe(500);
+  });
+});
+
+describe('formatIngredientIssue', () => {
+  it('formats unreferenced as "<name>: never referenced in any step"', () => {
+    expect(formatIngredientIssue({
+      kind: 'unreferenced',
+      ingredientId: 'flour',
+      ingredientName: 'Flour'
+    })).toBe('Flour: never referenced in any step');
+  });
+
+  it('formats orphan-use as "Step N: references a deleted ingredient" with 1-based stepIndex', () => {
+    expect(formatIngredientIssue({
+      kind: 'orphan-use',
+      ingredientId: 'ghost',
+      ingredientName: '',
+      stepIndex: 2
+    })).toBe('Step 3: references a deleted ingredient');
+  });
+
+  it('formats orphan-use with missing stepIndex as Step 1', () => {
+    expect(formatIngredientIssue({
+      kind: 'orphan-use',
+      ingredientId: 'ghost',
+      ingredientName: ''
+    })).toBe('Step 1: references a deleted ingredient');
+  });
+
+  it('formats over-use sum-mismatch as "used X more than the Y listed"', () => {
+    expect(formatIngredientIssue({
+      kind: 'sum-mismatch',
+      ingredientId: 'flour',
+      ingredientName: 'Flour',
+      sum: 600,
+      master: 500,
+      unit: 'g'
+    })).toBe('Flour: used 600g, more than the 500g listed');
+  });
+
+  it('formats under-use sum-mismatch as "used X of Y"', () => {
+    expect(formatIngredientIssue({
+      kind: 'sum-mismatch',
+      ingredientId: 'flour',
+      ingredientName: 'Flour',
+      sum: 300,
+      master: 500,
+      unit: 'g'
+    })).toBe('Flour: used 300g of 500g');
+  });
+
+  it('omits unit when missing on sum-mismatch', () => {
+    expect(formatIngredientIssue({
+      kind: 'sum-mismatch',
+      ingredientId: 'eggs',
+      ingredientName: 'Eggs',
+      sum: 2,
+      master: 3
+    })).toBe('Eggs: used 2 of 3');
   });
 });

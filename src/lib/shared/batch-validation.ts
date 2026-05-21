@@ -58,3 +58,19 @@ export function validateBatch(batch: Batch): IngredientIssue[] {
 
   return [...ingredientIssues, ...orphanIssues];
 }
+
+export function formatIngredientIssue(issue: IngredientIssue): string {
+  if (issue.kind === 'unreferenced') {
+    return `${issue.ingredientName}: never referenced in any step`;
+  }
+  if (issue.kind === 'orphan-use') {
+    return `Step ${(issue.stepIndex ?? 0) + 1}: references a deleted ingredient`;
+  }
+  const sum = issue.sum ?? 0;
+  const master = issue.master ?? 0;
+  const unit = issue.unit ?? '';
+  if (sum > master) {
+    return `${issue.ingredientName}: used ${sum}${unit}, more than the ${master}${unit} listed`;
+  }
+  return `${issue.ingredientName}: used ${sum}${unit} of ${master}${unit}`;
+}

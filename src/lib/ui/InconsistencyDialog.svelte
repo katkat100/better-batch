@@ -2,7 +2,7 @@
 <script lang="ts">
   import Dialog from './primitives/Dialog.svelte';
   import Button from './primitives/Button.svelte';
-  import type { IngredientIssue } from '$lib/shared/batch-validation';
+  import { formatIngredientIssue, type IngredientIssue } from '$lib/shared/batch-validation';
 
   let {
     open = $bindable(false),
@@ -26,21 +26,6 @@
     }
   });
 
-  function describe(issue: IngredientIssue): string {
-    if (issue.kind === 'unreferenced') {
-      return `${issue.ingredientName}: never referenced in any step`;
-    }
-    if (issue.kind === 'orphan-use') {
-      return `Step ${(issue.stepIndex ?? 0) + 1}: references a deleted ingredient`;
-    }
-    const sum = issue.sum ?? 0;
-    const master = issue.master ?? 0;
-    const unit = issue.unit ?? '';
-    if (sum > master) {
-      return `${issue.ingredientName}: used ${sum}${unit}, more than the ${master}${unit} listed`;
-    }
-    return `${issue.ingredientName}: used ${sum}${unit} of ${master}${unit}`;
-  }
 </script>
 
 <Dialog bind:open title="Ingredient inconsistencies" onClose={onFix}>
@@ -50,7 +35,7 @@
     </p>
     <ul class="font-mono text-sm space-y-1" data-testid="inconsistency-list">
       {#each issues as issue (issue.ingredientId + ':' + issue.kind + ':' + (issue.stepIndex ?? ''))}
-        <li class="text-ochre">⚠ {describe(issue)}</li>
+        <li class="text-ochre">⚠ {formatIngredientIssue(issue)}</li>
       {/each}
     </ul>
 
