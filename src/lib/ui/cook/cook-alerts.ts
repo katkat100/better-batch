@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
+
 // Browser-side alert helpers for finished cook timers.
 // All entry points are no-ops on the server / in environments without the API,
 // so callers can invoke them unconditionally.
@@ -42,6 +45,13 @@ export function vibrateFinish(): void {
 }
 
 export async function ensureNotificationPermission(): Promise<NotificationPermission> {
+  if (Capacitor.isNativePlatform()) {
+    const status = await LocalNotifications.checkPermissions();
+    if (status.display === 'granted') return 'granted';
+    if (status.display === 'denied') return 'denied';
+    const next = await LocalNotifications.requestPermissions();
+    return next.display === 'granted' ? 'granted' : 'denied';
+  }
   if (typeof Notification === 'undefined') return 'denied';
   if (Notification.permission !== 'default') return Notification.permission;
   return Notification.requestPermission();

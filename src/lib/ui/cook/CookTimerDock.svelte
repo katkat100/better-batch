@@ -12,6 +12,7 @@
     stopTitleFlash,
     updateTitleFlashCount
   } from './cook-alerts';
+  import { cancelTimerNotification } from './cook-notifications';
 
   export interface DockTimer {
     id: string;
@@ -121,17 +122,22 @@
   // how long the user takes to dismiss.
   $effect(() => {
     for (const t of timers) {
-      const rem = remainingById.get(t.id);
-      if (rem === undefined || rem > 0) continue;
+      const rem = remainingById.get(t.id) ?? 0;
+      if (rem > 0) continue;
       if (finishedAtById.has(t.id)) continue;
+      const overshoot = -rem;  // rem is already <= 0 here
+      const isBackgroundResume = overshoot >= 2000;
       finishedAtById.set(t.id, Date.now());
-      playFinishChime();
-      vibrateFinish();
-      if (notifyEnabled) {
-        const n = fireNotification(t.label, t.stepIndex, `timer-${t.id}`);
-        if (n) {
-          liveNotifications.set(t.id, n);
-          n.onclick = () => { onRemove(t.id); window.focus(); };
+      void cancelTimerNotification(t.id);
+      if (!isBackgroundResume) {
+        playFinishChime();
+        vibrateFinish();
+        if (notifyEnabled) {
+          const n = fireNotification(t.label, t.stepIndex, `timer-${t.id}`);
+          if (n) {
+            liveNotifications.set(t.id, n);
+            n.onclick = () => { onRemove(t.id); window.focus(); };
+          }
         }
       }
     }

@@ -5,6 +5,7 @@
   import CookIngredients from './CookIngredients.svelte';
   import CookStepList from './CookStepList.svelte';
   import CookTimerDock, { type DockTimer } from './CookTimerDock.svelte';
+  import { scheduleTimerNotification, cancelTimerNotification } from './cook-notifications';
   import CookQuickNoteFab from './CookQuickNoteFab.svelte';
   import EndCookDialog from './EndCookDialog.svelte';
   import { api } from '../api-client';
@@ -82,8 +83,9 @@
   }
 
   function handleStartTimer(stepIndex: number, match: TimerMatch) {
+    const id = crypto.randomUUID();
     timers = [...timers, {
-      id: crypto.randomUUID(),
+      id,
       stepIndex,
       label: match.label,
       durationMs: match.durationMs,
@@ -93,6 +95,7 @@
       finished: false
     }];
     timersStarted++;
+    void scheduleTimerNotification(id, match.durationMs, match.label, stepIndex);
   }
 
   function handlePauseToggle(id: string) {
@@ -102,19 +105,26 @@
     if (t.pausedAt !== null) {
       t.pausedAccumMs += now - t.pausedAt;
       t.pausedAt = null;
+      const remaining = t.durationMs - (now - t.startedAt - t.pausedAccumMs);
+      if (remaining > 0) {
+        void scheduleTimerNotification(t.id, remaining, t.label, t.stepIndex);
+      }
     } else {
       t.pausedAt = now;
+      void cancelTimerNotification(t.id);
     }
     timers = [...timers];
   }
 
   function handleRemoveTimer(id: string) {
+    void cancelTimerNotification(id);
     timers = timers.filter(t => t.id !== id);
   }
 
   function handleAddManual(durationMs: number, label: string) {
+    const id = crypto.randomUUID();
     timers = [...timers, {
-      id: crypto.randomUUID(),
+      id,
       stepIndex: -1,
       label,
       durationMs,
@@ -124,6 +134,7 @@
       finished: false
     }];
     timersStarted++;
+    void scheduleTimerNotification(id, durationMs, label, -1);
   }
 
   async function handleEndCookSubmit(input: {
