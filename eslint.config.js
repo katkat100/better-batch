@@ -27,6 +27,7 @@ export default [
 	{
 		ignores: [
 			'.svelte-kit/',
+			'android/',
 			'build/',
 			'dist/',
 			'node_modules/',

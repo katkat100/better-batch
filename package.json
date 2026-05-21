@@ -15,7 +15,10 @@
     "lint:fix": "eslint . --fix",
     "knip": "knip",
     "check": "bun run typecheck && bun run lint && bun run knip && bun test",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "cap:sync": "cap sync",
+    "cap:open": "cap open android",
+    "android": "bun run build && bun run cap:sync && bun run cap:open"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.3.4",
