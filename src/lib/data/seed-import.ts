@@ -26,7 +26,7 @@ export async function seedIfEmpty(): Promise<void> {
   if (count > 0) return;
   let snapshot: Snapshot;
   try {
-    const res = await fetch('/api/seed/snapshot.json');
+    const res = await fetch('/seed/snapshot.json');
     if (!res.ok) return;
     snapshot = await res.json();
   } catch {

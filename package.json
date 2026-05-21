@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build-seed": "bun scripts/build-seed-snapshot.ts",
+    "build": "bun run build-seed && vite build",
     "preview": "vite preview",
     "e2e": "playwright test",
     "e2e:headed": "playwright test --headed",
