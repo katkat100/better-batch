@@ -368,20 +368,20 @@
           >▼</button>
         </div>
 
-        <div class="flex-1 flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-          <div class="flex gap-2 md:contents order-2 md:order-none">
+        <div class="flex-1 min-w-0 flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
+          <div class="flex gap-2 min-w-0 md:contents order-2 md:order-none">
             <TextInput
               bind:value={ing.amount}
               onblur={() => evalIngredientAmountOnBlur(i)}
               placeholder="Amount"
               aria-label="Ingredient {i + 1} amount"
-              class="flex-1 md:flex-none md:w-24 px-2 py-1.5"
+              class="flex-1 md:flex-none w-1/2 flex md:w-24 px-2 py-1.5"
             />
             <TextInput
               bind:value={ing.unit}
               placeholder="Unit"
               aria-label="Ingredient {i + 1} unit"
-              class="flex-1 md:flex-none md:w-20 px-2 py-1.5"
+              class="flex-1 md:flex-none w-1/2 flex md:w-20 px-2 py-1.5"
             />
           </div>
           <TextInput
@@ -412,7 +412,7 @@
               ing.section = val === '__none__' ? undefined : val;
             }}
             aria-label="Ingredient {i + 1} section"
-            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm md:w-32 order-3 md:order-none"
+            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm w-full md:w-32 order-3 md:order-none"
             data-testid="ingredient-section"
           >
             <option value="__none__">(no section)</option>
