@@ -30,6 +30,9 @@
     if (issue.kind === 'unreferenced') {
       return `${issue.ingredientName}: never referenced in any step`;
     }
+    if (issue.kind === 'orphan-use') {
+      return `Step ${(issue.stepIndex ?? 0) + 1}: references a deleted ingredient`;
+    }
     const sum = issue.sum ?? 0;
     const master = issue.master ?? 0;
     const unit = issue.unit ?? '';
@@ -46,7 +49,7 @@
       Some ingredients don't add up. You can fix them, or save anyway and add a note explaining why.
     </p>
     <ul class="font-mono text-sm space-y-1" data-testid="inconsistency-list">
-      {#each issues as issue (issue.ingredientId + ':' + issue.kind)}
+      {#each issues as issue (issue.ingredientId + ':' + issue.kind + ':' + (issue.stepIndex ?? ''))}
         <li class="text-ochre">⚠ {describe(issue)}</li>
       {/each}
     </ul>

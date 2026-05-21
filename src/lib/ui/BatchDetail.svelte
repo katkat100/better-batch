@@ -105,10 +105,12 @@
                         >
                             {#if detailIssues.length > 0}
                                 <ul class="font-mono text-xs space-y-1">
-                                    {#each detailIssues as issue (issue.ingredientId + ':' + issue.kind)}
+                                    {#each detailIssues as issue (issue.ingredientId + ':' + issue.kind + ':' + (issue.stepIndex ?? ''))}
                                         <li class="text-ochre">
                                             {#if issue.kind === 'unreferenced'}
                                                 ⚠ {issue.ingredientName}: never referenced in any step
+                                            {:else if issue.kind === 'orphan-use'}
+                                                ⚠ Step {(issue.stepIndex ?? 0) + 1}: references a deleted ingredient
                                             {:else if (issue.sum ?? 0) > (issue.master ?? 0)}
                                                 ⚠ {issue.ingredientName}: used {issue.sum}{issue.unit ?? ''}, more than the {issue.master}{issue.unit ?? ''} listed
                                             {:else}
