@@ -1,5 +1,6 @@
 <script lang="ts">
   import { layoutGraph, type Layout } from './layout/graph-layout';
+  import { validateBatch } from '$lib/shared/batch-validation';
   import type { Batch } from '$lib/server';
 
   let {
@@ -22,6 +23,16 @@
   const layout = $derived<Layout>(layoutGraph(batches, { colWidth: COL_WIDTH, rowHeight: ROW_HEIGHT }));
   const byId = $derived(new Map(batches.map(b => [b.id, b] as const)));
   const nodeById = $derived(new Map(layout.nodes.map(n => [n.id, n] as const)));
+
+  function inconsistencyTitle(batch: Batch): string | null {
+    const issues = validateBatch(batch);
+    const noteText = batch.inconsistencyNote?.trim() ?? '';
+    if (issues.length === 0 && noteText === '') return null;
+    const parts: string[] = [];
+    if (issues.length > 0) parts.push(`${issues.length} ingredient issue${issues.length === 1 ? '' : 's'}`);
+    if (noteText !== '') parts.push('has note');
+    return parts.join(' · ');
+  }
 
   const svgWidth = $derived(layout.width + PAD * 2);
   const svgHeight = $derived(layout.height + PAD + LABEL_OFFSET_Y);
@@ -67,6 +78,7 @@
   {#each layout.nodes as n (n.id)}
     {@const batch = byId.get(n.id)!}
     {@const isSelected = n.id === selectedId}
+    {@const warnTitle = inconsistencyTitle(batch)}
     <g
       transform="translate({n.x + PAD},{n.y + PAD})"
       class="cursor-pointer"
@@ -96,6 +108,15 @@
         font-size="11"
         fill="var(--color-obsidian)"
       >{truncate(batch.label)}<title>{batch.label}</title></text>
+      {#if warnTitle}
+        <text
+          x={NODE_R + 4}
+          y={-NODE_R + 2}
+          font-size="12"
+          fill="var(--color-ochre)"
+          data-testid="batch-node-warning"
+        >⚠<title>{warnTitle}</title></text>
+      {/if}
     </g>
   {/each}
 </svg>
