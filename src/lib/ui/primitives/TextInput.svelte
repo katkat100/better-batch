@@ -24,7 +24,7 @@
     [key: string]: unknown;
   } = $props();
 
-  const DEFAULT_CLASS = 'border border-drafting bg-canvas px-3 py-2 rounded-sm text-sm';
+  const DEFAULT_CLASS = 'border border-drafting bg-canvas px-3 py-2 rounded-sm text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre';
 
   function handleInput(e: Event) {
     value = (e.currentTarget as HTMLInputElement).value;

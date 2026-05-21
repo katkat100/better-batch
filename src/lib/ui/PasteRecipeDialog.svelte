@@ -77,7 +77,7 @@
       bind:value={pasteText}
       rows="12"
       placeholder="Paste your recipe here…"
-      class="border border-drafting bg-canvas px-3 py-2 rounded-sm text-sm font-mono resize-y"
+      class="border border-drafting bg-canvas px-3 py-2 rounded-sm text-sm font-mono resize-y outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
       data-testid="paste-recipe-textarea"
     ></textarea>
 

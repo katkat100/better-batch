@@ -468,7 +468,7 @@
             bind:value={step.text}
             rows="2"
             aria-label="Step {i + 1} text"
-            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm resize-none"
+            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm flex-1 text-sm resize-none outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
             data-testid="step-text"
           ></textarea>
           <button type="button" onclick={() => removeStep(i)} aria-label="Remove step {i + 1}" class="text-obsidian/40 hover:text-ochre pt-2">×</button>

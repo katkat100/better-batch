@@ -93,7 +93,7 @@
 
     <label class="flex flex-col gap-1 text-sm">
       <span class="text-[11px] uppercase tracking-wider">Description</span>
-      <textarea bind:value={description} rows="2" class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm"></textarea>
+      <textarea bind:value={description} rows="2" class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"></textarea>
     </label>
 
     {#if error}

@@ -92,7 +92,7 @@
         bind:value={outcomeNotes}
         rows="4"
         placeholder="Crumb, crust, taste, what to change next time…"
-        class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none"
+        class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
         data-testid="outcome-notes"
       ></textarea>
     </label>

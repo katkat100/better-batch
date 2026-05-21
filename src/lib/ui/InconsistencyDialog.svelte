@@ -60,7 +60,7 @@
         <textarea
           bind:value={note}
           rows="3"
-          class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm font-mono text-sm"
+          class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm font-mono text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
           data-testid="inconsistency-note"
         ></textarea>
       </label>

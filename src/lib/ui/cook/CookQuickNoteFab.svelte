@@ -85,7 +85,7 @@
               <textarea
                 bind:value={editDraft}
                 rows="3"
-                class="border border-drafting bg-canvas px-2 py-1 rounded-sm resize-none text-sm"
+                class="border border-drafting bg-canvas px-2 py-1 rounded-sm resize-none text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
                 aria-label="Edit note {i + 1}"
               ></textarea>
               <div class="flex justify-end gap-2">
@@ -122,7 +122,7 @@
         bind:value={draft}
         rows="3"
         placeholder="What would you change next time?"
-        class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm"
+        class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
         data-testid="quick-note-textarea"
       ></textarea>
       <div class="flex justify-end gap-2">
