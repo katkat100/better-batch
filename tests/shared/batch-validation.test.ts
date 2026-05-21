@@ -100,7 +100,7 @@ describe('validateBatch', () => {
     expect(issues.map(i => i.kind)).toEqual(['unreferenced', 'sum-mismatch']);
   });
 
-  it('ignores step uses whose ingredientId no longer matches any ingredient', () => {
+  it('detects step uses whose ingredientId no longer matches any ingredient as orphan-use', () => {
     const issues = validateBatch(mk({
       ingredients: [{ id: 'flour', name: 'Flour', amount: '500', unit: 'g' }],
       steps: [{ text: 'Mix', uses: [
@@ -108,7 +108,9 @@ describe('validateBatch', () => {
         { ingredientId: 'ghost', amount: 999 }
       ] }]
     }));
-    expect(issues).toEqual([]);
+    expect(issues).toEqual([
+      expect.objectContaining({ kind: 'orphan-use', ingredientId: 'ghost', stepIndex: 0 })
+    ]);
   });
 
   it('orders issues by ingredient list order', () => {
@@ -123,5 +125,52 @@ describe('validateBatch', () => {
       ] }]
     }));
     expect(issues.map(i => i.ingredientId)).toEqual(['a', 'b']);
+  });
+
+  it('flags an orphan-use when a step references an unknown ingredientId', () => {
+    const issues = validateBatch(mk({
+      ingredients: [],
+      steps: [{ text: 'Mix', uses: [{ ingredientId: 'ghost', amount: 100 }] }]
+    }));
+    expect(issues).toEqual([
+      expect.objectContaining({ kind: 'orphan-use', ingredientId: 'ghost', stepIndex: 0 })
+    ]);
+  });
+
+  it('multiple orphan uses in one step produce one issue per use', () => {
+    const issues = validateBatch(mk({
+      ingredients: [],
+      steps: [{ text: 'Mix', uses: [
+        { ingredientId: 'ghost-a', amount: 100 },
+        { ingredientId: 'ghost-b', amount: 200 }
+      ] }]
+    }));
+    expect(issues.length).toBe(2);
+    expect(issues[0]).toEqual(expect.objectContaining({ kind: 'orphan-use', ingredientId: 'ghost-a', stepIndex: 0 }));
+    expect(issues[1]).toEqual(expect.objectContaining({ kind: 'orphan-use', ingredientId: 'ghost-b', stepIndex: 0 }));
+  });
+
+  it('orphan-use issues appear after per-ingredient issues in return order', () => {
+    const issues = validateBatch(mk({
+      ingredients: [{ id: 'flour', name: 'Flour', amount: '500', unit: 'g' }],
+      steps: [{ text: 'Mix', uses: [
+        { ingredientId: 'flour', amount: 300 },
+        { ingredientId: 'ghost', amount: 200 }
+      ] }]
+    }));
+    expect(issues.map(i => i.kind)).toEqual(['sum-mismatch', 'orphan-use']);
+  });
+
+  it('orphan use amount does not contribute to any ingredient sum tally', () => {
+    const issues = validateBatch(mk({
+      ingredients: [{ id: 'flour', name: 'Flour', amount: '500', unit: 'g' }],
+      steps: [{ text: 'Mix', uses: [
+        { ingredientId: 'flour', amount: 300 },
+        { ingredientId: 'ghost', amount: 200 }
+      ] }]
+    }));
+    const mismatch = issues.find(i => i.kind === 'sum-mismatch')!;
+    expect(mismatch.sum).toBe(300);
+    expect(mismatch.master).toBe(500);
   });
 });
