@@ -57,6 +57,18 @@
         detailIssues.length > 0 || (batch.inconsistencyNote !== undefined && batch.inconsistencyNote !== '')
     );
     let popoverOpen = $state(false);
+    let badgeEl = $state<HTMLButtonElement | null>(null);
+
+    function onWindowKeydown(e: KeyboardEvent) {
+        if (e.key !== 'Escape') return;
+        if (popoverOpen) popoverOpen = false;
+        if (moreOpen) moreOpen = false;
+    }
+    function onWindowMousedown(e: MouseEvent) {
+        if (popoverOpen && badgeEl && !badgeEl.contains(e.target as Node)) {
+            popoverOpen = false;
+        }
+    }
     let multiplier = $state<Multiplier>(1);
 
     let deleteOpen = $state(false);
@@ -79,6 +91,8 @@
 
 </script>
 
+<svelte:window onkeydown={onWindowKeydown} onmousedown={onWindowMousedown} />
+
 <article
     class="flex flex-col gap-5"
     data-testid="batch-detail"
@@ -92,8 +106,10 @@
             {#if hasInconsistency}
                 <button
                     type="button"
+                    bind:this={badgeEl}
                     class="text-ochre text-sm align-middle ml-1 relative"
                     aria-label="Show ingredient inconsistencies"
+                    aria-expanded={popoverOpen}
                     onclick={() => popoverOpen = !popoverOpen}
                     data-testid="inconsistency-badge"
                 >⚠

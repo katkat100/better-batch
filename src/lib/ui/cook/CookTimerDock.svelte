@@ -187,6 +187,8 @@
   }
 </script>
 
+<svelte:window onkeydown={(e) => manualOpen && e.key === 'Escape' && (manualOpen = false)} />
+
 <div
   class="sticky bottom-0 z-30 bg-obsidian text-canvas px-4 py-2 flex items-center gap-4 overflow-x-auto relative"
   data-testid="cook-timer-dock"
@@ -261,6 +263,12 @@
 </div>
 
 {#if manualOpen}
+  <button
+    type="button"
+    class="fixed inset-0 z-40 bg-transparent"
+    aria-label="close manual timer"
+    onclick={() => manualOpen = false}
+  ></button>
   <div class="fixed right-4 bottom-16 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56 z-50 shadow-lg" data-testid="manual-timer-popover">
     <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Manual timer</span>
     <div class="flex gap-2 font-mono text-sm">

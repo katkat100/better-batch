@@ -51,6 +51,8 @@
   }
 </script>
 
+<svelte:window onkeydown={(e) => menuOpen && e.key === 'Escape' && (menuOpen = false)} />
+
 <div
   class="inline-flex gap-1 relative {extraClass}"
   role="group"
