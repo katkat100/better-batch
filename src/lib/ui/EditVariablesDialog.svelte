@@ -107,7 +107,24 @@
   size="2xl"
   onClose={() => { if (!submitting) close(); }}
 >
+  {#snippet actions()}
+    <Button
+      type="button"
+      variant="ghost"
+      onclick={close}
+      disabled={submitting}
+      data-testid="edit-variables-cancel"
+    >Cancel</Button>
+    <Button
+      type="submit"
+      form="edit-variables-form"
+      variant={canSave ? 'primary' : 'outline'}
+      disabled={!canSave}
+      data-testid="edit-variables-submit"
+    >{submitting ? 'Saving…' : 'Save Changes'}</Button>
+  {/snippet}
   <form
+    id="edit-variables-form"
     onsubmit={save}
     class="flex flex-col gap-4"
     data-testid="edit-variables-dialog"
@@ -192,21 +209,5 @@
       class="text-sm normal-case tracking-normal"
       data-testid="add-variable-btn"
     >+ Add Variable</Button>
-
-    <div class="flex justify-end gap-2 pt-2 border-t border-drafting">
-      <Button
-        type="button"
-        variant="ghost"
-        onclick={close}
-        disabled={submitting}
-        data-testid="edit-variables-cancel"
-      >Cancel</Button>
-      <Button
-        type="submit"
-        variant={canSave ? 'primary' : 'outline'}
-        disabled={!canSave}
-        data-testid="edit-variables-submit"
-      >{submitting ? 'Saving…' : 'Save Changes'}</Button>
-    </div>
   </form>
 </Dialog>

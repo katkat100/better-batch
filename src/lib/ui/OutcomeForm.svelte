@@ -62,7 +62,18 @@
   titleId="outcome-form-title"
   onClose={onClose}
 >
+  {#snippet actions()}
+    <Button type="button" variant="ghost" onclick={onClose}>Cancel</Button>
+    <Button
+      type="submit"
+      form="outcome-form-el"
+      variant="success"
+      disabled={submitting}
+      data-testid="outcome-submit"
+    >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save' : 'Archive Batch')}</Button>
+  {/snippet}
   <form
+    id="outcome-form-el"
     onsubmit={submit}
     class="flex flex-col gap-4"
     data-testid="outcome-form"
@@ -94,15 +105,5 @@
     {#if error}
       <p class="text-ochre text-sm">{error}</p>
     {/if}
-
-    <div class="flex justify-end gap-2 pt-2">
-      <Button type="button" variant="ghost" onclick={onClose}>Cancel</Button>
-      <Button
-        type="submit"
-        variant="success"
-        disabled={submitting}
-        data-testid="outcome-submit"
-      >{submitting ? 'Saving…' : (mode === 'edit' ? 'Save' : 'Archive Batch')}</Button>
-    </div>
   </form>
 </Dialog>

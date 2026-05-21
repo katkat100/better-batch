@@ -29,6 +29,21 @@
 </script>
 
 <Dialog bind:open title="Ingredient inconsistencies" onClose={onFix}>
+  {#snippet actions()}
+    {#if confirming}
+      <Button type="button" variant="dashed" onclick={() => confirming = false}>Back</Button>
+      <Button type="button" onclick={() => onSaveAnyway(note.trim())} data-testid="inconsistency-confirm-save">
+        Save anyway
+      </Button>
+    {:else}
+      <Button type="button" variant="dashed" onclick={onFix} data-testid="inconsistency-fix">
+        Fix it
+      </Button>
+      <Button type="button" onclick={() => confirming = true} data-testid="inconsistency-save-anyway">
+        Save anyway
+      </Button>
+    {/if}
+  {/snippet}
   <div class="flex flex-col gap-4" data-testid="inconsistency-dialog">
     <p class="text-sm text-obsidian/70">
       Some ingredients don't add up. You can fix them, or save anyway and add a note explaining why.
@@ -49,21 +64,6 @@
           data-testid="inconsistency-note"
         ></textarea>
       </label>
-      <div class="flex gap-2 justify-end">
-        <Button type="button" variant="dashed" onclick={() => confirming = false}>Back</Button>
-        <Button type="button" onclick={() => onSaveAnyway(note.trim())} data-testid="inconsistency-confirm-save">
-          Save anyway
-        </Button>
-      </div>
-    {:else}
-      <div class="flex gap-2 justify-end">
-        <Button type="button" variant="dashed" onclick={onFix} data-testid="inconsistency-fix">
-          Fix it
-        </Button>
-        <Button type="button" onclick={() => confirming = true} data-testid="inconsistency-save-anyway">
-          Save anyway
-        </Button>
-      </div>
     {/if}
   </div>
 </Dialog>

@@ -50,7 +50,18 @@
   titleId="new-recipe-dialog-title"
   onClose={close}
 >
+  {#snippet actions()}
+    <Button type="button" variant="ghost" onclick={close}>Cancel</Button>
+    <Button
+      type="submit"
+      form="new-recipe-form"
+      variant="outline"
+      disabled={submitting}
+      data-testid="new-recipe-submit"
+    >{submitting ? 'Creating…' : 'Record Recipe'}</Button>
+  {/snippet}
   <form
+    id="new-recipe-form"
     onsubmit={submit}
     class="flex flex-col gap-4"
     data-testid="new-recipe-dialog"
@@ -88,15 +99,5 @@
     {#if error}
       <p class="text-ochre text-sm">{error}</p>
     {/if}
-
-    <div class="flex justify-end gap-2 pt-2">
-      <Button type="button" variant="ghost" onclick={close}>Cancel</Button>
-      <Button
-        type="submit"
-        variant="outline"
-        disabled={submitting}
-        data-testid="new-recipe-submit"
-      >{submitting ? 'Creating…' : 'Record Recipe'}</Button>
-    </div>
   </form>
 </Dialog>

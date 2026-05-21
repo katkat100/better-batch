@@ -52,6 +52,26 @@
   size="2xl"
   onClose={close}
 >
+  {#snippet actions()}
+    {#if parsed === null}
+      <Button type="button" variant="ghost" onclick={close} data-testid="paste-recipe-cancel-btn">Cancel</Button>
+      <Button
+        type="button"
+        variant={pasteText.trim() ? 'primary' : 'outline'}
+        disabled={!pasteText.trim()}
+        onclick={handleParse}
+        data-testid="paste-recipe-parse-btn"
+      >Parse</Button>
+    {:else}
+      <Button type="button" variant="ghost" onclick={close} data-testid="paste-recipe-cancel-btn">Cancel</Button>
+      {#if formHasContent}
+        <Button type="button" variant="outline" onclick={() => apply('append')} data-testid="paste-recipe-append-btn">Append</Button>
+        <Button type="button" variant="primary" onclick={() => apply('replace')} data-testid="paste-recipe-replace-btn">Replace</Button>
+      {:else}
+        <Button type="button" variant="primary" onclick={() => apply('replace')} data-testid="paste-recipe-apply-btn">Apply</Button>
+      {/if}
+    {/if}
+  {/snippet}
   <div class="flex flex-col gap-4" data-testid="paste-recipe-dialog">
     <textarea
       bind:value={pasteText}
@@ -61,18 +81,7 @@
       data-testid="paste-recipe-textarea"
     ></textarea>
 
-    {#if parsed === null}
-      <div class="flex justify-end gap-2 pt-2 border-t border-drafting">
-        <Button type="button" variant="ghost" onclick={close} data-testid="paste-recipe-cancel-btn">Cancel</Button>
-        <Button
-          type="button"
-          variant={pasteText.trim() ? 'primary' : 'outline'}
-          disabled={!pasteText.trim()}
-          onclick={handleParse}
-          data-testid="paste-recipe-parse-btn"
-        >Parse</Button>
-      </div>
-    {:else}
+    {#if parsed !== null}
       <p class="text-sm text-obsidian/70" data-testid="paste-recipe-summary">
         {parsed.ingredients.length} ingredient{parsed.ingredients.length === 1 ? '' : 's'}
         · {parsed.steps.length} step{parsed.steps.length === 1 ? '' : 's'}
@@ -95,16 +104,6 @@
           {/if}
         </div>
       {/if}
-
-      <div class="flex justify-end gap-2 pt-2 border-t border-drafting">
-        <Button type="button" variant="ghost" onclick={close} data-testid="paste-recipe-cancel-btn">Cancel</Button>
-        {#if formHasContent}
-          <Button type="button" variant="outline" onclick={() => apply('append')} data-testid="paste-recipe-append-btn">Append</Button>
-          <Button type="button" variant="primary" onclick={() => apply('replace')} data-testid="paste-recipe-replace-btn">Replace</Button>
-        {:else}
-          <Button type="button" variant="primary" onclick={() => apply('replace')} data-testid="paste-recipe-apply-btn">Apply</Button>
-        {/if}
-      </div>
     {/if}
   </div>
 </Dialog>

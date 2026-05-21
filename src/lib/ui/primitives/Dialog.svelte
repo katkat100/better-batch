@@ -12,7 +12,8 @@
     size = 'md',
     class: extraClass = '',
     onClose,
-    children
+    children,
+    actions
   }: {
     open?: boolean;
     title: string;
@@ -22,6 +23,7 @@
     class?: string;
     onClose?: () => void;
     children: Snippet;
+    actions?: Snippet;
   } = $props();
 
   const autoId = `dialog-title-${Math.random().toString(36).slice(2)}`;
@@ -67,6 +69,11 @@
         {#if subtitle}<p class="text-sm text-obsidian/60 mt-1">{subtitle}</p>{/if}
       </div>
       {@render children()}
+      {#if actions}
+        <div class="flex justify-end gap-2 pt-2 border-t border-drafting">
+          {@render actions()}
+        </div>
+      {/if}
     </div>
   </div>
 {/if}

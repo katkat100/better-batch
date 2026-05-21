@@ -63,7 +63,23 @@
   titleId="confirm-delete-dialog-title"
   onClose={close}
 >
+  {#snippet actions()}
+    <Button
+      type="button"
+      variant="ghost"
+      onclick={close}
+      data-testid="confirm-delete-cancel"
+    >Cancel</Button>
+    <Button
+      type="submit"
+      form="confirm-delete-form"
+      variant={canConfirm ? 'primary' : 'outline'}
+      disabled={!canConfirm}
+      data-testid="confirm-delete-submit"
+    >{submitting ? 'Deleting…' : confirmLabel}</Button>
+  {/snippet}
   <form
+    id="confirm-delete-form"
     onsubmit={submit}
     class="flex flex-col gap-4"
     data-testid="confirm-delete-dialog"
@@ -85,20 +101,5 @@
     {#if error}
       <p class="text-ochre text-sm" data-testid="confirm-delete-error">{error}</p>
     {/if}
-
-    <div class="flex justify-end gap-2 pt-2">
-      <Button
-        type="button"
-        variant="ghost"
-        onclick={close}
-        data-testid="confirm-delete-cancel"
-      >Cancel</Button>
-      <Button
-        type="submit"
-        variant={canConfirm ? 'primary' : 'outline'}
-        disabled={!canConfirm}
-        data-testid="confirm-delete-submit"
-      >{submitting ? 'Deleting…' : confirmLabel}</Button>
-    </div>
   </form>
 </Dialog>

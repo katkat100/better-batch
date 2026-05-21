@@ -69,6 +69,9 @@
 </button>
 
 <Dialog bind:open title="Notes for next batch" titleId="quick-note-title" onClose={close}>
+  {#snippet actions()}
+    <Button type="button" variant="ghost" onclick={close} data-testid="quick-note-close">Close</Button>
+  {/snippet}
   <div data-testid="quick-note-modal" class="flex flex-col gap-4">
     <div class="flex justify-end">
       <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{notes.length} captured</span>
@@ -127,8 +130,5 @@
       </div>
     </div>
 
-    <div class="flex justify-end pt-2 border-t border-drafting">
-      <Button type="button" variant="ghost" onclick={close} data-testid="quick-note-close">Close</Button>
-    </div>
   </div>
 </Dialog>

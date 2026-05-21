@@ -95,7 +95,17 @@
   titleId="end-cook-dialog-title"
   onClose={close}
 >
-  <form onsubmit={submit} data-testid="end-cook-dialog" class="flex flex-col gap-4">
+  {#snippet actions()}
+    <Button type="button" variant="ghost" onclick={close}>Cancel</Button>
+    <Button
+      type="submit"
+      form="end-cook-form"
+      variant="success"
+      disabled={submitting}
+      data-testid="end-cook-submit"
+    >{submitting ? 'Saving…' : 'Save Cook'}</Button>
+  {/snippet}
+  <form id="end-cook-form" onsubmit={submit} data-testid="end-cook-dialog" class="flex flex-col gap-4">
     <div class="grid grid-cols-3 gap-2 text-xs border border-drafting p-2 rounded-sm" data-testid="end-cook-summary">
       <div><span class="block text-[10px] uppercase tracking-wider text-obsidian/50">Elapsed</span><span class="font-mono">{fmtElapsed(elapsedMs)}</span></div>
       <div><span class="block text-[10px] uppercase tracking-wider text-obsidian/50">Steps</span><span class="font-mono">{stepsChecked}/{stepsTotal}</span></div>
@@ -144,15 +154,5 @@
     {#if error}
       <p class="text-ochre text-sm">{error}</p>
     {/if}
-
-    <div class="flex justify-end gap-2 pt-2">
-      <Button type="button" variant="ghost" onclick={close}>Cancel</Button>
-      <Button
-        type="submit"
-        variant="success"
-        disabled={submitting}
-        data-testid="end-cook-submit"
-      >{submitting ? 'Saving…' : 'Save Cook'}</Button>
-    </div>
   </form>
 </Dialog>
