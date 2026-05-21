@@ -69,7 +69,7 @@
       data-testid="cook-step-checkbox"
     />
     <div class="flex-1 flex flex-col gap-1">
-      <p class="text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}">
+      <p class="text-base md:text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}">
         <span class="font-mono text-ochre mr-1">{index + 1}.</span>
         {#each segments as seg, si (si)}
           {#if seg.kind === 'text'}
@@ -88,7 +88,7 @@
         {/each}
       </p>
       {#if step.uses.length > 0}
-        <div class="flex flex-col gap-0.5 font-mono text-[11px] text-obsidian/60">
+        <div class="flex flex-col gap-0.5 font-mono text-sm md:text-[11px] text-obsidian/60">
           {#each step.uses as use, ui (ui)}
             {@const ing = ingById.get(use.ingredientId)}
             {#if ing}
