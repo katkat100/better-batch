@@ -13,6 +13,7 @@
     updateTitleFlashCount
   } from './cook-alerts';
   import { cancelTimerNotification } from './cook-notifications';
+  import { Capacitor } from '@capacitor/core';
 
   export interface DockTimer {
     id: string;
@@ -44,8 +45,13 @@
   const liveNotifications = new SvelteMap<string, Notification>();
   let notifyEnabled = $state(false);
   type PermState = 'default' | 'denied' | 'granted' | 'unsupported';
+  // On native (Capacitor), LocalNotifications is always available regardless
+  // of whether the Web Notification API exists in the WebView. So 'unsupported'
+  // only applies on web when the Notification global is missing.
   let notifyPermission = $state<PermState>(
-    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
+    Capacitor.isNativePlatform()
+      ? 'default'
+      : (typeof Notification === 'undefined' ? 'unsupported' : Notification.permission)
   );
 
   let manualOpen = $state(false);
@@ -127,8 +133,14 @@
       if (finishedAtById.has(t.id)) continue;
       const overshoot = -rem;  // rem is already <= 0 here
       const isBackgroundResume = overshoot >= 2000;
+      // Foreground = the user is actively looking at the app. Cancel the
+      // pending native notification only in that case; otherwise the OS just
+      // fired and we'd be removing the notification before the user sees it.
+      const isForeground = typeof document !== 'undefined' && document.visibilityState === 'visible';
       finishedAtById.set(t.id, Date.now());
-      void cancelTimerNotification(t.id);
+      if (isForeground) {
+        void cancelTimerNotification(t.id);
+      }
       if (!isBackgroundResume) {
         playFinishChime();
         vibrateFinish();

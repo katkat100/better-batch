@@ -15,7 +15,8 @@ mock.module('@capacitor/core', () => ({
 mock.module('@capacitor/local-notifications', () => ({
   LocalNotifications: {
     schedule: async (opts: typeof scheduleCalls[number]) => { scheduleCalls.push(opts); return { notifications: [] }; },
-    cancel: async (opts: typeof cancelCalls[number]) => { cancelCalls.push(opts); }
+    cancel: async (opts: typeof cancelCalls[number]) => { cancelCalls.push(opts); },
+    createChannel: async () => { /* no-op for tests */ }
   }
 }));
 

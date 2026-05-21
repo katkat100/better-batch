@@ -38,4 +38,12 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Exact-alarm permissions for cook-timer notifications.
+         USE_EXACT_ALARM (Android 13+) is auto-granted for apps with timer/alarm
+         use cases. SCHEDULE_EXACT_ALARM is the fallback for Android 12 and as a
+         user-grantable backup on 13+ (Settings → Apps → Better Batch →
+         Alarms & reminders). -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 </manifest>
