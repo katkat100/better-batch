@@ -50,7 +50,7 @@ export async function createBatch(recipeId: string, input: CreateBatchInput): Pr
     outcomeNotes: input.outcomeNotes ?? '',
     rating: input.rating ?? null,
     ...(input.inconsistencyNote ? { inconsistencyNote: input.inconsistencyNote } : {}),
-    ...(input.cookMultiplier && input.cookMultiplier > 1 ? { cookMultiplier: input.cookMultiplier } : {}),
+    ...(input.cookMultiplier && input.cookMultiplier !== 1 ? { cookMultiplier: input.cookMultiplier } : {}),
     createdAt: now
   };
   const db = await openDb();
@@ -92,7 +92,7 @@ export async function updateBatch(
   if ('inconsistencyNote' in patch && !patch.inconsistencyNote) {
     delete (next as Partial<Batch>).inconsistencyNote;
   }
-  if ('cookMultiplier' in patch && (!patch.cookMultiplier || patch.cookMultiplier <= 1)) {
+  if ('cookMultiplier' in patch && (!patch.cookMultiplier || patch.cookMultiplier === 1)) {
     delete (next as Partial<Batch>).cookMultiplier;
   }
   // Deep-clone via JSON round-trip to strip any Svelte $state Proxy wrappers,

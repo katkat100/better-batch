@@ -1,6 +1,6 @@
 <!-- src/lib/ui/MultiplierToggle.svelte -->
 <script lang="ts">
-  export type Multiplier = 1 | 2 | 3;
+  export type Multiplier = number;
 
   let {
     value,
@@ -12,7 +12,7 @@
     class?: string;
   } = $props();
 
-  const OPTIONS: Multiplier[] = [1, 2, 3];
+  const OPTIONS: number[] = [1, 2, 3];
 
   function buttonClass(opt: Multiplier): string {
     const base = 'text-[10px] uppercase tracking-wider px-2 py-0.5 border rounded-sm';

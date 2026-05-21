@@ -68,7 +68,7 @@ describe('batches data layer', () => {
     expect(b.inconsistencyNote).toBe('garnish-style');
   });
 
-  it('does not persist cookMultiplier when input is <= 1', async () => {
+  it('does not persist cookMultiplier when input is 1', async () => {
     const b = await createBatch('r1', {
       label: 'x', parentIds: [], status: 'draft', variables: {}, ingredients: [], steps: [],
       cookMultiplier: 1
@@ -93,13 +93,38 @@ describe('batches data layer', () => {
     expect(updated.inconsistencyNote).toBeUndefined();
   });
 
-  it('updateBatch drops cookMultiplier on patch value <= 1', async () => {
+  it('updateBatch drops cookMultiplier on patch value 1', async () => {
     const created = await createBatch('r1', {
       label: 'x', parentIds: [], status: 'draft', variables: {}, ingredients: [], steps: [],
       cookMultiplier: 2
     });
     const updated = await updateBatch('r1', created.id, { cookMultiplier: 1 });
     expect(updated.cookMultiplier).toBeUndefined();
+  });
+
+  it('persists cookMultiplier when input is 0.5', async () => {
+    const b = await createBatch('r1', {
+      label: 'x', parentIds: [], status: 'draft', variables: {}, ingredients: [], steps: [],
+      cookMultiplier: 0.5
+    });
+    expect(b.cookMultiplier).toBe(0.5);
+  });
+
+  it('persists cookMultiplier when input is 0.75', async () => {
+    const b = await createBatch('r1', {
+      label: 'x', parentIds: [], status: 'draft', variables: {}, ingredients: [], steps: [],
+      cookMultiplier: 0.75
+    });
+    expect(b.cookMultiplier).toBe(0.75);
+  });
+
+  it('updateBatch persists cookMultiplier when patch value is 0.5', async () => {
+    const created = await createBatch('r1', {
+      label: 'x', parentIds: [], status: 'draft', variables: {}, ingredients: [], steps: [],
+      cookMultiplier: 2
+    });
+    const updated = await updateBatch('r1', created.id, { cookMultiplier: 0.5 });
+    expect(updated.cookMultiplier).toBe(0.5);
   });
 
   it('deleteBatch removes the record', async () => {
