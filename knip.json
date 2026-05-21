@@ -1,5 +1,5 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"entry": ["tests/**/*.test.ts", "tests/e2e/**/*.e2e.ts"],
-	"ignoreDependencies": ["svelte-eslint-parser"]
+	"ignoreDependencies": ["svelte-eslint-parser", "@capacitor/core", "@capacitor/android"]
 }
