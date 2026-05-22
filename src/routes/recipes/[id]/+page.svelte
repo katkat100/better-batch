@@ -166,9 +166,7 @@
                         ? ''
                         : 'hidden'} lg:block"
                 >
-                    <h2
-                        class="text-[11px] uppercase tracking-wider text-obsidian/50 mb-3 hidden lg:block"
-                    >
+                    <h2 class="text-caption mb-3 hidden lg:block">
                         Batches ({data.batches.length})
                     </h2>
                     <BatchGraph
