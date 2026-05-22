@@ -7,6 +7,7 @@
   import type { Batch } from '$lib/server';
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
+  import Field from '$lib/ui/primitives/Field.svelte';
 
   let {
     batch,
@@ -85,8 +86,7 @@
       </div>
     {/if}
 
-    <label class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">Outcome notes</span>
+    <Field label="Outcome notes">
       <textarea
         bind:this={notesEl}
         bind:value={outcomeNotes}
@@ -95,12 +95,11 @@
         class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
         data-testid="outcome-notes"
       ></textarea>
-    </label>
+    </Field>
 
-    <div class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">Rating</span>
+    <Field label="Rating">
       <Rating value={rating} editable onChange={(v) => rating = v} />
-    </div>
+    </Field>
 
     {#if error}
       <p class="text-ochre text-sm">{error}</p>
