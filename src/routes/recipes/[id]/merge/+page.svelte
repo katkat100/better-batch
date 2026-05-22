@@ -53,6 +53,8 @@
     }
 </script>
 
+<svelte:head><title>Merge · {data.recipe.name}</title></svelte:head>
+
 <div class="max-w-5xl mx-auto p-4 md:p-6 flex flex-col gap-4">
     <nav class="flex items-center gap-2 text-sm">
         <a

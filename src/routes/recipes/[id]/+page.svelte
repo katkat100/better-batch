@@ -73,6 +73,8 @@
     }
 </script>
 
+<svelte:head><title>{data.recipe.name}</title></svelte:head>
+
 {#if data.recipe}
     <div class="max-w-7xl mx-auto p-4 md:p-6 flex flex-col gap-4 min-h-screen">
         <nav class="flex items-center gap-2 text-sm">

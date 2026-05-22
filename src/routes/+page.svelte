@@ -53,6 +53,8 @@
     });
 </script>
 
+<svelte:head><title>Better Batch</title></svelte:head>
+
 <div class="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
     <header
         class="flex md:items-end justify-between flex-col md:flex-row md:gap-1 gap-3"
