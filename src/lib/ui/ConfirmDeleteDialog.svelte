@@ -3,6 +3,7 @@
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
+  import Field from '$lib/ui/primitives/Field.svelte';
 
   let {
     open = $bindable(false),
@@ -87,15 +88,14 @@
     <p class="text-sm whitespace-pre-wrap">{body}</p>
 
     {#if mode === 'typed'}
-      <label class="flex flex-col gap-1 text-sm">
-        <span class="text-[11px] uppercase tracking-wider">Type to confirm</span>
+      <Field label="Type to confirm">
         <TextInput
           bind:element={typedEl}
           bind:value={typedInput}
           class="font-mono"
           data-testid="confirm-delete-input"
         />
-      </label>
+      </Field>
     {/if}
 
     {#if error}
