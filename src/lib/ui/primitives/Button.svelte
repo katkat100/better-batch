@@ -40,7 +40,7 @@
     sm: 'px-3 py-1.5 text-xs uppercase tracking-wider rounded-sm'
   };
 
-  const COMMON = 'disabled:opacity-50 disabled:cursor-not-allowed';
+  const COMMON = 'disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ochre';
 </script>
 
 <button
