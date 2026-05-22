@@ -1,6 +1,7 @@
 <!-- src/lib/ui/cook/CookTimerDock.svelte -->
 <script lang="ts">
   import Button from '$lib/ui/primitives/Button.svelte';
+  import IconButton from '$lib/ui/primitives/IconButton.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import {
@@ -229,12 +230,11 @@
             class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 border border-canvas/30 hover:border-canvas rounded-sm"
             aria-label={t.pausedAt !== null ? 'Resume timer' : 'Pause timer'}
           >{t.pausedAt !== null ? 'play' : 'pause'}</button>
-          <button
-            type="button"
+          <IconButton
             onclick={() => onRemove(t.id)}
             class="text-canvas/50 hover:text-ochre"
             aria-label="Remove timer"
-          >×</button>
+          >×</IconButton>
         {/if}
       </div>
     {/each}
