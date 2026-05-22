@@ -9,6 +9,7 @@
   import { parseAmount } from './layout/amount-parse';
   import UsesEditor from './UsesEditor.svelte';
   import Button from './primitives/Button.svelte';
+  import Field from '$lib/ui/primitives/Field.svelte';
   import RadioGroup from './primitives/RadioGroup.svelte';
   import TextInput from './primitives/TextInput.svelte';
   import type { Recipe, Batch, Ingredient, VariableValue, BatchStatus, Step } from '$lib/server';
@@ -298,13 +299,12 @@
     >Paste Recipe</Button>
   </div>
 
-  <label class="flex flex-col gap-1 text-sm">
-    <span class="text-[11px] uppercase tracking-wider">Label</span>
+  <Field label="Label">
     <TextInput bind:value={label} required data-testid="batch-label" />
-  </label>
+  </Field>
 
   <fieldset class="flex flex-col gap-1 text-sm">
-    <legend class="text-[11px] uppercase tracking-wider mb-2">Status</legend>
+    <legend class="text-label mb-2">Status</legend>
     <RadioGroup
       bind:value={status}
       options={[
@@ -317,12 +317,12 @@
 
   {#if recipe.variableSchema.length > 0}
     <fieldset class="flex flex-col gap-3">
-      <legend class="text-[11px] uppercase tracking-wider mb-1">Variables</legend>
+      <legend class="text-label mb-1">Variables</legend>
       <div class="grid grid-cols-2 gap-3">
         {#each recipe.variableSchema as schema (schema.name)}
           {@const current = variables[schema.name]}
           <label class="flex flex-col gap-1 text-sm">
-            <span class="text-[10px] uppercase tracking-wider text-obsidian/50">{schema.name} {schema.unit && `(${schema.unit})`}</span>
+            <span class="text-kicker">{schema.name} {schema.unit && `(${schema.unit})`}</span>
             <TextInput
               type="text"
               inputmode={schema.type === 'number' ? 'decimal' : 'text'}
@@ -338,7 +338,7 @@
   {/if}
 
   <fieldset class="flex flex-col gap-2">
-    <legend class="text-[11px] uppercase tracking-wider">Ingredients</legend>
+    <legend class="text-label">Ingredients</legend>
     {#each ingredients as ing, i (i)}
       <div
   class="flex gap-2 items-start md:items-center {sumMismatchIds.has(ing.id) || (showUnreferencedHighlights && unreferencedIds.has(ing.id)) ? 'border border-ochre rounded-sm p-1 -m-1' : ''}"
@@ -441,7 +441,7 @@
   </fieldset>
 
   <fieldset class="flex flex-col gap-3">
-    <legend class="text-[11px] uppercase tracking-wider">Steps</legend>
+    <legend class="text-label">Steps</legend>
     {#each steps as step, i (i)}
       <div class="flex flex-col gap-2 border border-drafting/50 p-3 rounded-sm" data-testid="step-edit-row">
         <div class="flex gap-2 items-start">
