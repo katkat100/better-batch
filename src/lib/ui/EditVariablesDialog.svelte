@@ -6,6 +6,7 @@
   import { SvelteSet } from 'svelte/reactivity';
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
+  import IconButton from '$lib/ui/primitives/IconButton.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
   import Select from '$lib/ui/primitives/Select.svelte';
   import FormError from '$lib/ui/primitives/FormError.svelte';
@@ -180,13 +181,11 @@
                 <option value="number">number</option>
                 <option value="text">text</option>
               </Select>
-              <button
-                type="button"
-                onclick={() => startRemove(i)}
+              <IconButton
                 aria-label="Remove variable"
-                class="text-obsidian/50 hover:text-ochre px-2"
+                onclick={() => startRemove(i)}
                 data-testid="var-remove"
-              >×</button>
+              >×</IconButton>
             </div>
             {#if row.name.trim() === ''}
               <p class="text-ochre text-xs">Name is required.</p>
