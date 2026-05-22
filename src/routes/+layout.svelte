@@ -2,4 +2,7 @@
   import '../app.css';
   let { children } = $props();
 </script>
-{@render children()}
+
+<main id="app-main">
+  {@render children()}
+</main>
