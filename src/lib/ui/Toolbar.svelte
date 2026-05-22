@@ -26,7 +26,7 @@
     data-testid="search"
   />
 
-  <label class="flex items-center gap-2 text-[11px] uppercase tracking-wider">
+  <label class="flex items-center gap-2 text-label">
     Tag
     <Select bind:value={tag} class="px-2 py-1 text-xs">
       <option value="">All</option>
@@ -36,7 +36,7 @@
     </Select>
   </label>
 
-  <label class="flex items-center gap-2 text-[11px] uppercase tracking-wider">
+  <label class="flex items-center gap-2 text-label">
     Status
     <Select bind:value={status} class="px-2 py-1 text-xs">
       <option value="all">All</option>
@@ -45,7 +45,7 @@
     </Select>
   </label>
 
-  <label class="flex items-center gap-2 text-[11px] uppercase tracking-wider">
+  <label class="flex items-center gap-2 text-label">
     Sort
     <Select bind:value={sort} class="px-2 py-1 text-xs">
       <option value="last_cooked">Last cooked</option>
