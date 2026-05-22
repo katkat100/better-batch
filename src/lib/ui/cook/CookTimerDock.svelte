@@ -264,6 +264,8 @@
 
 {#if manualOpen}
   <button
+    tabindex="-1"
+    aria-hidden="true"
     type="button"
     class="fixed inset-0 z-40 bg-transparent"
     aria-label="close manual timer"

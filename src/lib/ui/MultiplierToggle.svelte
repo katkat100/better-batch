@@ -98,6 +98,8 @@
 
   {#if menuOpen}
     <button
+      tabindex="-1"
+      aria-hidden="true"
       type="button"
       class="fixed inset-0 z-10 bg-transparent"
       aria-label="close multiplier menu"

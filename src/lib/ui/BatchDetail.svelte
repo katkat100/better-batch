@@ -201,6 +201,8 @@
                 >
                 {#if moreOpen || mergeOpen || compareOpen}
                     <button
+                        tabindex="-1"
+                        aria-hidden="true"
                         class="fixed bg-transparent inset-0 z-20"
                         type="button"
                         onclick={() => {
