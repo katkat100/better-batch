@@ -79,26 +79,32 @@
     {@const batch = byId.get(n.id)!}
     {@const isSelected = n.id === selectedId}
     {@const warnTitle = inconsistencyTitle(batch)}
-    <g
-      transform="translate({n.x + PAD},{n.y + PAD})"
-      class="cursor-pointer"
-      role="button"
-      tabindex="0"
-      aria-label="Select batch {batch.label} ({batch.status})"
-      aria-pressed={isSelected}
-      onclick={() => onSelect(n.id)}
-      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(n.id)}
-      data-testid="batch-node"
-      data-batch-id={n.id}
-    >
+    <g transform="translate({n.x + PAD},{n.y + PAD})">
+      <foreignObject
+        x={-NODE_R - 4}
+        y={-NODE_R - 4}
+        width={(NODE_R + 4) * 2}
+        height={(NODE_R + 4) * 2}
+      >
+        <button
+          type="button"
+          aria-label="Select batch {batch.label} ({batch.status})"
+          aria-pressed={isSelected}
+          onclick={() => onSelect(n.id)}
+          class="w-full h-full bg-transparent border-0 p-0 cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ochre"
+          data-testid="batch-node"
+          data-batch-id={n.id}
+        ></button>
+      </foreignObject>
       {#if isSelected}
-        <circle r={NODE_R + 4} fill="none" stroke="var(--color-ochre)" stroke-width="1.5" />
+        <circle r={NODE_R + 4} fill="none" stroke="var(--color-ochre)" stroke-width="1.5" pointer-events="none" />
       {/if}
       <circle
         r={NODE_R}
         fill={fill(batch.status)}
         stroke={stroke(batch.status)}
         stroke-width="1.5"
+        pointer-events="none"
       />
       <text
         x="0"
@@ -107,6 +113,7 @@
         font-family="var(--font-sans)"
         font-size="11"
         fill="var(--color-obsidian)"
+        pointer-events="none"
       >{truncate(batch.label)}<title>{batch.label}</title></text>
       {#if warnTitle}
         <text
@@ -115,6 +122,7 @@
           font-size="12"
           fill="var(--color-ochre)"
           data-testid="batch-node-warning"
+          pointer-events="none"
         >⚠<title>{warnTitle}</title></text>
       {/if}
     </g>
