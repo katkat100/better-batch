@@ -8,6 +8,7 @@
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
   import Select from '$lib/ui/primitives/Select.svelte';
   import Field from '$lib/ui/primitives/Field.svelte';
+  import FormError from '$lib/ui/primitives/FormError.svelte';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
@@ -93,8 +94,6 @@
       <textarea bind:value={description} rows="2" class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"></textarea>
     </Field>
 
-    {#if error}
-      <p class="text-ochre text-sm">{error}</p>
-    {/if}
+    <FormError message={error} />
   </form>
 </Dialog>
