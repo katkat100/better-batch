@@ -32,18 +32,18 @@
 
   {#if recipe.variableSchema.length > 0}
     <section class="flex flex-col gap-2">
-      <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Variables</h3>
+      <h3 class="text-caption">Variables</h3>
       <VariableDiffTable rows={varRows} aLabel={a.label} bLabel={b.label} />
     </section>
   {/if}
 
   <section class="flex flex-col gap-2">
-    <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Ingredients</h3>
+    <h3 class="text-caption">Ingredients</h3>
     <IngredientDiff rows={ingRows} />
   </section>
 
   <section class="flex flex-col gap-2">
-    <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Steps</h3>
+    <h3 class="text-caption">Steps</h3>
     <StepsDiff lines={stepLines} />
   </section>
 </article>
