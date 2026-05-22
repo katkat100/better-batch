@@ -7,6 +7,7 @@
   import Button from '$lib/ui/primitives/Button.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
   import Select from '$lib/ui/primitives/Select.svelte';
+  import Field from '$lib/ui/primitives/Field.svelte';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
@@ -66,35 +67,31 @@
     class="flex flex-col gap-4"
     data-testid="new-recipe-dialog"
   >
-    <label class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">Name</span>
+    <Field label="Name">
       <TextInput
         bind:element={nameEl}
         bind:value={name}
         required
         data-testid="new-recipe-name"
       />
-    </label>
+    </Field>
 
-    <label class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">Preset</span>
+    <Field label="Preset">
       <Select bind:value={preset}>
         <option value="custom">Custom (no preset variables)</option>
         <option value="bread">Bread (hydration, bulk, bake temp, yield)</option>
         <option value="sauce">Sauce (simmer time, yield)</option>
         <option value="braise">Braise (braise time, oven temp)</option>
       </Select>
-    </label>
+    </Field>
 
-    <label class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">Tags (comma-separated)</span>
+    <Field label="Tags (comma-separated)">
       <TextInput bind:value={tagsInput} />
-    </label>
+    </Field>
 
-    <label class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">Description</span>
+    <Field label="Description">
       <textarea bind:value={description} rows="2" class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none text-sm outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"></textarea>
-    </label>
+    </Field>
 
     {#if error}
       <p class="text-ochre text-sm">{error}</p>
