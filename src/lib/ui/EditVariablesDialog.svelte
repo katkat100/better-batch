@@ -8,6 +8,7 @@
   import Button from '$lib/ui/primitives/Button.svelte';
   import TextInput from '$lib/ui/primitives/TextInput.svelte';
   import Select from '$lib/ui/primitives/Select.svelte';
+  import FormError from '$lib/ui/primitives/FormError.svelte';
 
   let {
     open = $bindable(false),
@@ -129,9 +130,7 @@
     class="flex flex-col gap-4"
     data-testid="edit-variables-dialog"
   >
-    {#if serverError}
-      <p class="text-ochre text-sm" data-testid="edit-variables-error">{serverError}</p>
-    {/if}
+    <FormError message={serverError} data-testid="edit-variables-error" />
 
     <div class="flex flex-col gap-2">
       {#each rows as row, i (i)}
