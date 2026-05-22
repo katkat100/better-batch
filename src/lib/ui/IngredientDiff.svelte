@@ -21,7 +21,7 @@
 </script>
 
 {#if rows.length === 0}
-  <p class="text-sm text-obsidian/40 italic">No ingredients to compare.</p>
+  <p class="text-placeholder">No ingredients to compare.</p>
 {:else}
   <ul class="font-mono text-sm space-y-0.5">
     {#each rows as row, i (i)}

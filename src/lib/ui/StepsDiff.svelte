@@ -19,7 +19,7 @@
 </script>
 
 {#if lines.length === 0}
-  <p class="text-sm text-obsidian/40 italic">No steps to compare.</p>
+  <p class="text-placeholder">No steps to compare.</p>
 {:else}
   <ol class="font-mono text-sm space-y-0.5">
     {#each lines as line, i (i)}

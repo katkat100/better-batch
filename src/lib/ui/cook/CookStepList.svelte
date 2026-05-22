@@ -41,7 +41,7 @@
         Steps
     </h2>
     {#if steps.length === 0}
-        <p class="px-4 py-3 text-sm text-obsidian/40 italic">
+        <p class="text-placeholder px-4 py-3">
             No steps recorded.
         </p>
     {:else}

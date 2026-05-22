@@ -22,7 +22,7 @@
 </script>
 
 {#if steps.length === 0}
-  <p class="text-sm text-obsidian/40 italic">No steps recorded.</p>
+  <p class="text-placeholder">No steps recorded.</p>
 {:else}
   <ol class="space-y-3 text-sm">
     {#each steps as step, i (i)}

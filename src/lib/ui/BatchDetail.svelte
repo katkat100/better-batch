@@ -344,7 +344,7 @@
             {#if batch.outcomeNotes}
                 <p class="text-sm whitespace-pre-wrap">{batch.outcomeNotes}</p>
             {:else}
-                <p class="text-sm text-obsidian/40 italic">
+                <p class="text-placeholder">
                     No notes recorded.
                 </p>
             {/if}

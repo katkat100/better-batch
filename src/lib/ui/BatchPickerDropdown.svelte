@@ -36,7 +36,7 @@
                 {label}
             </div>
             {#if filtered.length === 0}
-                <p class="px-3 py-3 text-sm text-obsidian/40 italic">
+                <p class="text-placeholder px-3 py-3">
                     No other batches available.
                 </p>
             {:else}

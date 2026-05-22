@@ -37,7 +37,7 @@
 </script>
 
 {#if ingredients.length === 0}
-  <p class="text-sm text-obsidian/40 italic">No ingredients recorded.</p>
+  <p class="text-placeholder">No ingredients recorded.</p>
 {:else}
   <div class="flex flex-col gap-3">
     {#each groups as group (group.section ?? '__none__')}
