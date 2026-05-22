@@ -31,7 +31,7 @@
   }
 
   function deltaColor(row: VariableDiffRow): string {
-    if (row.delta === null || row.delta === 0) return 'text-obsidian/40';
+    if (row.delta === null || row.delta === 0) return 'text-obsidian/60';
     return row.delta > 0 ? 'text-juniper' : 'text-ochre';
   }
 </script>

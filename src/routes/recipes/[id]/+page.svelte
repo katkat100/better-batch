@@ -193,7 +193,7 @@
                             onSelectBatch={selectBatch}
                         />
                     {:else}
-                        <p class="text-sm text-obsidian/40">
+                        <p class="text-sm text-obsidian/60">
                             Select a batch to view details.
                         </p>
                     {/if}

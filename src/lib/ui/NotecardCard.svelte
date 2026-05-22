@@ -44,6 +44,6 @@
 
   <footer class="flex items-end justify-between text-[11px] font-sans border-t border-drafting pt-2">
     <span class="text-obsidian/60">{entry.batchCount} {entry.batchCount === 1 ? 'batch' : 'batches'}</span>
-    <span class={hasCooked ? 'text-juniper' : 'text-obsidian/40'}>{lastCookedLabel}</span>
+    <span class={hasCooked ? 'text-juniper' : 'text-obsidian/60'}>{lastCookedLabel}</span>
   </footer>
 </a>

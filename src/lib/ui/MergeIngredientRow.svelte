@@ -36,9 +36,9 @@
      data-testid="merge-ing-row"
      data-op={row.op}>
   {#if row.op === 'ctx'}
-    <span class="text-[9px] uppercase tracking-wider text-obsidian/40 w-9">unch</span>
+    <span class="text-[9px] uppercase tracking-wider text-obsidian/60 w-9">unch</span>
     <span class="flex-1 text-obsidian/60">{format(row.a!)}</span>
-    <span class="text-[9px] uppercase tracking-wider text-obsidian/40">in result</span>
+    <span class="text-[9px] uppercase tracking-wider text-obsidian/60">in result</span>
   {:else if row.op === 'mod'}
     <span class="text-[9px] uppercase tracking-wider text-ochre w-9">conf</span>
     <span class="flex-1">

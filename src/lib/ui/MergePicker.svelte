@@ -170,7 +170,7 @@
   <section class="flex flex-col gap-1.5">
     <div class="flex justify-between items-baseline">
       <h3 class="text-caption">Ingredients</h3>
-      <span class="text-[10px] text-obsidian/40" data-testid="ingredients-result-count">Result: {resolvedIngredients.length} ingredient{resolvedIngredients.length === 1 ? '' : 's'}</span>
+      <span class="text-[10px] text-obsidian/60" data-testid="ingredients-result-count">Result: {resolvedIngredients.length} ingredient{resolvedIngredients.length === 1 ? '' : 's'}</span>
     </div>
     {#each ingRows as row, i (i)}
       <MergeIngredientRow {row} bind:pick={ingPicks[i]} />
@@ -180,7 +180,7 @@
   <section class="flex flex-col gap-1.5">
     <div class="flex justify-between items-baseline">
       <h3 class="text-caption">Steps</h3>
-      <span class="text-[10px] text-obsidian/40" data-testid="steps-result-count">Result: {resolvedSteps.length} step{resolvedSteps.length === 1 ? '' : 's'}</span>
+      <span class="text-[10px] text-obsidian/60" data-testid="steps-result-count">Result: {resolvedSteps.length} step{resolvedSteps.length === 1 ? '' : 's'}</span>
     </div>
     {#each stepRows as row, i (i)}
       <MergeStepRow {row} bind:pick={stepPicks[i]} />

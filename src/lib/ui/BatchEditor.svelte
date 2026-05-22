@@ -460,7 +460,7 @@
               data-testid="step-move-down"
             >▼</IconButton>
           </div>
-          <span class="font-mono text-xs text-obsidian/40 pt-2">{i + 1}.</span>
+          <span class="font-mono text-xs text-obsidian/60 pt-2">{i + 1}.</span>
           <textarea
             bind:value={step.text}
             rows="2"

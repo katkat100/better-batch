@@ -152,7 +152,7 @@
                 </p>
             {:else}
                 <p
-                    class="text-[11px] uppercase tracking-wider text-obsidian/40 mt-1"
+                    class="text-[11px] uppercase tracking-wider text-obsidian/60 mt-1"
                 >
                     Archived
                 </p>
