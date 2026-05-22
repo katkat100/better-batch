@@ -167,14 +167,14 @@
         >
             <a
                 href={resolve(`/recipes/${recipe.id}/new-batch?from=${batch.id}`)}
-                class="border border-ochre whitespace-nowrap text-center text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm"
+                class="border border-ochre whitespace-nowrap text-center text-ochre px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-ochre hover:text-canvas rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ochre"
                 data-testid="new-batch-btn">+ New Batch</a
             >
 
             {#if batch.status !== "archived"}
                 <a
                     href={resolve(`/recipes/${recipe.id}/batches/${batch.id}/cook`)}
-                    class="border border-juniper bg-juniper text-canvas px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-canvas hover:text-juniper rounded-sm"
+                    class="border border-juniper bg-juniper text-canvas px-3 py-1.5 text-xs uppercase tracking-wider hover:bg-canvas hover:text-juniper rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ochre"
                     data-testid="cook-btn">Cook</a
                 >
             {/if}
@@ -240,7 +240,7 @@
                             <!-- raw: anchor menu item -->
                             <a
                                 href={resolve(`/recipes/${recipe.id}/batches/${batch.id}/edit`)}
-                                class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40"
+                                class="text-left px-3 py-2 text-xs uppercase tracking-wider hover:bg-drafting/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ochre"
                                 data-testid="edit-batch-btn">Edit</a
                             >
                         {/if}
