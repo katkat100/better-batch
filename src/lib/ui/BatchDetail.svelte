@@ -13,6 +13,7 @@
     import Button from "$lib/ui/primitives/Button.svelte";
     import { validateBatch, formatIngredientIssue, type IngredientIssue } from '$lib/shared/batch-validation';
     import MultiplierToggle, { type Multiplier } from './MultiplierToggle.svelte';
+    import SectionHeading from '$lib/ui/primitives/SectionHeading.svelte';
 
     let {
         recipe,
@@ -102,7 +103,7 @@
         class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-2 border-b border-drafting pb-3 pt-3 lg:pt-0"
     >
         <div>
-            <h2 class="font-serif text-2xl">{batch.label}</h2>
+            <SectionHeading text={batch.label} />
             {#if hasInconsistency}
                 <button
                     type="button"
@@ -128,7 +129,7 @@
                             {/if}
                             {#if batch.inconsistencyNote && batch.inconsistencyNote.trim()}
                                 <p class="text-xs text-obsidian/70 whitespace-pre-wrap mt-2 pt-2 border-t border-drafting">
-                                    <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Note:</span>
+                                    <span class="text-kicker">Note:</span>
                                     {batch.inconsistencyNote}
                                 </p>
                             {/if}
