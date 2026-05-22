@@ -6,6 +6,7 @@
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
   import Checkbox from '$lib/ui/primitives/Checkbox.svelte';
+  import Field from '$lib/ui/primitives/Field.svelte';
 
   let {
     open = $bindable(false),
@@ -107,13 +108,12 @@
   {/snippet}
   <form id="end-cook-form" onsubmit={submit} data-testid="end-cook-dialog" class="flex flex-col gap-4">
     <div class="grid grid-cols-3 gap-2 text-xs border border-drafting p-2 rounded-sm" data-testid="end-cook-summary">
-      <div><span class="block text-[10px] uppercase tracking-wider text-obsidian/50">Elapsed</span><span class="font-mono">{fmtElapsed(elapsedMs)}</span></div>
-      <div><span class="block text-[10px] uppercase tracking-wider text-obsidian/50">Steps</span><span class="font-mono">{stepsChecked}/{stepsTotal}</span></div>
-      <div><span class="block text-[10px] uppercase tracking-wider text-obsidian/50">Timers</span><span class="font-mono">{timersStarted}</span></div>
+      <div><span class="block text-kicker">Elapsed</span><span class="font-mono">{fmtElapsed(elapsedMs)}</span></div>
+      <div><span class="block text-kicker">Steps</span><span class="font-mono">{stepsChecked}/{stepsTotal}</span></div>
+      <div><span class="block text-kicker">Timers</span><span class="font-mono">{timersStarted}</span></div>
     </div>
 
-    <label class="flex flex-col gap-1 text-sm">
-      <span class="text-[11px] uppercase tracking-wider">{mode === 're-cook' ? 'Notes for this cook' : 'Outcome notes'}</span>
+    <Field label={mode === 're-cook' ? 'Notes for this cook' : 'Outcome notes'}>
       <textarea
         bind:value={outcomeNotes}
         rows="4"
@@ -121,18 +121,17 @@
         class="border border-drafting bg-canvas px-3 py-2 rounded-sm resize-none outline-none focus:border-ochre focus:ring-1 focus:ring-ochre"
         data-testid="end-cook-notes"
       ></textarea>
-    </label>
+    </Field>
 
     {#if mode === 'first-cook'}
-      <div class="flex flex-col gap-1 text-sm">
-        <span class="text-[11px] uppercase tracking-wider">Rating</span>
+      <Field label="Rating">
         <Rating value={rating} editable onChange={(v) => rating = v} />
-      </div>
+      </Field>
     {/if}
 
     {#if quickNotes.length > 0}
       <div class="flex flex-col gap-2 border border-drafting/60 p-3 rounded-sm" data-testid="quick-notes-recap">
-        <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Improvement ideas captured ({quickNotes.length})</span>
+        <span class="text-kicker">Improvement ideas captured ({quickNotes.length})</span>
         <ul class="text-sm list-disc pl-5 space-y-1">
           {#each quickNotes as note (note)}
             <li>{note}</li>
@@ -143,10 +142,9 @@
           Carry these ideas into a new batch
         </label>
         {#if forkAsDraft}
-          <label class="flex flex-col gap-1 text-sm">
-            <span class="text-[10px] uppercase tracking-wider">New batch label</span>
+          <Field label="New batch label">
             <input bind:value={forkLabel} class="border border-drafting bg-canvas px-2 py-1 rounded-sm" data-testid="fork-label" />
-          </label>
+          </Field>
         {/if}
       </div>
     {/if}
