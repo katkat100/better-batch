@@ -60,16 +60,19 @@
   data-step-index={index}
   data-current={isCurrent}
 >
-  <label class="flex gap-3 px-4 py-3 cursor-pointer hover:bg-drafting/20">
+  <div class="flex gap-3 px-4 py-3 hover:bg-drafting/20">
     <Checkbox
       checked={isChecked}
       onchange={(e) => onCheck(index, (e.currentTarget as HTMLInputElement).checked)}
-      aria-label="Mark step {index + 1} done"
+      aria-labelledby={`cook-step-text-${index}`}
       class="mt-1.5"
       data-testid="cook-step-checkbox"
     />
     <div class="flex-1 flex flex-col gap-1">
-      <p class="text-base md:text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}">
+      <p
+        id={`cook-step-text-${index}`}
+        class="text-base md:text-sm leading-relaxed {isChecked ? 'line-through' : ''} {isCurrent ? 'font-semibold' : ''}"
+      >
         <span class="font-mono text-ochre mr-1">{index + 1}.</span>
         {#each segments as seg, si (si)}
           {#if seg.kind === 'text'}
@@ -98,5 +101,5 @@
         </div>
       {/if}
     </div>
-  </label>
+  </div>
 </li>
