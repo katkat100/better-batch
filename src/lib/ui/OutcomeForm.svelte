@@ -8,6 +8,7 @@
   import Dialog from '$lib/ui/primitives/Dialog.svelte';
   import Button from '$lib/ui/primitives/Button.svelte';
   import Field from '$lib/ui/primitives/Field.svelte';
+  import FormError from '$lib/ui/primitives/FormError.svelte';
 
   let {
     batch,
@@ -101,8 +102,6 @@
       <Rating value={rating} editable onChange={(v) => rating = v} />
     </Field>
 
-    {#if error}
-      <p class="text-ochre text-sm">{error}</p>
-    {/if}
+    <FormError message={error} />
   </form>
 </Dialog>
