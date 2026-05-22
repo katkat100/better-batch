@@ -48,7 +48,7 @@
   <tbody>
     {#each rows as row (row.name)}
       <tr class={row.changed ? '' : 'opacity-60'} data-testid="variable-diff-row" data-variable={row.name}>
-        <td class="p-2 text-[11px] uppercase tracking-wider text-obsidian/70">{row.name}</td>
+        <td class="p-2 text-label text-obsidian/70">{row.name}</td>
         <td class="p-2 font-mono">{formatValue(row, 'a')}</td>
         <td class="p-2 font-mono">{formatValue(row, 'b')}</td>
         <td class="p-2 font-mono {deltaColor(row)}" data-testid="variable-delta">{formatDelta(row)}</td>
