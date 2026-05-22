@@ -7,6 +7,7 @@
   import Button from './primitives/Button.svelte';
   import { resolve } from '$app/paths';
   import TextInput from './primitives/TextInput.svelte';
+  import FormError from '$lib/ui/primitives/FormError.svelte';
   import type {
     Recipe, Batch, Ingredient, Step, VariableValue,
     VariableDiffRow, IngredientDiffRow, StepObjectDiffRow
@@ -186,9 +187,7 @@
     {/each}
   </section>
 
-  {#if error}
-    <p class="text-ochre text-sm">{error}</p>
-  {/if}
+  <FormError message={error} />
 
   <div class="flex justify-end gap-2 border-t border-drafting pt-4">
     <a href={resolve(`/recipes/${recipe.id}`)} class="px-4 py-2 text-sm text-obsidian/60 hover:text-obsidian">Cancel</a>
