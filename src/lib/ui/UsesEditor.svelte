@@ -4,6 +4,7 @@
   import { SvelteMap } from 'svelte/reactivity';
   import { parseAmount } from './layout/amount-parse';
   import Button from './primitives/Button.svelte';
+  import IconButton from '$lib/ui/primitives/IconButton.svelte';
   import Select from './primitives/Select.svelte';
   import TextInput from './primitives/TextInput.svelte';
 
@@ -135,7 +136,7 @@
         data-testid="use-amount"
       />
       <span class="text-xs text-obsidian/50">{ing?.unit ?? ''}</span>
-      <button type="button" onclick={() => removeUse(i)} aria-label="Remove use {i + 1}" class="text-obsidian/40 hover:text-ochre justify-self-center">×</button>
+      <IconButton aria-label="Remove use {i + 1}" onclick={() => removeUse(i)} class="justify-self-center">×</IconButton>
     </div>
   {/each}
 
