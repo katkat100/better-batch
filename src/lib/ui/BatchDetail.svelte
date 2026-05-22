@@ -119,7 +119,6 @@
                 >⚠
                     {#if popoverOpen}
                         <span
-                            role="dialog"
                             id="inconsistency-popover"
                             class="absolute left-0 top-full mt-1 z-10 w-72 bg-canvas border border-drafting rounded-sm shadow-md p-3 text-left"
                             data-testid="inconsistency-popover"
