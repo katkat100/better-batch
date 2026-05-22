@@ -200,7 +200,6 @@
                     }}
                     class="relative z-40 border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
                     aria-label="More actions"
-                    aria-haspopup="menu"
                     aria-expanded={moreOpen}
                     aria-controls="more-actions-menu"
                     data-testid="more-actions-btn">…</button
@@ -222,7 +221,6 @@
                 {#if moreOpen}
                     <div
                         id="more-actions-menu"
-                        role="menu"
                         class="absolute right-0 top-full mt-1 w-44 bg-canvas border border-obsidian rounded-sm shadow-lg z-30 flex flex-col py-1"
                         data-testid="more-actions-menu"
                     >

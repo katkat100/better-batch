@@ -90,7 +90,6 @@
     type="button"
     class="text-[10px] uppercase tracking-wider px-2 py-0.5 border border-drafting text-obsidian/60 hover:border-obsidian rounded-sm"
     aria-label="More multiplier options"
-    aria-haspopup="menu"
     aria-expanded={menuOpen}
     aria-controls="multiplier-more-menu"
     onclick={() => menuOpen = !menuOpen}
@@ -109,14 +108,12 @@
     <div
       id="multiplier-more-menu"
       class="absolute top-full right-0 mt-1 bg-canvas border border-drafting rounded-sm shadow-md z-20 flex flex-col py-1 min-w-[60px]"
-      role="menu"
       data-testid="multiplier-more-menu"
     >
       {#each menuValues as v (v)}
         <button
           type="button"
           class="text-[10px] uppercase tracking-wider px-3 py-1 text-left hover:bg-drafting/30 {v === value ? 'text-ochre' : 'text-obsidian/80'}"
-          role="menuitem"
           onclick={() => pick(v)}
           data-testid="multiplier-option"
           data-value={v}
