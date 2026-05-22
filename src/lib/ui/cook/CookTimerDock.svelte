@@ -198,7 +198,7 @@
       {@const finished = finishedAtById.has(t.id)}
       {@const overshoot = overshootById.get(t.id) ?? 0}
       <div
-        class="flex items-center gap-2 shrink-0 {finished ? 'animate-pulse' : ''}"
+        class="flex items-center gap-2 shrink-0 {finished ? 'motion-safe:animate-pulse' : ''}"
         data-testid="dock-timer"
         data-timer-id={t.id}
         data-needs-ack={finished ? 'true' : undefined}
