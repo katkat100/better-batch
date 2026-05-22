@@ -21,3 +21,18 @@ html, body { background: var(--color-canvas); color: var(--color-obsidian); font
     cursor: pointer;
   }
 }
+
+@layer components {
+  .text-label {
+    @apply text-[11px] uppercase tracking-wider;
+  }
+  .text-caption {
+    @apply text-[11px] uppercase tracking-wider text-obsidian/50;
+  }
+  .text-kicker {
+    @apply text-[10px] uppercase tracking-wider text-obsidian/50;
+  }
+  .text-placeholder {
+    @apply text-sm text-obsidian/40 italic;
+  }
+}
