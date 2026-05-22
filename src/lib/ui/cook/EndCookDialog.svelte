@@ -7,6 +7,7 @@
   import Button from '$lib/ui/primitives/Button.svelte';
   import Checkbox from '$lib/ui/primitives/Checkbox.svelte';
   import Field from '$lib/ui/primitives/Field.svelte';
+  import FormError from '$lib/ui/primitives/FormError.svelte';
 
   let {
     open = $bindable(false),
@@ -149,8 +150,6 @@
       </div>
     {/if}
 
-    {#if error}
-      <p class="text-ochre text-sm">{error}</p>
-    {/if}
+    <FormError message={error} />
   </form>
 </Dialog>
