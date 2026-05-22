@@ -64,6 +64,8 @@
         if (e.key !== 'Escape') return;
         if (popoverOpen) popoverOpen = false;
         if (moreOpen) moreOpen = false;
+        if (compareOpen) compareOpen = false;
+        if (mergeOpen) mergeOpen = false;
     }
     function onWindowMousedown(e: MouseEvent) {
         if (popoverOpen && badgeEl && !badgeEl.contains(e.target as Node)) {
