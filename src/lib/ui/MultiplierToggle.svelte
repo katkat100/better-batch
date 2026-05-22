@@ -92,6 +92,7 @@
     aria-label="More multiplier options"
     aria-haspopup="menu"
     aria-expanded={menuOpen}
+    aria-controls="multiplier-more-menu"
     onclick={() => menuOpen = !menuOpen}
     data-testid="multiplier-more-btn"
   >⋯</button>
@@ -106,6 +107,7 @@
       onclick={() => menuOpen = false}
     ></button>
     <div
+      id="multiplier-more-menu"
       class="absolute top-full right-0 mt-1 bg-canvas border border-drafting rounded-sm shadow-md z-20 flex flex-col py-1 min-w-[60px]"
       role="menu"
       data-testid="multiplier-more-menu"

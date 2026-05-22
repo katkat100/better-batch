@@ -257,6 +257,9 @@
       type="button"
       onclick={() => manualOpen = !manualOpen}
       class="{notifyPermission === 'unsupported' ? 'ml-auto' : ''} text-[10px] uppercase tracking-wider px-2 py-1 border border-canvas/30 hover:border-canvas rounded-sm shrink-0"
+      aria-haspopup="dialog"
+      aria-expanded={manualOpen}
+      aria-controls="manual-timer-popover"
       data-testid="add-manual-timer-btn"
     >+ Manual</button>
 
@@ -271,7 +274,7 @@
     aria-label="close manual timer"
     onclick={() => manualOpen = false}
   ></button>
-  <div class="fixed right-4 bottom-16 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56 z-50 shadow-lg" data-testid="manual-timer-popover">
+  <div id="manual-timer-popover" class="fixed right-4 bottom-16 bg-canvas text-obsidian border border-obsidian rounded-sm p-3 flex flex-col gap-2 text-sm w-56 z-50 shadow-lg" data-testid="manual-timer-popover">
     <span class="text-[10px] uppercase tracking-wider text-obsidian/50">Manual timer</span>
     <div class="flex gap-2 font-mono text-sm">
       <input type="number" min="0" bind:value={mh} aria-label="Hours" class="border border-drafting bg-canvas px-1 py-0.5 w-12 rounded-sm" placeholder="h" />

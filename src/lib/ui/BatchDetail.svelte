@@ -113,12 +113,14 @@
                     class="text-ochre text-sm align-middle ml-1 relative"
                     aria-label="Show ingredient inconsistencies"
                     aria-expanded={popoverOpen}
+                    aria-controls="inconsistency-popover"
                     onclick={() => popoverOpen = !popoverOpen}
                     data-testid="inconsistency-badge"
                 >⚠
                     {#if popoverOpen}
                         <span
                             role="dialog"
+                            id="inconsistency-popover"
                             class="absolute left-0 top-full mt-1 z-10 w-72 bg-canvas border border-drafting rounded-sm shadow-md p-3 text-left"
                             data-testid="inconsistency-popover"
                         >
@@ -199,6 +201,9 @@
                     }}
                     class="relative z-40 border border-drafting text-obsidian px-3 py-1.5 text-xs uppercase tracking-wider hover:border-obsidian rounded-sm"
                     aria-label="More actions"
+                    aria-haspopup="menu"
+                    aria-expanded={moreOpen}
+                    aria-controls="more-actions-menu"
                     data-testid="more-actions-btn">…</button
                 >
                 {#if moreOpen || mergeOpen || compareOpen}
@@ -217,6 +222,8 @@
                 {/if}
                 {#if moreOpen}
                     <div
+                        id="more-actions-menu"
+                        role="menu"
                         class="absolute right-0 top-full mt-1 w-44 bg-canvas border border-obsidian rounded-sm shadow-lg z-30 flex flex-col py-1"
                         data-testid="more-actions-menu"
                     >
