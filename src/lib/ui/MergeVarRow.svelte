@@ -45,7 +45,7 @@
 </script>
 
 <div class="grid grid-cols-[110px_1fr_1fr_1fr_auto] gap-3 items-center text-sm py-2 border-b border-drafting/50" data-testid="merge-var-row" data-variable={item.name}>
-  <span class="text-[11px] uppercase tracking-wider text-obsidian/70">{item.name}</span>
+  <span class="text-label text-obsidian/70">{item.name}</span>
   <!-- raw: value-driven pick styling -->
   <button
     type="button"
@@ -79,7 +79,7 @@
   <button
     type="button"
     onclick={() => pick = { from: 'custom', value: resolved }}
-    class="text-[10px] uppercase tracking-wider text-obsidian/50 hover:text-ochre"
+    class="text-kicker hover:text-ochre"
     data-testid="pick-custom"
   >custom</button>
 </div>
