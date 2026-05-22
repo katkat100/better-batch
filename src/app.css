@@ -1,38 +1,44 @@
 @import "tailwindcss";
-@import '@fontsource-variable/fraunces/opsz.css';
-@import '@fontsource-variable/inter/index.css';
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/inter/index.css";
 
 @theme {
-  --color-canvas: #F5F2ED;
-  --color-obsidian: #1A1A1A;
-  --color-ochre: #A65D39;
-  --color-juniper: #344E41;
-  --color-drafting: #D1CDC7;
-  --font-serif: "Fraunces", serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --radius-sm: 4px;
+    --color-canvas: #f5f2ed;
+    --color-obsidian: #1a1a1a;
+    --color-ochre: #8e4a2a;
+    --color-juniper: #344e41;
+    --color-drafting: #d1cdc7;
+    --font-serif: "Fraunces", serif;
+    --font-sans: "Inter", system-ui, sans-serif;
+    --radius-sm: 4px;
 }
 
-html, body { background: var(--color-canvas); color: var(--color-obsidian); font-family: var(--font-sans); }
+html,
+body {
+    background: var(--color-canvas);
+    color: var(--color-obsidian);
+    font-family: var(--font-sans);
+}
 
 @layer base {
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
+    button:not(:disabled),
+    [role="button"]:not(:disabled),
+    a {
+        cursor: pointer;
+    }
 }
 
 @layer components {
-  .text-label {
-    @apply text-[11px] uppercase tracking-wider;
-  }
-  .text-caption {
-    @apply text-[11px] uppercase tracking-wider text-obsidian/50;
-  }
-  .text-kicker {
-    @apply text-[10px] uppercase tracking-wider text-obsidian/50;
-  }
-  .text-placeholder {
-    @apply text-sm text-obsidian/40 italic;
-  }
+    .text-label {
+        @apply text-[11px] uppercase tracking-wider;
+    }
+    .text-caption {
+        @apply text-[11px] uppercase tracking-wider text-obsidian/70;
+    }
+    .text-kicker {
+        @apply text-[10px] uppercase tracking-wider text-obsidian/70;
+    }
+    .text-placeholder {
+        @apply text-sm text-obsidian/40 italic;
+    }
 }
