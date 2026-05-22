@@ -136,13 +136,13 @@
   </header>
 
   <label class="flex flex-col gap-1 text-sm">
-    <span class="text-[11px] uppercase tracking-wider">Label</span>
+    <span class="text-label">Label</span>
     <TextInput bind:value={label} required data-testid="merge-label" />
   </label>
 
   {#if recipe.variableSchema.length > 0}
     <section class="flex flex-col gap-1">
-      <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Variables</h3>
+      <h3 class="text-caption">Variables</h3>
       <div class="grid grid-cols-[110px_1fr_1fr_1fr_auto] gap-3 text-[10px] uppercase tracking-wider text-obsidian/60 px-0 py-1">
         <span>Variable</span>
         <span>{a.label}</span>
@@ -168,7 +168,7 @@
 
   <section class="flex flex-col gap-1.5">
     <div class="flex justify-between items-baseline">
-      <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Ingredients</h3>
+      <h3 class="text-caption">Ingredients</h3>
       <span class="text-[10px] text-obsidian/40" data-testid="ingredients-result-count">Result: {resolvedIngredients.length} ingredient{resolvedIngredients.length === 1 ? '' : 's'}</span>
     </div>
     {#each ingRows as row, i (i)}
@@ -178,7 +178,7 @@
 
   <section class="flex flex-col gap-1.5">
     <div class="flex justify-between items-baseline">
-      <h3 class="text-[11px] uppercase tracking-wider text-obsidian/50">Steps</h3>
+      <h3 class="text-caption">Steps</h3>
       <span class="text-[10px] text-obsidian/40" data-testid="steps-result-count">Result: {resolvedSteps.length} step{resolvedSteps.length === 1 ? '' : 's'}</span>
     </div>
     {#each stepRows as row, i (i)}
