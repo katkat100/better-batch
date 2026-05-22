@@ -48,6 +48,36 @@
     '2xl': 'max-w-2xl'
   };
   const sizeClass = $derived(SIZE_CLASS[size]);
+
+  let previouslyFocused: HTMLElement | null = null;
+  let dialogEl = $state<HTMLDivElement | null>(null);
+
+  // Move the dialog element to document.body so it escapes the <main> wrapper
+  // (which we set `inert` on while the dialog is open).
+  function portal(node: HTMLElement) {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.parentNode?.removeChild(node);
+      }
+    };
+  }
+
+  $effect(() => {
+    if (!open) return;
+
+    previouslyFocused = document.activeElement as HTMLElement | null;
+    const main = document.getElementById('app-main');
+    main?.setAttribute('inert', '');
+    queueMicrotask(() => dialogEl?.focus());
+
+    return () => {
+      main?.removeAttribute('inert');
+      previouslyFocused?.focus?.();
+      previouslyFocused = null;
+    };
+  });
+
   const CARD_BASE = 'bg-canvas border border-obsidian p-6 w-full flex flex-col gap-4 rounded-sm max-h-[90vh] overflow-auto';
 </script>
 
@@ -55,6 +85,8 @@
 
 {#if open}
   <div
+    bind:this={dialogEl}
+    use:portal
     class="fixed inset-0 bg-obsidian/40 flex items-center justify-center z-50"
     onclick={backdropClick}
     onkeydown={(e) => e.key === 'Escape' && close()}
