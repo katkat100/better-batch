@@ -12,8 +12,20 @@ export async function clearTestData(opts: { page?: Page } = {}): Promise<void> {
   }
 
   if (opts.page) {
+    // Default: suppress welcome panel so existing tests aren't shadowed by it.
+    // Welcome-panel tests opt back in by clearing this init script + key.
+    // Using addInitScript so it runs before every page load, including the first goto
+    // where page.evaluate would otherwise fail (no same-origin URL yet).
+    await opts.page.addInitScript(() => {
+      try {
+        localStorage.setItem('bb_welcome_dismissed', '1');
+      } catch {
+        // Ignore — localStorage may not be available in some contexts.
+      }
+    });
     try {
       await opts.page.evaluate(() => indexedDB.deleteDatabase('better-batch'));
+      await opts.page.evaluate(() => localStorage.clear());
     } catch {
       // Page may not be on a same-origin URL yet; ignore.
     }
