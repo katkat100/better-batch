@@ -5,7 +5,11 @@
     import Button from "$lib/ui/primitives/Button.svelte";
     import type { IndexEntry } from "$lib/server";
     import { exportSnapshot, importSnapshot } from "$lib/data/snapshot";
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
+    import { resolve } from "$app/paths";
+    import WelcomePanel from "$lib/ui/WelcomePanel.svelte";
+    import IconButton from "$lib/ui/primitives/IconButton.svelte";
+    import { loadSampleRecipe } from "$lib/data/sample";
 
     let { data }: { data: { index: IndexEntry[] } } = $props();
 
@@ -15,6 +19,33 @@
     let sort = $state<"last_cooked" | "name" | "batch_count">("last_cooked");
     let dialogOpen = $state(false);
     let fileInput = $state<HTMLInputElement | null>(null);
+    let welcomeOpen = $state(false);
+
+    $effect(() => {
+        if (typeof localStorage === "undefined") return;
+        if (data.index.length > 0) return;
+        if (localStorage.getItem("bb_welcome_dismissed") === "1") return;
+        welcomeOpen = true;
+    });
+
+    function dismissWelcome() {
+        if (typeof localStorage !== "undefined") {
+            localStorage.setItem("bb_welcome_dismissed", "1");
+        }
+        welcomeOpen = false;
+    }
+
+    function handleWelcomeCreate() {
+        dismissWelcome();
+        dialogOpen = true;
+    }
+
+    async function handleWelcomeSample() {
+        const id = await loadSampleRecipe();
+        await invalidateAll();
+        dismissWelcome();
+        await goto(resolve(`/recipes/${id}`));
+    }
 
     async function handleImportFile(e: Event) {
         const file = (e.currentTarget as HTMLInputElement).files?.[0];
@@ -86,6 +117,10 @@
                 class="hidden"
                 data-testid="import-snapshot-input"
             />
+            <IconButton
+                aria-label="Show welcome guide"
+                onclick={() => (welcomeOpen = true)}
+                data-testid="welcome-help-btn">?</IconButton>
             <Button
                 variant="outline"
                 onclick={() => (dialogOpen = true)}
@@ -95,6 +130,14 @@
     </header>
 
     <Toolbar bind:search bind:tag bind:status bind:sort {allTags} />
+
+    {#if welcomeOpen}
+        <WelcomePanel
+            onCreateRecipe={handleWelcomeCreate}
+            onLoadSample={handleWelcomeSample}
+            onDismiss={dismissWelcome}
+        />
+    {/if}
 
     {#if filtered.length === 0}
         <p class="text-sm text-obsidian/50 py-12 text-center">
