@@ -1,6 +1,7 @@
 <!-- src/lib/ui/primitives/Dialog.svelte -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { register } from '$lib/ui/dismissable-stack';
 
   type Size = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
@@ -70,11 +71,13 @@
     const main = document.getElementById('app-main');
     main?.setAttribute('inert', '');
     queueMicrotask(() => dialogEl?.focus());
+    const unregister = register(() => close());
 
     return () => {
       main?.removeAttribute('inert');
       previouslyFocused?.focus?.();
       previouslyFocused = null;
+      unregister();
     };
   });
 
