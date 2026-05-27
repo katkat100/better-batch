@@ -1,6 +1,23 @@
-<script>
+<script lang="ts">
   import '../app.css';
+  import { onMount } from 'svelte';
+  import { Capacitor } from '@capacitor/core';
+  import { App } from '@capacitor/app';
+  import { popTop } from '$lib/ui/dismissable-stack';
+
   let { children } = $props();
+
+  onMount(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const pending = App.addListener('backButton', ({ canGoBack }) => {
+      if (popTop()) return;
+      if (canGoBack) window.history.back();
+      else App.exitApp();
+    });
+    return () => {
+      pending.then((h) => h.remove());
+    };
+  });
 </script>
 
 <a
