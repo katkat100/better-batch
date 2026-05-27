@@ -15,6 +15,7 @@
   } from './cook-alerts';
   import { cancelTimerNotification } from './cook-notifications';
   import { Capacitor } from '@capacitor/core';
+  import { register } from '$lib/ui/dismissable-stack';
 
   export interface DockTimer {
     id: string;
@@ -186,6 +187,11 @@
     manualOpen = false;
     mh = 0; mm = 0; ms = 0; mlabel = '';
   }
+
+  $effect(() => {
+    if (!manualOpen) return;
+    return register(() => manualOpen = false);
+  });
 </script>
 
 <svelte:window onkeydown={(e) => manualOpen && e.key === 'Escape' && (manualOpen = false)} />

@@ -1,5 +1,7 @@
 <!-- src/lib/ui/MultiplierToggle.svelte -->
 <script lang="ts">
+  import { register } from '$lib/ui/dismissable-stack';
+
   export type Multiplier = number;
 
   let {
@@ -49,6 +51,11 @@
     onChange(v);
     menuOpen = false;
   }
+
+  $effect(() => {
+    if (!menuOpen) return;
+    return register(() => menuOpen = false);
+  });
 </script>
 
 <svelte:window onkeydown={(e) => menuOpen && e.key === 'Escape' && (menuOpen = false)} />

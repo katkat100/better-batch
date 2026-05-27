@@ -14,6 +14,7 @@
     import { validateBatch, formatIngredientIssue, type IngredientIssue } from '$lib/shared/batch-validation';
     import MultiplierToggle, { type Multiplier } from './MultiplierToggle.svelte';
     import SectionHeading from '$lib/ui/primitives/SectionHeading.svelte';
+    import { register } from '$lib/ui/dismissable-stack';
 
     let {
         recipe,
@@ -72,6 +73,26 @@
             popoverOpen = false;
         }
     }
+
+    $effect(() => {
+        if (!popoverOpen) return;
+        return register(() => popoverOpen = false);
+    });
+
+    $effect(() => {
+        if (!moreOpen) return;
+        return register(() => moreOpen = false);
+    });
+
+    $effect(() => {
+        if (!compareOpen) return;
+        return register(() => compareOpen = false);
+    });
+
+    $effect(() => {
+        if (!mergeOpen) return;
+        return register(() => mergeOpen = false);
+    });
     let multiplier = $state<Multiplier>(1);
 
     let deleteOpen = $state(false);

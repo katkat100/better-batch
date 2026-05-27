@@ -10,6 +10,7 @@
     import WelcomePanel from "$lib/ui/WelcomePanel.svelte";
     import IconButton from "$lib/ui/primitives/IconButton.svelte";
     import { loadSampleRecipe } from "$lib/data/sample";
+    import { register } from "$lib/ui/dismissable-stack";
 
     let { data }: { data: { index: IndexEntry[] } } = $props();
 
@@ -34,6 +35,11 @@
         }
         welcomeOpen = false;
     }
+
+    $effect(() => {
+        if (!welcomeOpen) return;
+        return register(() => welcomeOpen = false);
+    });
 
     function handleWelcomeCreate() {
         dismissWelcome();
