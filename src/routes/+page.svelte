@@ -87,16 +87,20 @@
 <svelte:head><title>Better Batch</title></svelte:head>
 
 <div class="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
-    <header
-        class="flex md:items-end justify-between flex-col md:flex-row md:gap-1 gap-3"
-    >
-        <div>
-            <h1 class="font-serif text-4xl">Better Batch</h1>
-            <p class="text-sm text-obsidian/60 font-sans">
-                Record. Analyze. Refine. Archive.
-            </p>
+    <header class="flex flex-col gap-3">
+        <div class="flex items-start justify-between gap-2">
+            <div>
+                <h1 class="font-serif text-4xl">Better Batch</h1>
+                <p class="text-sm text-obsidian/60 font-sans">
+                    Record. Analyze. Refine. Archive.
+                </p>
+            </div>
+            <IconButton
+                aria-label="Show welcome guide"
+                onclick={() => (welcomeOpen = true)}
+                data-testid="welcome-help-btn">?</IconButton>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap md:justify-end">
             <button
                 type="button"
                 onclick={exportSnapshot}
@@ -117,10 +121,6 @@
                 class="hidden"
                 data-testid="import-snapshot-input"
             />
-            <IconButton
-                aria-label="Show welcome guide"
-                onclick={() => (welcomeOpen = true)}
-                data-testid="welcome-help-btn">?</IconButton>
             <Button
                 variant="outline"
                 onclick={() => (dialogOpen = true)}
