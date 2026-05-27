@@ -369,7 +369,13 @@
         </div>
 
         <div class="flex-1 min-w-0 flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-          <div class="flex gap-2 min-w-0 md:contents order-2 md:order-none">
+          <TextInput
+            bind:value={ing.name}
+            placeholder="Ingredient"
+            aria-label="Ingredient {i + 1} name"
+            class="px-2 py-1.5 md:flex-1"
+          />
+          <div class="flex gap-2 min-w-0 md:contents">
             <TextInput
               bind:value={ing.amount}
               onblur={() => evalIngredientAmountOnBlur(i)}
@@ -384,27 +390,6 @@
               class="flex-1 md:flex-none w-1/2 flex md:w-20 px-2 py-1.5"
             />
           </div>
-          <TextInput
-            bind:value={ing.name}
-            placeholder="Ingredient"
-            aria-label="Ingredient {i + 1} name"
-            class="px-2 py-1.5 md:flex-1 order-1 md:order-none"
-          />
-          {#if sumMismatchIds.has(ing.id)}
-            {@const issue = liveIssues.find(x => x.kind === 'sum-mismatch' && x.ingredientId === ing.id)!}
-            <span
-              class="text-[10px] text-ochre whitespace-nowrap order-4 md:order-none md:self-center"
-              data-testid="ingredient-sum-warning"
-              data-ingredient-id={ing.id}
-            >⚠ used {issue.sum}/{issue.master}{issue.unit ?? ''}</span>
-          {/if}
-          {#if showUnreferencedHighlights && unreferencedIds.has(ing.id) && !sumMismatchIds.has(ing.id)}
-            <span
-              class="text-[10px] text-ochre whitespace-nowrap order-4 md:order-none md:self-center"
-              data-testid="ingredient-unreferenced-warning"
-              data-ingredient-id={ing.id}
-            >⚠ never used</span>
-          {/if}
           <select
             value={ing.section ?? '__none__'}
             onchange={(e) => {
@@ -412,7 +397,7 @@
               ing.section = val === '__none__' ? undefined : val;
             }}
             aria-label="Ingredient {i + 1} section"
-            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm w-full md:w-32 order-3 md:order-none"
+            class="border border-drafting bg-canvas px-2 py-1.5 rounded-sm text-sm w-full md:w-32"
             data-testid="ingredient-section"
           >
             <option value="__none__">(no section)</option>
@@ -421,6 +406,21 @@
             {/each}
             <option value="__new__">+ New section…</option>
           </select>
+          {#if sumMismatchIds.has(ing.id)}
+            {@const issue = liveIssues.find(x => x.kind === 'sum-mismatch' && x.ingredientId === ing.id)!}
+            <span
+              class="text-[10px] text-ochre whitespace-nowrap md:self-center"
+              data-testid="ingredient-sum-warning"
+              data-ingredient-id={ing.id}
+            >⚠ used {issue.sum}/{issue.master}{issue.unit ?? ''}</span>
+          {/if}
+          {#if showUnreferencedHighlights && unreferencedIds.has(ing.id) && !sumMismatchIds.has(ing.id)}
+            <span
+              class="text-[10px] text-ochre whitespace-nowrap md:self-center"
+              data-testid="ingredient-unreferenced-warning"
+              data-ingredient-id={ing.id}
+            >⚠ never used</span>
+          {/if}
         </div>
 
         <IconButton
