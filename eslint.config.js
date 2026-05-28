@@ -30,6 +30,7 @@ export default [
 			'android/',
 			'build/',
 			'dist/',
+			'ios/',
 			'node_modules/',
 			'playwright-report/',
 			'test-results/'
