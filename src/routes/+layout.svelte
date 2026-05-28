@@ -14,12 +14,13 @@
     if (Capacitor.getPlatform() === 'android') {
       // Embrace edge-to-edge: WebView draws under system bars. The
       // status bar background is transparent so the canvas-colored
-      // content shows through; setStyle keeps the system icons dark
-      // so they read on light backgrounds. WindowInsets is forwarded
-      // from MainActivity.java as the --bb-safe-top / --bb-safe-bottom
-      // CSS custom properties.
+      // content shows through. Style.Light = dark icons (the plugin's
+      // enum is named after the *bar's appearance*, not the icons),
+      // which read on the light canvas background. WindowInsets is
+      // forwarded from MainActivity.java as --bb-safe-top /
+      // --bb-safe-bottom CSS custom properties.
       void StatusBar.setBackgroundColor({ color: '#00000000' });
-      void StatusBar.setStyle({ style: Style.Dark });
+      void StatusBar.setStyle({ style: Style.Light });
     }
 
     const pending = App.addListener('backButton', ({ canGoBack }) => {

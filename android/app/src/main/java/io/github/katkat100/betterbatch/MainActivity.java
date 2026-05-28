@@ -1,6 +1,7 @@
 package io.github.katkat100.betterbatch;
 
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -13,20 +14,33 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Embrace edge-to-edge so the WebView draws under the system
-        // status bar (and gesture nav bar at the bottom). Android 15+
-        // does this by default but we set it explicitly so older
-        // versions also get the modern layout.
+        // Embrace edge-to-edge: WebView draws under the system status
+        // bar and gesture nav bar. Android 15+ enforces this for apps
+        // targeting API 35+; we set it explicitly so older versions
+        // also get the modern layout.
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        // Chromium WebView on Android does not always populate the
-        // env(safe-area-inset-*) CSS environment vars from the host
-        // Activity's WindowInsets. Forward them ourselves as
-        // --bb-safe-top / --bb-safe-bottom custom properties on
-        // <html> so the web layer can pad content with
-        // var(--bb-safe-top, env(safe-area-inset-top)).
-        WebView webView = getBridge().getWebView();
-        ViewCompat.setOnApplyWindowInsetsListener(webView, (v, windowInsets) -> {
+        final WebView webView = getBridge().getWebView();
+        // Tell the WebView (and the layout chain above it) not to
+        // auto-consume insets as padding — we want to handle them
+        // ourselves via the JS bridge below.
+        webView.setFitsSystemWindows(false);
+        View parent = (View) webView.getParent();
+        while (parent != null) {
+            parent.setFitsSystemWindows(false);
+            View next = parent.getParent() instanceof View
+                ? (View) parent.getParent() : null;
+            if (next == parent) break;
+            parent = next;
+        }
+
+        // Listen for WindowInsets at the decor view (the topmost
+        // ancestor) so we always receive the system bar dimensions
+        // regardless of what Capacitor's layout chain does.
+        // Forward them as --bb-safe-top / --bb-safe-bottom CSS
+        // custom properties on <html>.
+        View decor = getWindow().getDecorView();
+        ViewCompat.setOnApplyWindowInsetsListener(decor, (v, windowInsets) -> {
             Insets systemBars = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
             );
@@ -39,7 +53,7 @@ public class MainActivity extends BridgeActivity {
                     + "document.documentElement.style.setProperty('--bb-safe-bottom','%dpx');",
                 topDp, bottomDp
             );
-            webView.evaluateJavascript(script, null);
+            webView.post(() -> webView.evaluateJavascript(script, null));
             return windowInsets;
         });
     }
