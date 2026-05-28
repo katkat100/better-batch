@@ -27,15 +27,27 @@ export function keepInViewport(node: HTMLElement) {
     }
   }
 
-  // Run after layout settles.
-  const raf = requestAnimationFrame(adjust);
+  // Run synchronously now in case the element is already laid out…
+  adjust();
+  // …after this frame's layout pass…
+  const raf1 = requestAnimationFrame(() => {
+    adjust();
+    // …and once more on the following frame, because iOS WebView and
+    // some Chromium versions don't always have nested-positioned
+    // children fully resolved by the first rAF callback.
+    requestAnimationFrame(adjust);
+  });
+  // …and a safety net after styles + fonts have all settled.
+  const timeout = window.setTimeout(adjust, 100);
+
   const ro = new ResizeObserver(adjust);
   ro.observe(node);
   window.addEventListener('resize', adjust);
 
   return {
     destroy() {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf1);
+      clearTimeout(timeout);
       ro.disconnect();
       window.removeEventListener('resize', adjust);
     }
