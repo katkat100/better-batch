@@ -12,8 +12,13 @@
     if (!Capacitor.isNativePlatform()) return;
 
     if (Capacitor.getPlatform() === 'android') {
-      void StatusBar.setOverlaysWebView({ overlay: false });
-      void StatusBar.setBackgroundColor({ color: '#F5F2ED' });
+      // Embrace edge-to-edge: WebView draws under system bars. The
+      // status bar background is transparent so the canvas-colored
+      // content shows through; setStyle keeps the system icons dark
+      // so they read on light backgrounds. WindowInsets is forwarded
+      // from MainActivity.java as the --bb-safe-top / --bb-safe-bottom
+      // CSS custom properties.
+      void StatusBar.setBackgroundColor({ color: '#00000000' });
       void StatusBar.setStyle({ style: Style.Dark });
     }
 
@@ -30,12 +35,12 @@
 
 <a
   href="#app-main"
-  class="sr-only focus:not-sr-only fixed top-[max(0.5rem,env(safe-area-inset-top))] left-2 z-50 bg-canvas border border-obsidian px-3 py-2 rounded-sm text-sm focus:outline-2 focus:outline-ochre"
+  class="sr-only focus:not-sr-only fixed top-[max(0.5rem,var(--bb-safe-top,env(safe-area-inset-top)))] left-2 z-50 bg-canvas border border-obsidian px-3 py-2 rounded-sm text-sm focus:outline-2 focus:outline-ochre"
 >Skip to content</a>
 
 <main
   id="app-main"
-  class="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+  class="pt-[var(--bb-safe-top,env(safe-area-inset-top))] pb-[var(--bb-safe-bottom,env(safe-area-inset-bottom))]"
 >
   {@render children()}
 </main>

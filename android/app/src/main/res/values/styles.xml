@@ -13,14 +13,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
-        <!--
-          Android 15 (API 35) forces edge-to-edge rendering for apps
-          targeting API 35+. Opt out so the StatusBar plugin's
-          setOverlaysWebView({ overlay: false }) takes effect again and
-          the WebView starts below the system status bar instead of
-          drawing under it.
-        -->
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
 

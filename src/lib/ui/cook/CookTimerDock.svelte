@@ -197,7 +197,7 @@
 <svelte:window onkeydown={(e) => manualOpen && e.key === 'Escape' && (manualOpen = false)} />
 
 <div
-  class="sticky bottom-0 z-30 bg-obsidian text-canvas px-4 py-2 flex items-center gap-4 overflow-x-auto relative pb-[env(safe-area-inset-bottom)]"
+  class="sticky bottom-0 z-30 bg-obsidian text-canvas px-4 py-2 flex items-center gap-4 overflow-x-auto relative pb-[var(--bb-safe-bottom,env(safe-area-inset-bottom))]"
   data-testid="cook-timer-dock"
 >
     {#each timers as t (t.id)}
