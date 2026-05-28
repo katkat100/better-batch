@@ -3,12 +3,20 @@
   import { onMount } from 'svelte';
   import { Capacitor } from '@capacitor/core';
   import { App } from '@capacitor/app';
+  import { StatusBar, Style } from '@capacitor/status-bar';
   import { popTop } from '$lib/ui/dismissable-stack';
 
   let { children } = $props();
 
   onMount(() => {
     if (!Capacitor.isNativePlatform()) return;
+
+    if (Capacitor.getPlatform() === 'android') {
+      void StatusBar.setOverlaysWebView({ overlay: false });
+      void StatusBar.setBackgroundColor({ color: '#F5F2ED' });
+      void StatusBar.setStyle({ style: Style.Dark });
+    }
+
     const pending = App.addListener('backButton', ({ canGoBack }) => {
       if (popTop()) return;
       if (canGoBack) window.history.back();
