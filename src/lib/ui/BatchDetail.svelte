@@ -15,6 +15,7 @@
     import MultiplierToggle, { type Multiplier } from './MultiplierToggle.svelte';
     import SectionHeading from '$lib/ui/primitives/SectionHeading.svelte';
     import { register } from '$lib/ui/dismissable-stack';
+    import { keepInViewport } from '$lib/ui/keep-in-viewport';
 
     let {
         recipe,
@@ -141,6 +142,7 @@
                     {#if popoverOpen}
                         <span
                             id="inconsistency-popover"
+                            use:keepInViewport
                             class="absolute left-0 top-full mt-1 z-10 w-72 bg-canvas border border-drafting rounded-sm shadow-md p-3 text-left"
                             data-testid="inconsistency-popover"
                         >
@@ -242,6 +244,7 @@
                 {#if moreOpen}
                     <div
                         id="more-actions-menu"
+                        use:keepInViewport
                         class="absolute right-0 top-full mt-1 w-44 bg-canvas border border-obsidian rounded-sm shadow-lg z-30 flex flex-col py-1"
                         data-testid="more-actions-menu"
                     >

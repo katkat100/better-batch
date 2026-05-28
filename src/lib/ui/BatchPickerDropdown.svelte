@@ -1,6 +1,7 @@
 <!-- src/lib/ui/BatchPickerDropdown.svelte -->
 <script lang="ts">
     import type { Batch } from "$lib/server";
+    import { keepInViewport } from "$lib/ui/keep-in-viewport";
 
     let {
         label = "Pick a batch",
@@ -27,6 +28,7 @@
 {#if open}
     <div class="relative">
         <div
+            use:keepInViewport
             class="absolute right-0 top-full mt-1 w-64 max-h-72 overflow-auto bg-canvas border border-obsidian rounded-sm shadow-lg z-40"
             data-testid="batch-picker"
         >

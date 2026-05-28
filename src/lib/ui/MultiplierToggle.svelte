@@ -1,6 +1,7 @@
 <!-- src/lib/ui/MultiplierToggle.svelte -->
 <script lang="ts">
   import { register } from '$lib/ui/dismissable-stack';
+  import { keepInViewport } from '$lib/ui/keep-in-viewport';
 
   export type Multiplier = number;
 
@@ -114,6 +115,7 @@
     ></button>
     <div
       id="multiplier-more-menu"
+      use:keepInViewport
       class="absolute top-full right-0 mt-1 bg-canvas border border-drafting rounded-sm shadow-md z-20 flex flex-col py-1 min-w-[60px]"
       data-testid="multiplier-more-menu"
     >
