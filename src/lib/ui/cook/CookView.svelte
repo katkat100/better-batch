@@ -8,6 +8,7 @@
   import { scheduleTimerNotification, cancelTimerNotification } from './cook-notifications';
   import CookQuickNoteFab from './CookQuickNoteFab.svelte';
   import EndCookDialog from './EndCookDialog.svelte';
+  import { saveSession, loadSession, clearSession, type CookSessionV1 } from './cook-session';
   import { api } from '../api-client';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
@@ -25,26 +26,31 @@
     batch: Batch;
   } = $props();
 
+  // Restore a suspended session for this exact batch, if one exists on the device.
+  const restored = untrack(() => loadSession(recipe.id, batch.id));
+
   // Working copy of the editable batch content. All cook rendering reads this;
   // `batch` stays the immutable original (for the outcome record + dirty checks).
   let draft = $state(
     untrack(() =>
-      structuredClone({
-        label: batch.label,
-        variables: batch.variables,
-        ingredients: batch.ingredients,
-        steps: batch.steps
-      })
+      restored
+        ? structuredClone(restored.draft)
+        : structuredClone({
+            label: batch.label,
+            variables: batch.variables,
+            ingredients: batch.ingredients,
+            steps: batch.steps
+          })
     )
   );
 
-  let multiplier = $state<Multiplier>(1);
-  let started = $state(false);
-  let startedAt = $state<number | null>(null);
-  let elapsedMs = $state(0);
-  let checkedSteps = $state(new Set<number>());
-  let quickNotes = $state<string[]>([]);
-  let timers = $state<DockTimer[]>([]);
+  let multiplier = $state<Multiplier>((restored?.multiplier as Multiplier) ?? 1);
+  let started = $state(restored?.started ?? false);
+  let startedAt = $state<number | null>(restored?.startedAt ?? null);
+  let elapsedMs = $state(restored && restored.startedAt !== null ? Date.now() - restored.startedAt : 0);
+  let checkedSteps = $state(new Set<number>(restored?.checkedSteps ?? []));
+  let quickNotes = $state<string[]>(restored?.quickNotes ?? []);
+  let timers = $state<DockTimer[]>(restored?.timers ?? []);
   let timersStarted = $state(0);
   let endCookOpen = $state(false);
   let wasFullChecked = $state(false);
@@ -60,6 +66,31 @@
     timers.filter(t => !t.finished).map(t => `${t.stepIndex}:${t.startedAt}`)
   ));
 
+  // Auto-save the whole session on any change. `structuredClone` deep-reads the
+  // draft/timers proxies, so this effect re-subscribes on every nested edit
+  // (e.g. typing in an ingredient name), not just on array reassignment.
+  // localStorage writes are cheap and user-paced, so no debounce is needed.
+  $effect(() => {
+    const session: CookSessionV1 = {
+      v: 1,
+      recipeId: recipe.id,
+      batchId: batch.id,
+      draft: structuredClone({
+        label: draft.label,
+        variables: draft.variables,
+        ingredients: draft.ingredients,
+        steps: draft.steps
+      }),
+      started,
+      startedAt,
+      checkedSteps: [...checkedSteps],
+      quickNotes: [...quickNotes],
+      multiplier,
+      timers: structuredClone(timers)
+    };
+    saveSession(session);
+  });
+
   let elapsedTickId: ReturnType<typeof setInterval> | null = null;
   let wakeLock: WakeLockSentinel | null = null;
 
@@ -71,6 +102,15 @@
       wakeLock = await navigator.wakeLock?.request('screen');
     } catch {
       // wake lock unavailable or denied; proceed without it
+    }
+
+    if (restored) {
+      const now = Date.now();
+      for (const t of timers) {
+        if (t.finished || t.pausedAt !== null) continue;
+        const remaining = t.durationMs - (now - t.startedAt - t.pausedAccumMs);
+        if (remaining > 0) void scheduleTimerNotification(t.id, remaining, t.label, t.stepIndex);
+      }
     }
   });
 
@@ -180,6 +220,7 @@
       navigateTo = resolve(`/recipes/${recipe.id}?batch=${newBatch.id}`);
     }
 
+    clearSession(recipe.id, batch.id);
     await goto(navigateTo);
   }
 </script>
