@@ -25,6 +25,17 @@
     batch: Batch;
   } = $props();
 
+  // Working copy of the editable batch content. All cook rendering reads this;
+  // `batch` stays the immutable original (for the outcome record + dirty checks).
+  let draft = $state(
+    structuredClone({
+      label: batch.label,
+      variables: batch.variables,
+      ingredients: batch.ingredients,
+      steps: batch.steps
+    })
+  );
+
   let multiplier = $state<Multiplier>(1);
   let started = $state(false);
   let startedAt = $state<number | null>(null);
@@ -37,7 +48,7 @@
   let wasFullChecked = $state(false);
 
   const currentStepIndex = $derived.by(() => {
-    for (let i = 0; i < batch.steps.length; i++) {
+    for (let i = 0; i < draft.steps.length; i++) {
       if (!checkedSteps.has(i)) return i;
     }
     return -1;
@@ -76,7 +87,7 @@
     const next = new SvelteSet(checkedSteps);
     if (checked) next.add(i); else next.delete(i);
     checkedSteps = next;
-    if (started && next.size === batch.steps.length && !wasFullChecked) {
+    if (started && next.size === draft.steps.length && !wasFullChecked) {
       wasFullChecked = true;
       endCookOpen = true;
     }
@@ -150,9 +161,9 @@
 
     if (input.forkAsDraft && quickNotes.length > 0) {
       const cloned = structuredClone({
-        variables: batch.variables,
-        ingredients: batch.ingredients,
-        steps: batch.steps
+        variables: draft.variables,
+        ingredients: draft.ingredients,
+        steps: draft.steps
       });
       const description = `Captured during cook:\n${quickNotes.map(n => `• ${n}`).join('\n')}`;
       const newBatch = await api.createBatch(recipe.id, {
@@ -185,8 +196,8 @@
   {/if}
 
   <CookIngredients
-    ingredients={batch.ingredients}
-    steps={batch.steps}
+    ingredients={draft.ingredients}
+    steps={draft.steps}
     {currentStepIndex}
     {checkedSteps}
     {multiplier}
@@ -194,8 +205,8 @@
   />
 
   <CookStepList
-    steps={batch.steps}
-    ingredients={batch.ingredients}
+    steps={draft.steps}
+    ingredients={draft.ingredients}
     {checkedSteps}
     {currentStepIndex}
     {activeTimerKeys}
@@ -223,7 +234,7 @@
   {elapsedMs}
   {timersStarted}
   stepsChecked={checkedSteps.size}
-  stepsTotal={batch.steps.length}
+  stepsTotal={draft.steps.length}
   {quickNotes}
   {multiplier}
   onSubmit={handleEndCookSubmit}
