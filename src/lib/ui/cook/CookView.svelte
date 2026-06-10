@@ -61,6 +61,7 @@
   let wasFullChecked = $state(false);
   let editing = $state(false);
   const isDirty = $derived(isContentDirty(draft, batch));
+  const changeSummary = $derived(summarizeEdits(batch, draft));
 
   const currentStepIndex = $derived.by(() => {
     for (let i = 0; i < draft.steps.length; i++) {
@@ -245,13 +246,14 @@
         steps: draft.steps
       });
       const variables = structuredClone(draft.variables);
+      const label = input.forkLabel || `improvements from ${batch.label}`;
       const notes = quickNotes.length > 0
         ? `Captured during cook:\n${quickNotes.map((n) => `• ${n}`).join('\n')}`
         : '';
       const issues = validateBatch({
         id: 'fork',
         recipeId: recipe.id,
-        label: input.forkLabel || `improvements from ${batch.label}`,
+        label,
         parentIds: [batch.id],
         status: 'draft',
         cookedAt: null,
@@ -263,7 +265,7 @@
         createdAt: new Date().toISOString()
       });
       const newBatch = await api.createBatch(recipe.id, {
-        label: input.forkLabel || `improvements from ${batch.label}`,
+        label,
         parentIds: [batch.id],
         status: 'draft',
         variables,
@@ -352,6 +354,6 @@
   {quickNotes}
   {multiplier}
   {isDirty}
-  changeSummary={summarizeEdits(batch, draft)}
+  {changeSummary}
   onSubmit={handleEndCookSubmit}
 />
