@@ -7,6 +7,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -19,6 +20,17 @@ public class MainActivity extends BridgeActivity {
         // targeting API 35+; we set it explicitly so older versions
         // also get the modern layout.
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        // When the status bar is hidden (StatusBar.hide() from JS), a
+        // swipe from the top edge should reveal it only *transiently* —
+        // it auto-hides again after a moment or when the user interacts
+        // with the content. BEHAVIOR_DEFAULT would make a swiped-in bar
+        // stick around, which is what we're avoiding here.
+        WindowInsetsControllerCompat insetsController =
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        insetsController.setSystemBarsBehavior(
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        );
 
         final WebView webView = getBridge().getWebView();
         // Tell the WebView (and the layout chain above it) not to

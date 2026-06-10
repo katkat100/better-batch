@@ -54,12 +54,14 @@
     uses = [...uses, { ingredientId: firstAvailable.id, amount: defaultAmount }];
     amountInputs = [...amountInputs, amountStr];
     lastSynced = [...lastSynced, amountStr];
+    amountEdited = [...amountEdited, false];
   }
 
   function removeUse(i: number) {
     uses = uses.filter((_, idx) => idx !== i);
     amountInputs = amountInputs.filter((_, idx) => idx !== i);
     lastSynced = lastSynced.filter((_, idx) => idx !== i);
+    amountEdited = amountEdited.filter((_, idx) => idx !== i);
   }
 
   // Local input strings so the user can type "1/2" without immediately collapsing to 0.5.
@@ -68,6 +70,10 @@
   // Track what we last programmatically wrote to each amountInputs slot, so we can
   // distinguish "user typed a new value" from "display still shows the old auto-fill".
   let lastSynced = $state<string[]>(uses.map(u => String(u.amount)));
+  // Per-row: has the user deliberately edited this amount? Rows loaded from a saved
+  // batch carry real amounts (treat as edited); freshly-added rows start as auto-filled
+  // defaults so they re-default when the ingredient changes (see Select onchange).
+  let amountEdited = $state<boolean[]>(uses.map(() => true));
 
   // When uses[i].amount changes programmatically (e.g. addUse / onchange auto-fill),
   // re-sync the displayed input only if the user hasn't overridden it since we last synced.
@@ -114,9 +120,9 @@
         value={use.ingredientId}
         onchange={(e: Event) => {
           const newId = (e.currentTarget as HTMLSelectElement).value;
-          const currentAmount = uses[i].amount;
-          // Auto-fill remaining only when amount is untouched (== 0). Preserve user-typed values.
-          const nextAmount = currentAmount === 0 ? remainingFor(newId, i) : currentAmount;
+          // Re-default to the new ingredient's remaining amount unless the user typed
+          // their own value for this row. Preserves user-typed values.
+          const nextAmount = amountEdited[i] ? uses[i].amount : remainingFor(newId, i);
           uses[i] = { ...uses[i], ingredientId: newId, amount: nextAmount };
         }}
         aria-label="Ingredient for use {i + 1}"
@@ -129,6 +135,7 @@
       </Select>
       <TextInput
         bind:value={amountInputs[i]}
+        oninput={() => { amountEdited[i] = true; }}
         onblur={() => commitAmount(i)}
         placeholder="Amount"
         aria-label="Amount for use {i + 1}"
