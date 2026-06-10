@@ -12,7 +12,7 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { SvelteSet } from 'svelte/reactivity';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, untrack } from 'svelte';
   import type { Recipe, Batch } from '$lib/server';
   import type { TimerMatch } from './layout/timer-parse';
   import type { Multiplier } from '../MultiplierToggle.svelte';
@@ -28,12 +28,14 @@
   // Working copy of the editable batch content. All cook rendering reads this;
   // `batch` stays the immutable original (for the outcome record + dirty checks).
   let draft = $state(
-    structuredClone({
-      label: batch.label,
-      variables: batch.variables,
-      ingredients: batch.ingredients,
-      steps: batch.steps
-    })
+    untrack(() =>
+      structuredClone({
+        label: batch.label,
+        variables: batch.variables,
+        ingredients: batch.ingredients,
+        steps: batch.steps
+      })
+    )
   );
 
   let multiplier = $state<Multiplier>(1);
