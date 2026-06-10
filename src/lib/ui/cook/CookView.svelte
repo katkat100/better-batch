@@ -74,27 +74,24 @@
     timers.filter(t => !t.finished).map(t => `${t.stepIndex}:${t.startedAt}`)
   ));
 
-  // Auto-save the whole session on any change. `structuredClone` deep-reads the
-  // draft/timers proxies, so this effect re-subscribes on every nested edit
-  // (e.g. typing in an ingredient name), not just on array reassignment.
+  // Auto-save the whole session on any change. `$state.snapshot` deep-reads the
+  // draft/timers proxies (so this effect re-subscribes on every nested edit,
+  // e.g. typing in an ingredient name, not just on array reassignment) AND
+  // returns a plain serializable snapshot — unlike structuredClone, which throws
+  // on Svelte 5 reactive proxies.
   // localStorage writes are cheap and user-paced, so no debounce is needed.
   $effect(() => {
     const session: CookSessionV1 = {
       v: 1,
       recipeId: recipe.id,
       batchId: batch.id,
-      draft: structuredClone({
-        label: draft.label,
-        variables: draft.variables,
-        ingredients: draft.ingredients,
-        steps: draft.steps
-      }),
+      draft: $state.snapshot(draft) as CookSessionV1['draft'],
       started,
       startedAt,
       checkedSteps: [...checkedSteps],
       quickNotes: [...quickNotes],
       multiplier,
-      timers: structuredClone(timers)
+      timers: $state.snapshot(timers) as typeof timers
     };
     saveSession(session);
   });
@@ -241,11 +238,12 @@
     // A fork is created when the working copy changed, or when the user opted to
     // carry quick notes into a new batch.
     if (input.forkAsDraft) {
+      const snapshot = $state.snapshot(draft) as typeof draft;
       const { ingredients, steps } = cleanBatchContent({
-        ingredients: draft.ingredients,
-        steps: draft.steps
+        ingredients: snapshot.ingredients,
+        steps: snapshot.steps
       });
-      const variables = structuredClone(draft.variables);
+      const variables = snapshot.variables;
       const label = input.forkLabel || `improvements from ${batch.label}`;
       const notes = quickNotes.length > 0
         ? `Captured during cook:\n${quickNotes.map((n) => `• ${n}`).join('\n')}`
