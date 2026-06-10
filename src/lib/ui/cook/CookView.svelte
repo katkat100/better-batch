@@ -19,7 +19,8 @@
   import type { Multiplier } from '../MultiplierToggle.svelte';
   import CookEditPanel from './CookEditPanel.svelte';
   import { moveItem } from '$lib/shared/array';
-  import { isContentDirty } from '../layout/batch-content';
+  import { isContentDirty, cleanBatchContent, summarizeEdits } from '../layout/batch-content';
+  import { validateBatch } from '$lib/shared/batch-validation';
   import { mapIndexThroughRemove, mapIndexThroughMove, checkedAfterRemove, checkedAfterMove } from './layout/remap-cook-state';
 
   let {
@@ -231,25 +232,45 @@
   }) {
     let navigateTo = resolve(`/recipes/${recipe.id}?batch=${batch.id}`);
 
+    // The original batch is always recorded as cooked.
     if (Object.keys(input.patch).length > 0) {
       await api.patchBatch(recipe.id, batch.id, input.patch);
     }
 
-    if (input.forkAsDraft && quickNotes.length > 0) {
-      const cloned = structuredClone({
-        variables: draft.variables,
+    // A fork is created when the working copy changed, or when the user opted to
+    // carry quick notes into a new batch.
+    if (input.forkAsDraft) {
+      const { ingredients, steps } = cleanBatchContent({
         ingredients: draft.ingredients,
         steps: draft.steps
       });
-      const description = `Captured during cook:\n${quickNotes.map(n => `• ${n}`).join('\n')}`;
+      const variables = structuredClone(draft.variables);
+      const notes = quickNotes.length > 0
+        ? `Captured during cook:\n${quickNotes.map((n) => `• ${n}`).join('\n')}`
+        : '';
+      const issues = validateBatch({
+        id: 'fork',
+        recipeId: recipe.id,
+        label: input.forkLabel || `improvements from ${batch.label}`,
+        parentIds: [batch.id],
+        status: 'draft',
+        cookedAt: null,
+        variables,
+        ingredients,
+        steps,
+        outcomeNotes: notes,
+        rating: null,
+        createdAt: new Date().toISOString()
+      });
       const newBatch = await api.createBatch(recipe.id, {
         label: input.forkLabel || `improvements from ${batch.label}`,
         parentIds: [batch.id],
         status: 'draft',
-        variables: cloned.variables,
-        ingredients: cloned.ingredients,
-        steps: cloned.steps,
-        outcomeNotes: description
+        variables,
+        ingredients,
+        steps,
+        outcomeNotes: notes,
+        inconsistencyNote: issues.length > 0 ? ' ' : ''
       });
       navigateTo = resolve(`/recipes/${recipe.id}?batch=${newBatch.id}`);
     }
@@ -330,5 +351,7 @@
   stepsTotal={draft.steps.length}
   {quickNotes}
   {multiplier}
+  {isDirty}
+  changeSummary={summarizeEdits(batch, draft)}
   onSubmit={handleEndCookSubmit}
 />

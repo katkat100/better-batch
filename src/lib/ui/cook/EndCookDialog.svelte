@@ -19,6 +19,8 @@
     stepsTotal,
     quickNotes,
     multiplier,
+    isDirty,
+    changeSummary,
     onSubmit
   }: {
     open?: boolean;
@@ -30,6 +32,8 @@
     stepsTotal: number;
     quickNotes: string[];
     multiplier: number;
+    isDirty: boolean;
+    changeSummary: string;
     onSubmit: (input: {
       patch: Partial<Batch>;
       forkAsDraft: boolean;
@@ -80,7 +84,8 @@
         existingOutcomeNotes: batch.outcomeNotes,
         multiplier
       });
-      await onSubmit({ patch, forkAsDraft, forkLabel: forkLabel.trim() });
+      // When the working copy changed, a fork is always created from it.
+      await onSubmit({ patch, forkAsDraft: isDirty || forkAsDraft, forkLabel: forkLabel.trim() });
       close();
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to save cook';
@@ -88,7 +93,6 @@
       submitting = false;
     }
   }
-
 </script>
 
 <Dialog
@@ -130,7 +134,19 @@
       </Field>
     {/if}
 
-    {#if quickNotes.length > 0}
+    {#if isDirty}
+      <div class="flex flex-col gap-2 border border-ochre/60 p-3 rounded-sm" data-testid="cook-new-version-panel">
+        <span class="text-kicker">Your edits → new version</span>
+        <p class="text-sm text-obsidian/70">{changeSummary}</p>
+        <p class="text-[11px] text-obsidian/50">{batch.label} is recorded as cooked with its original steps; your edits are saved as a new draft.</p>
+        {#if quickNotes.length > 0}
+          <span class="text-[11px] text-obsidian/60">{quickNotes.length} captured note{quickNotes.length === 1 ? '' : 's'} will ride along.</span>
+        {/if}
+        <Field label="New version label">
+          <input bind:value={forkLabel} class="border border-drafting bg-canvas px-2 py-1 rounded-sm" data-testid="cook-fork-label" />
+        </Field>
+      </div>
+    {:else if quickNotes.length > 0}
       <div class="flex flex-col gap-2 border border-drafting/60 p-3 rounded-sm" data-testid="quick-notes-recap">
         <span class="text-kicker">Improvement ideas captured ({quickNotes.length})</span>
         <ul class="text-sm list-disc pl-5 space-y-1">
