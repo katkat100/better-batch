@@ -9,12 +9,18 @@
     batch,
     started,
     elapsedMs,
+    editing,
+    isDirty,
+    onToggleEdit,
     onEndCook
   }: {
     recipe: Recipe;
     batch: Batch;
     started: boolean;
     elapsedMs: number;
+    editing: boolean;
+    isDirty: boolean;
+    onToggleEdit: () => void;
     onEndCook: () => void;
   } = $props();
 
@@ -36,7 +42,18 @@
   <span class="text-obsidian/40">·</span>
   <span class="font-serif font-semibold truncate">{batch.label}</span>
   <span class="text-[10px] uppercase tracking-wider {batch.status === 'cooked' ? 'text-juniper' : 'text-ochre'}">{modeTag}</span>
+  {#if isDirty}
+    <span class="text-[10px] text-ochre" data-testid="cook-edited-indicator" title="You have unsaved edits — they become a new version at End Cook">● edited</span>
+  {/if}
   <span class="ml-auto flex items-center gap-2">
+    <Button
+      variant={editing ? 'success' : 'outline'}
+      size="sm"
+      onclick={onToggleEdit}
+      class="py-1"
+      data-testid="cook-edit-toggle"
+      aria-pressed={editing}
+    >{editing ? 'Done' : 'Edit'}</Button>
     {#if started}
       <span class="text-[11px] font-mono text-obsidian/60" data-testid="cook-elapsed">{fmtElapsed(elapsedMs)}</span>
       <Button

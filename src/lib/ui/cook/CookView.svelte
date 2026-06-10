@@ -17,6 +17,10 @@
   import type { Recipe, Batch } from '$lib/server';
   import type { TimerMatch } from './layout/timer-parse';
   import type { Multiplier } from '../MultiplierToggle.svelte';
+  import CookEditPanel from './CookEditPanel.svelte';
+  import { moveItem } from '$lib/shared/array';
+  import { isContentDirty } from '../layout/batch-content';
+  import { mapIndexThroughRemove, mapIndexThroughMove, checkedAfterRemove, checkedAfterMove } from './layout/remap-cook-state';
 
   let {
     recipe,
@@ -54,6 +58,8 @@
   let timersStarted = $state(0);
   let endCookOpen = $state(false);
   let wasFullChecked = $state(false);
+  let editing = $state(false);
+  const isDirty = $derived(isContentDirty(draft, batch));
 
   const currentStepIndex = $derived.by(() => {
     for (let i = 0; i < draft.steps.length; i++) {
@@ -190,6 +196,34 @@
     void scheduleTimerNotification(id, durationMs, label, -1);
   }
 
+  function handleAddStep() {
+    draft.steps = [...draft.steps, { text: '', uses: [] }];
+  }
+
+  function handleRemoveStep(i: number) {
+    checkedSteps = checkedAfterRemove(checkedSteps, i);
+    timers = timers.map((t) => {
+      if (t.stepIndex < 0) return t;
+      const m = mapIndexThroughRemove(t.stepIndex, i);
+      return { ...t, stepIndex: m === null ? -1 : m };
+    });
+    draft.steps = draft.steps.filter((_, idx) => idx !== i);
+  }
+
+  function handleMoveStep(from: number, to: number) {
+    if (to < 0 || to >= draft.steps.length) return;
+    checkedSteps = checkedAfterMove(checkedSteps, from, to);
+    timers = timers.map((t) => (t.stepIndex < 0 ? t : { ...t, stepIndex: mapIndexThroughMove(t.stepIndex, from, to) }));
+    draft.steps = moveItem(draft.steps, from, to);
+  }
+
+  function handleRemoveIngredient(removedId: string) {
+    draft.steps = draft.steps.map((s) => ({
+      ...s,
+      uses: s.uses.filter((u) => u.ingredientId !== removedId)
+    }));
+  }
+
   async function handleEndCookSubmit(input: {
     patch: Partial<Batch>;
     forkAsDraft: boolean;
@@ -231,6 +265,9 @@
     {batch}
     {started}
     {elapsedMs}
+    {editing}
+    {isDirty}
+    onToggleEdit={() => editing = !editing}
     onEndCook={() => endCookOpen = true}
   />
 
@@ -238,25 +275,38 @@
     <CookStartBanner onStart={handleStart} />
   {/if}
 
-  <CookIngredients
-    ingredients={draft.ingredients}
-    steps={draft.steps}
-    {currentStepIndex}
-    {checkedSteps}
-    {multiplier}
-    onMultiplierChange={(next) => multiplier = next}
-  />
+  {#if editing}
+    <CookEditPanel
+      {recipe}
+      bind:variables={draft.variables}
+      bind:ingredients={draft.ingredients}
+      bind:steps={draft.steps}
+      onAddStep={handleAddStep}
+      onRemoveStep={handleRemoveStep}
+      onMoveStep={handleMoveStep}
+      onRemoveIngredient={handleRemoveIngredient}
+    />
+  {:else}
+    <CookIngredients
+      ingredients={draft.ingredients}
+      steps={draft.steps}
+      {currentStepIndex}
+      {checkedSteps}
+      {multiplier}
+      onMultiplierChange={(next) => multiplier = next}
+    />
 
-  <CookStepList
-    steps={draft.steps}
-    ingredients={draft.ingredients}
-    {checkedSteps}
-    {currentStepIndex}
-    {activeTimerKeys}
-    {multiplier}
-    onCheck={handleCheck}
-    onStartTimer={handleStartTimer}
-  />
+    <CookStepList
+      steps={draft.steps}
+      ingredients={draft.ingredients}
+      {checkedSteps}
+      {currentStepIndex}
+      {activeTimerKeys}
+      {multiplier}
+      onCheck={handleCheck}
+      onStartTimer={handleStartTimer}
+    />
+  {/if}
 
   <div class="flex-1"></div>
 
